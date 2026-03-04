@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control de Cirugías</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:#f0f4f8;color:#1a2332;min-height:100vh;font-size:13px}
@@ -153,6 +154,17 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
 
+
+/* WHATSAPP TAB */
+.wa-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
+.wa-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.wa-table{width:100%;border-collapse:collapse;font-size:12px}
+.wa-table th,.wa-table td{border:1px solid #e5e7eb;padding:6px;text-align:center}
+.wa-table th{background:#f0f6ff}
+.wa-estado.ok{color:#059669;font-weight:600}
+.wa-estado.err{color:#dc2626;font-weight:600}
+.wa-estado.pend{color:#6b7280;font-weight:600}
+
 @media(max-width:640px){.side{width:100%}.statsbar{padding:8px 12px}.tablewrap{margin:8px 12px}}
 </style>
 </head>
@@ -185,6 +197,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   <button class="tablink" onclick="setTab('kanban',this)">🗂 Kanban</button>
   <button class="tablink" onclick="setTab('calendario',this)">🗓 Calendario</button>
   <button class="tablink" onclick="setTab('estadisticas',this)">📊 Estadísticas</button>
+  <button class="tablink" onclick="setTab('whatsapp',this)">💬 WhatsApp</button>
 </div>
 
 <!-- FILTERS -->
@@ -266,6 +279,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 <div id="kanView" style="display:none" id="kanView"></div>
 <div id="calView" style="display:none;margin:10px 20px 20px"></div>
 <div id="statsView" style="display:none;margin:10px 20px 20px"></div>
+<div id="waView" style="display:none;margin:10px 20px 20px"></div>
 
 <!-- SIDE PANEL -->
 <div class="side" id="sidePanel">
@@ -342,6 +356,20 @@ SETTINGS = Object.assign({
   scheduled_but_lens_not_arrived_days:7
 }, SETTINGS||{});
 let ALERT_SILENCES = JSON.parse(localStorage.getItem('cirugias_alert_silences')||'{}');
+
+let WA_ROWS=[];
+let WA_ENVIADOS=0;
+let WA_ERRORES=0;
+let WA_MODE='internal';
+let WA_EXCEL_RAW=[];
+let WA_SENT_MAP=JSON.parse(localStorage.getItem('wa_sent_map')||'{}');
+let WA_PREF={
+  channel: localStorage.getItem('wa_channel')||'desktop',
+  delay: parseInt(localStorage.getItem('wa_delay_ms')||'4000',10)||4000,
+  onlyLlego: localStorage.getItem('wa_only_llego')==='1'
+};
+function saveWaPrefs(){localStorage.setItem('wa_channel',WA_PREF.channel);localStorage.setItem('wa_delay_ms',String(WA_PREF.delay));localStorage.setItem('wa_only_llego',WA_PREF.onlyLlego?'1':'0');localStorage.setItem('wa_sent_map',JSON.stringify(WA_SENT_MAP));}
+
 
 function toDateOnly(d){const dt=parseDateOnly(d); return dt?new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()):null;}
 function diffDays(a,b){const da=toDateOnly(a), db=toDateOnly(b); if(!da||!db) return null; return Math.floor((da-db)/86400000);}
@@ -673,7 +701,8 @@ function render(){
   if(currentTab==='tabla') renderTabla();
   else if(currentTab==='kanban') renderKanban();
   else if(currentTab==='calendario') renderCalendario();
-  else renderEstadisticas();
+  else if(currentTab==='estadisticas') renderEstadisticas();
+  else renderWhatsApp();
 }
 
 function renderTabla(){
@@ -816,6 +845,7 @@ function openSide(id){
       <div class="srow"><label>📦 Fecha llegada lente (Q)</label><input type="date" value="${fdInput(p.fechaLlegaLente)}" onchange="upd(${id},'fechaLlegaLente',this.value)"></div>
       <div class="srow"><label>Recepción lente (S)</label><select onchange="upd(${id},'recepLente',this.value)"><option value="" ${!p.recepLente?'selected':''}>—</option><option ${p.recepLente==='Correcta'?'selected':''}>Correcta</option><option ${p.recepLente==='Devolver'?'selected':''}>Devolver</option></select></div>
       <div class="srow"><label>📅 Fecha cirugía (T)</label><input type="date" value="${fdInput(p.fechaCir)}" onchange="upd(${id},'fechaCir',this.value)"></div>
+      <div class="srow"><label>🕒 Hora cirugía</label><input type="time" value="${p.hora||''}" onchange="upd(${id},'hora',this.value)"></div>
       <div class="srow"><label>Estado cirugía (U)</label><select onchange="upd(${id},'estadoCir',this.value)"><option value="" ${!p.estadoCir?'selected':''}>—</option><option ${p.estadoCir==='Realizada'?'selected':''}>Realizada</option><option ${p.estadoCir==='Programada'?'selected':''}>Programada</option></select></div>
       <div class="srow"><label>💰 Facturación (V)</label><select onchange="upd(${id},'estadoFac',this.value)"><option value="" ${!p.estadoFac?'selected':''}>—</option><option value="Realizada" ${p.estadoFac==='Realizada'?'selected':''}>Realizada</option><option value="FACTURADA" ${p.estadoFac==='FACTURADA'?'selected':''}>FACTURADA</option></select></div>
     </div>
@@ -895,7 +925,7 @@ function duplicarPaciente(id){
 // ─────────────────────────────────────────────
 function nuevoModal(){
   const nid=DB.nid++;
-  DB.rows.push({id:nid,clinica:'CDU',nombre:'',dni:'',fnac:'',tel:'',dir:'',obraSocial:'PAMI',afiliado:'',ojos:'1 ojo',ojo:'OD',dioptria:'',pre:'',fechaSolLente:'',fechaLlegaLente:'',recepLente:'',fechaCir:'',estadoCir:'',estadoFac:'',cirujano:MEDICO_UNICO,fechaCarga:hoyISO(),notas:''});
+  DB.rows.push({id:nid,clinica:'CDU',nombre:'',dni:'',fnac:'',tel:'',dir:'',obraSocial:'PAMI',afiliado:'',ojos:'1 ojo',ojo:'OD',dioptria:'',pre:'',fechaSolLente:'',fechaLlegaLente:'',recepLente:'',fechaCir:'',hora:'',estadoCir:'',estadoFac:'',cirujano:MEDICO_UNICO,fechaCarga:hoyISO(),notas:''});
   save();
   render();
   openSide(nid);
@@ -1011,6 +1041,162 @@ function renderEstadisticas(){
     </div>`;
 }
 
+
+function normText(t){return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toLowerCase();}
+function isEstadoLlegoLenteTxt(txt){const n=normText(txt); return n==='lente llego' || n==='llego lente';}
+function normalizePhone(raw){
+  let d=String(raw||'').replace(/\D/g,'');
+  if(!d) return '';
+  if(!d.startsWith('54')) d='54'+d;
+  return d;
+}
+function formatFechaLarga(fechaTexto){
+  const v=String(fechaTexto||'').trim();
+  if(!v) return '';
+  let d;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(v)) d=new Date(v+'T00:00:00');
+  else if(/^\d{2}-\d{2}-\d{4}$/.test(v)){const p=v.split('-'); d=new Date(`${p[2]}-${p[1]}-${p[0]}T00:00:00`);} 
+  else d=new Date(v);
+  if(isNaN(d)) return v;
+  const fmt=new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'2-digit',month:'long'});
+  const raw=fmt.format(d).replace(',','');
+  const parts=raw.split(' ');
+  return parts[0].charAt(0).toUpperCase()+parts[0].slice(1)+" "+parts[1]+" de "+parts[3].charAt(0).toUpperCase()+parts[3].slice(1);
+}
+function waTrackingKey(r){
+  return `${r.patient_id||''}|${normalizePhone(r.TELEFONO||'')}|${r.FECHA||''}|${r.HORA||''}|${normText(r.PACIENTE||'')}`;
+}
+function waSentText(r){const k=waTrackingKey(r),x=WA_SENT_MAP[k]; if(!x) return '⏳ Pendiente'; const dt=new Date(x.enviadoAt); return `✅ Enviado (${dt.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'})} ${dt.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})})`;}
+function waFromInternalAll(){
+  return DB.rows.map(p=>({
+    source:'internal', sourceId:p.id, patient_id:String(p.dni||''),
+    PACIENTE:p.nombre||'', TELEFONO:p.tel||'', FECHA:p.fechaCir||'', HORA:p.hora||'', ESTADO:estado(p), CLINICA:p.clinica||''
+  }));
+}
+function waFromInternal(){
+  const rows=waFromInternalAll();
+  return WA_PREF.onlyLlego ? rows.filter(r=>isEstadoLlegoLenteTxt(r.ESTADO)) : rows;
+}
+function waMatchAppRow(er, appRows){
+  const dni=String(er.patient_id||er.DNI||'').trim();
+  if(dni){ const byDni=appRows.find(a=>String(a.patient_id||'').trim()===dni); if(byDni) return byDni; }
+  const ph=normalizePhone(er.TELEFONO);
+  const nm=normText(er.PACIENTE);
+  return appRows.find(a=>normalizePhone(a.TELEFONO)===ph && normText(a.PACIENTE)===nm);
+}
+function waApplyLlegoFilterExcel(excelRows){
+  const app=waFromInternalAll();
+  return excelRows.filter(r=>{
+    const m=waMatchAppRow(r,app);
+    if(!m){ r.MATCH='Sin match'; return true; }
+    r.MATCH='OK';
+    if(!WA_PREF.onlyLlego) return true;
+    return isEstadoLlegoLenteTxt(m.ESTADO);
+  });
+}
+function waRender(){
+  const body=document.getElementById('waTbody'); if(!body) return;
+  body.innerHTML='';
+  WA_ROWS.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${i+1}</td><td>${r.PACIENTE||''}</td><td>${r.TELEFONO||''}</td><td>${r.FECHA||''}</td><td>${r.HORA||''}</td><td class='wa-estado pend'>⏳ Pendiente</td><td>${waSentText(r)}</td><td>${r.MATCH||'—'}</td><td><button class='btn'>Abrir</button></td>`;
+    body.appendChild(tr);
+    tr.querySelector('button').onclick=()=>waEnviarUno(i);
+  });
+}
+function waCounter(){document.getElementById('waContador').innerText=`Enviados: ${WA_ENVIADOS} | Errores: ${WA_ERRORES}`;}
+function waResetCounters(){WA_ENVIADOS=0; WA_ERRORES=0; waCounter();}
+function waMensaje(r){
+  const fechaLarga=formatFechaLarga(r.FECHA);
+  return `🔔 RECORDATORIO DE TURNO
+
+Buen día ${r.PACIENTE} 👋
+
+Le escribimos desde el *Centro de Ojos Esteves* para recordarle su turno programado para el día *${fechaLarga}* a las *${r.HORA} hs*.
+
+📍 Por favor responda a este mensaje con una de las siguientes opciones:
+
+✔️ CONFIRMO  
+❌ NO PUEDO ASISTIR  
+
+En caso de no poder asistir, nos comunicaremos para reprogramar su turno.
+
+Quedamos a disposición.
+Centro de Ojos Esteves`;
+}
+function waEnviarUno(i){
+  const r=WA_ROWS[i];
+  const tr=document.querySelectorAll('#waTbody tr')[i];
+  const estadoCell=tr?.querySelector('.wa-estado');
+  const phone=normalizePhone(r.TELEFONO);
+  if(!phone || phone.length<10){
+    if(estadoCell){estadoCell.innerText='❌ Tel inválido';estadoCell.className='wa-estado err';}
+    WA_ERRORES++; waCounter(); return;
+  }
+  if(estadoCell){estadoCell.innerText='⏳ Enviando...';estadoCell.className='wa-estado pend';}
+  const msg=waMensaje(r);
+  const url = WA_PREF.channel==='web' ? `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}` : `whatsapp://send?phone=${phone}&text=${encodeURIComponent(msg)}`;
+  const key=waTrackingKey(r);
+  WA_SENT_MAP[key]={enviadoAt:new Date().toISOString(),row:r};
+  saveWaPrefs();
+  if(tr){tr.children[6].textContent=waSentText(r);}
+  if(estadoCell){estadoCell.innerText='✅ Abierto';estadoCell.className='wa-estado ok';}
+  WA_ENVIADOS++; waCounter();
+  window.location.href=url;
+}
+async function waEnviarTodos(){
+  waResetCounters();
+  for(let i=0;i<WA_ROWS.length;i++){waEnviarUno(i); await new Promise(r=>setTimeout(r,WA_PREF.delay||4000));}
+}
+function waResetEnviados(){ if(!confirm('¿Resetear tracking de enviados?')) return; WA_SENT_MAP={}; saveWaPrefs(); waResetCounters(); waRender(); }
+async function waLoadExcel(file){
+  const data=await file.arrayBuffer();
+  const wb=XLSX.read(data,{type:'array'});
+  const sheet=wb.Sheets[wb.SheetNames[0]];
+  const json=XLSX.utils.sheet_to_json(sheet);
+  WA_MODE='excel';
+  WA_EXCEL_RAW=json.map(r=>({
+    source:'excel',
+    patient_id:r['DNI']||r['dni']||'',
+    PACIENTE:`${r['Apellido']||''}, ${r['Nombre']||''}`.trim().replace(/^,\s*/,''),
+    TELEFONO:r['Telefono_WhatsApp']||r['Teléfono']||r['Telefono']||'',
+    FECHA:r['Fecha']||r['FECHA']||'',
+    HORA:r['Hora']||r['HORA']||'',
+    ESTADO:''
+  }));
+  WA_ROWS=waApplyLlegoFilterExcel([...WA_EXCEL_RAW]);
+  waResetCounters();
+  waRender();
+}
+function renderWhatsApp(){
+  const el=document.getElementById('waView');
+  if(!el) return;
+  el.innerHTML=`<div class='wa-wrap'>
+    <h3 style='margin-bottom:10px'>Confirmador de Turnos - Centro de Ojos Esteves</h3>
+    <div class='wa-tools'>
+      <input type='file' id='waFile' accept='.xlsx,.xls,.csv'>
+      <button id='waFromSystem' class='btn'>Cargar desde sistema</button>
+      <button id='waStart' class='btn'>Enviar todos</button>
+      <label style='font-size:12px'>Delay ms <input id='waDelay' type='number' min='1000' step='500' value='${WA_PREF.delay}' style='width:90px'></label>
+      <label style='font-size:12px'><input type='checkbox' id='waOnlyLlego' ${WA_PREF.onlyLlego?'checked':''}> Solo estado: Llegó lente</label>
+      <label style='font-size:12px'><input type='radio' name='waCh' value='desktop' ${WA_PREF.channel==='desktop'?'checked':''}> WhatsApp Desktop</label>
+      <label style='font-size:12px'><input type='radio' name='waCh' value='web' ${WA_PREF.channel==='web'?'checked':''}> WhatsApp Web</label>
+      <button id='waReset' class='btn'>Reset enviados</button>
+    </div>
+    <div id='waContador' style='margin:6px 0 10px;font-weight:700'>Enviados: ${WA_ENVIADOS} | Errores: ${WA_ERRORES}</div>
+    <table class='wa-table'><thead><tr><th>#</th><th>Paciente</th><th>Teléfono</th><th>Fecha</th><th>Hora</th><th>Estado</th><th>Enviado</th><th>Match</th><th>Enviar</th></tr></thead><tbody id='waTbody'></tbody></table>
+  </div>`;
+  document.getElementById('waFile').addEventListener('change',async e=>{const f=e.target.files[0]; if(f) await waLoadExcel(f);});
+  document.getElementById('waFromSystem').onclick=()=>{WA_MODE='internal'; WA_ROWS=waFromInternal(); waResetCounters(); waRender();};
+  document.getElementById('waStart').onclick=()=>waEnviarTodos();
+  document.getElementById('waReset').onclick=()=>waResetEnviados();
+  document.getElementById('waDelay').onchange=(e)=>{WA_PREF.delay=parseInt(e.target.value||'4000',10)||4000; saveWaPrefs();};
+  document.getElementById('waOnlyLlego').onchange=(e)=>{WA_PREF.onlyLlego=e.target.checked; saveWaPrefs(); if(WA_MODE==='internal'){WA_ROWS=waFromInternal();} else {WA_ROWS=waApplyLlegoFilterExcel([...WA_EXCEL_RAW]);} waResetCounters(); waRender();};
+  document.querySelectorAll('input[name="waCh"]').forEach(r=>r.onchange=()=>{WA_PREF.channel=r.value; saveWaPrefs();});
+  if(!WA_ROWS.length || WA_MODE==='internal'){WA_ROWS=waFromInternal();}
+  waRender();
+}
+
 function setTab(tab,el){
   currentTab=tab;
   document.querySelectorAll('.tablink').forEach(t=>t.classList.remove('active'));
@@ -1019,6 +1205,7 @@ function setTab(tab,el){
   document.getElementById('kanView').style.display=tab==='kanban'?'':'none';
   document.getElementById('calView').style.display=tab==='calendario'?'':'none';
   document.getElementById('statsView').style.display=tab==='estadisticas'?'':'none';
+  document.getElementById('waView').style.display=tab==='whatsapp'?'':'none';
   render();
 }
 
@@ -1177,6 +1364,7 @@ function normalizarData(){
     r.requires_two_eyes = r.ojos==='2 ojos' || !!r.requires_two_eyes;
     if(!r.dioptria && r.lio) r.dioptria=r.lio;
     if(!r.episode_id) r.episode_id=episodeIdFor(r);
+    if(!r.hora) r.hora='';
     r.cirujano=MEDICO_UNICO;
     normalizeEstadoCir(r);
   });
