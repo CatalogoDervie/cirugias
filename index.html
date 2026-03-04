@@ -309,21 +309,6 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   </div>
 </div>
 
-<!-- STOCK MODAL -->
-<div id="stockModal" style="display:none;position:fixed;inset:0;background:#0005;z-index:410;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:12px;max-width:760px;width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
-    <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:15px;font-weight:700">🧪 Inventario de lentes</div>
-      <button onclick="closeStockModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button>
-    </div>
-    <div style="padding:14px 20px;flex:1;overflow-y:auto" id="stockBody"></div>
-    <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn" onclick="closeStockModal()">Cerrar</button>
-      <button class="btn primary" onclick="cargarStockLente()">+ Cargar stock</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -440,7 +425,12 @@ function normalizarClinica(c){ if(c==='Clínica 1'||c==='CDU') return 'CDU'; if(
 function getDioptria(p){ return p.dioptria||p.lio||''; }
 function normalizeEstadoCir(p){
   const fc=parseDateOnly(p.fechaCir);
-  if(fc && fc<parseDateOnly(hoyISO())) p.estadoCir='Realizada';
+  const hoy=parseDateOnly(hoyISO());
+  if(!fc){
+    if((p.estadoCir||'').toUpperCase()==='PROGRAMADA') p.estadoCir='';
+    return;
+  }
+  p.estadoCir = hoy < fc ? 'Programada' : 'Realizada';
 }
 function secondEyeMissing(p){
   if(p.ojos!=='2 ojos') return '';
