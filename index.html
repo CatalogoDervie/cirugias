@@ -1153,6 +1153,17 @@ function waCounter(){const c=document.getElementById('waContador'); if(c) c.inne
 function waResetCounters(){WA_ENVIADOS=0; WA_ERRORES=0; waCounter();}
 function waBuildUrl(phone,msg){return WA_PREF.channel==='web' ? `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}` : `whatsapp://send?phone=${phone}&text=${encodeURIComponent(msg)}`;}
 function waDoOpen(phone,msg){window.location.href=waBuildUrl(phone,msg);}
+function waAbrirDocumentos(){
+  const links=[WA_DOCS_PREP_URL,WA_DOCS_CONSENT_URL];
+  let opened=0;
+  links.forEach(url=>{
+    const w=window.open(url,'_blank','noopener');
+    if(w) opened++;
+  });
+  if(opened===0){
+    alert('El navegador bloqueó la apertura automática de PDFs. Abra los links que van dentro del mensaje de WhatsApp.');
+  }
+}
 function waOjoTexto(ojo){
   const o=String(ojo||'').toUpperCase();
   if(o.includes('OD')) return 'Derecho';
@@ -1176,18 +1187,22 @@ const WA_CONFIRM_TPL=`Buenas tardes, {{PACIENTE}}.
 Desde el *Centro de Ojos Esteves* le confirmamos su cirugía en *Gualeguaychú* para el día *{{FECHA_LARGA}}* a las *{{HORA}}HS* (presentarse 30 minutos antes).
 
 Por favor confirme si puede asistir para enviarle los preparativos y documentación de la cirugía del *ojo {{OJO_TEXTO}}*.`;
+const WA_DOCS_PREP_URL='https://catalogodervie.github.io/cirugias/PREPARACIN%20PARA%20LA%20CIRUGIA.pdf';
+const WA_DOCS_CONSENT_URL='https://catalogodervie.github.io/cirugias/CONSENTIMIENTO%20CX%202026.pdf';
 const WA_DOCS_TPL=`Le enviamos los documentos para la cirugía del *ojo {{OJO_TEXTO}}* programada para el *{{FECHA_LARGA}}* a las *{{HORA}}HS*.
 
-📎 Adjuntamos:
-1) *Preparación quirúrgica*
-2) *Consentimiento informado*
+📎 Documentos:
 
-Por favor, *lea con mucha atención* la preparación y *lleve impreso y firmado* el consentimiento informado el día de la cirugía.
+Preparación quirúrgica
+${WA_DOCS_PREP_URL}
+
+Consentimiento informado
+${WA_DOCS_CONSENT_URL}
+
+Por favor lea con mucha atención la preparación y lleve impreso y firmado el consentimiento el día de la cirugía.
 
 📍 Dirección (Gualeguaychú):
-https://share.google/KQuwuBRJt0ZMQj7KX
-
-Si tiene alguna duda, responda a este mensaje y la ayudamos.`;
+https://share.google/KQuwuBRJt0ZMQj7KX`;
 function waMensajeTurno(r,hora){
   return waRenderTemplate(WA_CONFIRM_TPL,r,hora);
 }
@@ -1246,8 +1261,7 @@ function waEnviarDocs(i){
   if(!hora || !/^\d{2}:\d{2}$/.test(hora)){WA_ERRORES++; waSetStatus(r,'❌ Falta hora del paciente'); waRender(); return false;}
   const phone=normalizePhone(waGetRowPhone(r));
   if(!isValidPhone(phone)){WA_ERRORES++; waSetStatus(r,'❌ Teléfono inválido'); waRender(); return false;}
-  window.open('https://catalogodervie.github.io/cirugias/PREPARACIN%20PARA%20LA%20CIRUGIA.pdf','_blank');
-  window.open('https://catalogodervie.github.io/cirugias/CONSENTIMIENTO%20CX%202026.pdf','_blank');
+  waAbrirDocumentos();
   const iso=new Date().toISOString();
   waMarkDocs(r,iso);
   waSetStatus(r,'✅ Docs enviados');

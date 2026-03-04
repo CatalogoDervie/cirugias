@@ -10,7 +10,7 @@
 ## Acciones por paciente
 - **📩 Confirmar turno**: valida fecha global + hora + teléfono y envía el mensaje de confirmación.
 - **✅ Confirmó**: checkbox persistente por paciente (`wa_confirmed_map`).
-- **📎 Enviar documentos**: se habilita solo si está confirmado; envía mensaje, abre los 2 PDFs y actualiza el registro principal a **FECHA PROGRAMADA** con la fecha global (y hora si existe).
+- **📎 Enviar documentos**: se habilita solo si está confirmado; envía mensaje (incluye links directos a ambos PDFs), intenta abrir los 2 PDFs en nuevas pestañas y actualiza el registro principal a **FECHA PROGRAMADA** con la fecha global (y hora si existe).
 
 ## Teléfono override (solo WhatsApp)
 - El teléfono editable del tab WhatsApp es un override local y **no modifica** el teléfono clínico principal.
