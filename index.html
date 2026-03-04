@@ -333,6 +333,8 @@ const MEDICO_UNICO = 'Dr. Titular';
 
 let SETTINGS = JSON.parse(localStorage.getItem('cirugias_settings')||'{}');
 SETTINGS = Object.assign({
+  WARN_DAYS:15,
+  CRIT_DAYS:50,
   second_eye_missing_days:50,
   lens_arrived_not_scheduled_days:15,
   billing_not_done_days:15,
@@ -343,7 +345,7 @@ let ALERT_SILENCES = JSON.parse(localStorage.getItem('cirugias_alert_silences')|
 
 function toDateOnly(d){const dt=parseDateOnly(d); return dt?new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()):null;}
 function diffDays(a,b){const da=toDateOnly(a), db=toDateOnly(b); if(!da||!db) return null; return Math.floor((da-db)/86400000);}
-function severityByDays(days){if(days>=50) return 'red'; if(days>=30) return 'orange'; if(days>=15) return 'yellow'; return 'neutral';}
+function severityByDays(days){if(days>=SETTINGS.CRIT_DAYS) return 'red'; if(days>=Math.max(30,SETTINGS.WARN_DAYS+15)) return 'orange'; if(days>=SETTINGS.WARN_DAYS) return 'yellow'; return 'neutral';}
 function saveSettings(){localStorage.setItem('cirugias_settings', JSON.stringify(SETTINGS)); localStorage.setItem('cirugias_alert_silences', JSON.stringify(ALERT_SILENCES));}
 function configureIDB(){return new Promise(res=>{if(!window.indexedDB)return res(null); const req=indexedDB.open('cirugias_db',1); req.onupgradeneeded=()=>{req.result.createObjectStore('kv')}; req.onsuccess=()=>res(req.result); req.onerror=()=>res(null);});}
 async function idbSet(key,val){const db=await configureIDB(); if(!db) return; await new Promise(r=>{const tx=db.transaction('kv','readwrite'); tx.objectStore('kv').put(val,key); tx.oncomplete=()=>r(); tx.onerror=()=>r();});}
@@ -507,43 +509,55 @@ function alertas(p,opts={}){
   const res=[];
   const showSilenced=!!(document.getElementById('showSilenced')?.checked);
   const st=estado(p);
+
+  // PRIORIDAD ABSOLUTA: DEVOLVER LENTE
+  if(p.recepLente==='Devolver' || st==='DEVOLVER LENTE'){
+    const a={type:'devolver',days:SETTINGS.CRIT_DAYS,key:`devolver|${p.id}|${p.recepLente||'DEVOLVER'}`,severity:'red',msg:'⚠ DEVOLVER LENTE'};
+    if(opts.raw) return [a];
+    return (showSilenced || !isSilenced(a)) ? [a] : [];
+  }
+
   if((!p.fechaCir || p.fechaCir==='FECHA NO ASIGNADA')){
     const base=p.createdAt||p.updatedAt||p.fechaCarga||hoyISO();
     const d=diffDays(today, base);
-    if(d!==null) res.push(mkAlert('not_scheduled',p,d,base,p.ojo,'FECHA NO PROGRAMADA '));
+    if(d!==null && d>=SETTINGS.WARN_DAYS) res.push(mkAlert('not_scheduled',p,d,base,p.ojo,'FECHA NO PROGRAMADA '));
   }
+
   if(p.fechaSolLente && !p.fechaLlegaLente){
     const d=diffDays(today,p.fechaSolLente);
-    if(d>=SETTINGS.lens_delay_days) res.push(mkAlert('lens_delay',p,d,p.fechaSolLente,p.ojo,'DEMORA LENTE '));
+    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.lens_delay_days)) res.push(mkAlert('lens_delay',p,d,p.fechaSolLente,p.ojo,'DEMORA LENTE '));
   }
+
   if(p.fechaLlegaLente && !p.fechaCir){
     const d=diffDays(today,p.fechaLlegaLente);
-    if(d>=SETTINGS.lens_arrived_not_scheduled_days) res.push(mkAlert('arrived_not_scheduled',p,d,p.fechaLlegaLente,p.ojo,'LENTE LLEGÓ Y NO PROGRAMADA '));
+    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.lens_arrived_not_scheduled_days)) res.push(mkAlert('arrived_not_scheduled',p,d,p.fechaLlegaLente,p.ojo,'LENTE LLEGÓ Y NO PROGRAMADA '));
   }
+
   if(p.fechaCir && st==='FECHA PROGRAMADA' && !p.fechaLlegaLente){
     const dts=diffDays(p.fechaCir,today);
-    if(dts!==null && dts<=SETTINGS.scheduled_but_lens_not_arrived_days) res.push({type:'scheduled_no_lens',days:dts,key:`scheduled_no_lens|${p.id}|${p.fechaCir}`,severity:severityByDays(50-dts),msg:`CIRUGÍA PRÓXIMA SIN LENTE (${dts} DÍAS)`});
+    if(dts!==null && dts<=SETTINGS.scheduled_but_lens_not_arrived_days) res.push({type:'scheduled_no_lens',days:dts,key:`scheduled_no_lens|${p.id}|${p.fechaCir}`,severity:dts<=0?'red':'yellow',msg:`CIRUGÍA PRÓXIMA SIN LENTE (${dts} DÍAS)`});
   }
+
   if(st==='CIRUGÍA REALIZADA - FALTA FACTURAR' || (st==='FINALIZADO - FACTURADA' && (p.estadoFac||'').toUpperCase()!=='FACTURADA')){
     const d=diffDays(today,p.fechaCir);
-    if(d>=SETTINGS.billing_not_done_days) res.push(mkAlert('billing_pending',p,d,p.fechaCir,p.ojo,'FACTURACIÓN NO REALIZADA '));
+    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.billing_not_done_days)) res.push(mkAlert('billing_pending',p,d,p.fechaCir,p.ojo,'FACTURACIÓN NO REALIZADA '));
   }
-  // segunda cirugía faltante robusta (sin segunda fila)
-  if(p.ojos==='2 ojos'){
+
+  // FALTA 2º OJO (crítico) aunque no exista segunda fila
+  if(p.ojos==='2 ojos' || p.requires_two_eyes){
     const dni=String(p.dni||'').trim();
     const epi=episodeIdFor(p);
     const episodeRows=DB.rows.filter(x=>String(x.dni||'').trim()===dni && episodeIdFor(x)===epi);
     const realized=episodeRows.filter(x=>estado(x)==='CIRUGÍA REALIZADA - FALTA FACTURAR' || estado(x)==='FINALIZADO - FACTURADA');
     const eyes=new Set(realized.map(x=>x.ojo).filter(Boolean));
-    if(realized.length===1 || eyes.size<2){
+    if(realized.length>=1 && eyes.size<2){
       const first=realized.map(x=>x.fechaCir).filter(Boolean).sort()[0];
       if(first){
         const d=diffDays(today,first);
-        if(d>SETTINGS.second_eye_missing_days) res.push(mkAlert('second_eye_missing',p,d,first,'NA','FALTA 2° OJO – '));
+        if(d!==null && d>=Math.max(SETTINGS.CRIT_DAYS, SETTINGS.second_eye_missing_days)) res.push(mkAlert('second_eye_missing',p,d,first,'NA','FALTA 2° OJO – '));
       }
     }
   }
-  if(p.recepLente==='Devolver') res.push({type:'devolver',days:0,key:`devolver|${p.id}|${p.recepLente}`,severity:'orange',msg:'⚠ Devolver lente'});
 
   const unique=[]; const seen=new Set();
   res.forEach(a=>{if(!seen.has(a.key)){seen.add(a.key); unique.push(a);}});
@@ -1132,6 +1146,8 @@ function importarBackupJSON(){
 }
 
 function configurarAlertas(){
+  SETTINGS.WARN_DAYS=parseInt(prompt('Días aviso (amarillo)',SETTINGS.WARN_DAYS),10)||SETTINGS.WARN_DAYS;
+  SETTINGS.CRIT_DAYS=parseInt(prompt('Días crítico (rojo)',SETTINGS.CRIT_DAYS),10)||SETTINGS.CRIT_DAYS;
   SETTINGS.second_eye_missing_days=parseInt(prompt('Días alerta 2° ojo faltante',SETTINGS.second_eye_missing_days),10)||SETTINGS.second_eye_missing_days;
   SETTINGS.lens_arrived_not_scheduled_days=parseInt(prompt('Días lente llegó sin programación',SETTINGS.lens_arrived_not_scheduled_days),10)||SETTINGS.lens_arrived_not_scheduled_days;
   SETTINGS.billing_not_done_days=parseInt(prompt('Días sin facturación',SETTINGS.billing_not_done_days),10)||SETTINGS.billing_not_done_days;
