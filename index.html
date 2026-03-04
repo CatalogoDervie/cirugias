@@ -168,7 +168,9 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
     <button class="btn" onclick="configurarURL()" title="Configurar URL del servidor">⚙ Configurar</button>
     <button class="btn green" onclick="exportarListos()">↓ Exportar Listos</button>
     <button class="btn" onclick="exportarCirugiasDelDia()">📤 Exportar cirugías del día</button>
-    <button class="btn" onclick="cargarStockLente()">🧪 Stock lentes</button>
+    <button class="btn" onclick="abrirStockModal()">🧪 Stock lentes</button>
+    <button class="btn" onclick="exportarBackupJSON()">💾 Backup JSON</button>
+    <button class="btn" onclick="importarBackupJSON()">📥 Importar JSON</button>
     <button class="btn primary" onclick="nuevoModal()">+ Nuevo Paciente</button>
   </div>
 </header>
@@ -290,6 +292,21 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   </div>
 </div>
 
+<!-- STOCK MODAL -->
+<div id="stockModal" style="display:none;position:fixed;inset:0;background:#0005;z-index:410;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;max-width:760px;width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+    <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:15px;font-weight:700">🧪 Inventario de lentes</div>
+      <button onclick="closeStockModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button>
+    </div>
+    <div style="padding:14px 20px;flex:1;overflow-y:auto" id="stockBody"></div>
+    <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="closeStockModal()">Cerrar</button>
+      <button class="btn primary" onclick="cargarStockLente()">+ Cargar stock</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -307,6 +324,7 @@ let sortCol = 'nombre', sortDir = 1;
 let currentTab = 'tabla';
 let isSyncing = false;
 let quickFilter = 'TODOS';
+const MEDICO_UNICO = 'Dr. Titular';
 
 async function apiCall(action, data={}) {
   if (!APPS_SCRIPT_URL) return null;
@@ -406,11 +424,6 @@ function normalizeEstadoCir(p){
   const fc=parseDateOnly(p.fechaCir);
   if(fc && fc<=parseDateOnly(hoyISO())) p.estadoCir='Realizada';
 }
-function tieneSegundoOjoCompleto(p){
-  const otro = p.ojo==='OD'?'OI':'OD';
-  const dni=String(p.dni||'').trim();
-  return DB.rows.some(x=>x.id!==p.id&&String(x.dni||'').trim()===dni&&x.ojo===otro&&['REALIZADA','FACTURADA'].includes((x.estadoFac||'').toUpperCase())||String(x.estadoCir||'').toUpperCase()==='REALIZADA');
-}
 function secondEyeMissing(p){
   if(p.ojos!=='2 ojos') return '';
   const otro = p.ojo==='OD'?'OI':'OD';
@@ -446,7 +459,6 @@ function alertas(p){
   const a=[];
   if(p.fechaSolLente && !p.fechaLlegaLente && daysSince(p.fechaSolLente)>20) a.push('Lente demorada');
   if(p.fechaLlegaLente && !p.fechaCir && daysSince(p.fechaLlegaLente)>15) a.push('Sin turno asignado');
-  if(p.ojos==='2 ojos' && secondEyeMissing(p) && daysSince(p.fechaCarga||p.fechaSolLente||hoyISO())>50) a.push('⚠ Falta segundo ojo');
   if(p.ojos==='2 ojos' && secondEyeMissing(p) && daysSince(p.fechaCarga||p.fechaSolLente||hoyISO())>50) a.push('⚠ Falta cargar segundo ojo (>50 días)');
   if(p.recepLente==='Devolver') a.push('⚠ Devolver lente');
   return [...new Set(a)];
@@ -500,20 +512,26 @@ function sortBy(col){sortCol=col;sortDir=sortCol===col?-sortDir:1;render()}
 // ─────────────────────────────────────────────
 function renderStats(){
   const all=DB.rows;
-  let nalerts=0,nPedidas=0,nprog=0,nreal=0;
+  let nalerts=0,nPedidas=0,nprog=0,nreal=0,nCDU=0,nGchu=0;
+  const stockCritico=(DB.lensStock||[]).filter(x=>(x.stock||0)<=1).length;
   all.forEach(p=>{
     if(alertas(p).length) nalerts++;
     const e=estado(p);
     if(e==='LENTE SOLICITADA') nPedidas++;
     if(e==='FECHA PROGRAMADA') nprog++;
     if((p.estadoCir||'').toUpperCase()==='REALIZADA') nreal++;
+    if(p.clinica==='CDU') nCDU++;
+    if(p.clinica==='Gualeguaychu') nGchu++;
   });
   document.getElementById('statsbar').innerHTML=`
     <div class="stat s-blue"><div class="stat-n">${all.length}</div><div class="stat-l">Total pacientes</div></div>
     <div class="stat s-yellow"><div class="stat-n">${nPedidas}</div><div class="stat-l">Lentes pedidas</div></div>
     <div class="stat s-purple"><div class="stat-n">${nprog}</div><div class="stat-l">Cirugías programadas</div></div>
     <div class="stat s-green"><div class="stat-n">${nreal}</div><div class="stat-l">Cirugías realizadas</div></div>
-    <div class="stat s-red"><div class="stat-n">${nalerts}</div><div class="stat-l">Alertas</div></div>`;
+    <div class="stat s-red"><div class="stat-n">${nalerts}</div><div class="stat-l">Alertas</div></div>
+    <div class="stat"><div class="stat-n">${nCDU}</div><div class="stat-l">CDU</div></div>
+    <div class="stat"><div class="stat-n">${nGchu}</div><div class="stat-l">Gualeguaychu</div></div>
+    <div class="stat s-red"><div class="stat-n">${stockCritico}</div><div class="stat-l">Stock crítico</div></div>`;
   const btn=document.getElementById('alertsToggle');
   document.getElementById('alertsCount').textContent=nalerts;
   btn.classList.toggle('has-alerts',nalerts>0);
@@ -548,11 +566,12 @@ function render(){
 
 function renderTabla(){
   const rows=filtered();
+  const dupIds=duplicateNewestIds();
   if(!rows.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="17"><div class="empty">No hay pacientes con esos filtros.</div></td></tr>`;return}
   document.getElementById('tbody').innerHTML=rows.map((p,i)=>{
     const e=estado(p), als=alertas(p);
     const sel=p.id===selId;
-    const dup=duplicateNewestIds().has(p.id);
+    const dup=dupIds.has(p.id);
     return `<tr class="${sel?'selected':''} ${dup?'dup-error':''}" onclick="rowClick(event,${p.id})">
       <td class="th-check"><div class="cell" style="justify-content:center"><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,${p.id})" onclick="event.stopPropagation()"></div></td>
       <td><div class="cell"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}</div></td>
@@ -566,7 +585,7 @@ function renderTabla(){
       <td class="editable" ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}">${fd(p.fechaLlegaLente)}</div></td>
       <td class="editable" ondblclick="inlineEditSel(event,${p.id},'recepLente',['','Correcta','Devolver'])" title="Doble clic para editar"><div class="cell">${p.recepLente?`<span class="badge" style="background:${p.recepLente==='Correcta'?'#d1fae5':'#fee2e2'};color:${p.recepLente==='Correcta'?'#065f46':'#991b1b'}">${p.recepLente}</span>`:'—'}</div></td>
       <td class="editable" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell">${fd(p.fechaCir)}</div></td>
-      <td class="editable" ondblclick="inlineEditSel(event,${p.id},'cirujano',['','Dr. A','Dr. B','Dr. C'])" title="Doble clic para editar"><div class="cell">${p.cirujano||'—'}</div></td><td class="editable" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>
+      <td><div class="cell">${p.cirujano||MEDICO_UNICO}</div></td><td class="editable" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>
       <td class="editable" ondblclick="inlineEditSel(event,${p.id},'estadoFac',['','Realizada','FACTURADA'])" title="Doble clic para editar"><div class="cell">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</div></td>
       <td><div class="cell"><span class="badge ${bc(e)}">${e.length>28?e.substring(0,26)+'…':e}</span></div></td>
       <td><div class="cell" style="gap:4px;flex-wrap:wrap">${als.map(a=>`<span style="font-size:10px;color:#dc2626;white-space:nowrap">${a}</span>`).join('')}</div></td>
@@ -673,7 +692,7 @@ function openSide(id){
       <div class="srow"><label>Ojos a operar</label><select onchange="upd(${id},'ojos',this.value)"><option ${p.ojos==='1 ojo'?'selected':''}>1 ojo</option><option ${p.ojos==='2 ojos'?'selected':''}>2 ojos</option></select></div>
       <div class="srow"><label>Ojo</label><select onchange="upd(${id},'ojo',this.value)"><option ${p.ojo==='OD'?'selected':''}>OD</option><option ${p.ojo==='OI'?'selected':''}>OI</option></select></div>
       <div class="srow"><label>LIO (aumento)</label><input type="text" value="${p.lio||''}" onchange="upd(${id},'lio',this.value)"></div>
-      <div class="srow"><label>Cirujano</label><select onchange="upd(${id},'cirujano',this.value)"><option value="" ${!p.cirujano?'selected':''}>—</option><option ${p.cirujano==='Dr. A'?'selected':''}>Dr. A</option><option ${p.cirujano==='Dr. B'?'selected':''}>Dr. B</option><option ${p.cirujano==='Dr. C'?'selected':''}>Dr. C</option></select></div>
+      <div class="srow"><label>Cirujano</label><input type="text" value="${p.cirujano||MEDICO_UNICO}" readonly></div>
       <div class="srow"><label>Modelo lente</label><input type="text" value="${p.model||''}" onchange="upd(${id},'model',this.value)"></div>
       <div class="srow"><label>Dioptría</label><input type="text" value="${p.dioptria||''}" onchange="upd(${id},'dioptria',this.value)"></div>
       <div class="srow"><label>Prequirúrgicos</label><select onchange="upd(${id},'pre',this.value)"><option value="" ${!p.pre?'selected':''}>—</option><option ${p.pre==='OK'?'selected':''}>OK</option><option ${p.pre==='Pendiente'?'selected':''}>Pendiente</option></select></div>
@@ -761,7 +780,7 @@ function duplicarPaciente(id){
 // ─────────────────────────────────────────────
 function nuevoModal(){
   const nid=DB.nid++;
-  DB.rows.push({id:nid,clinica:'CDU',nombre:'',dni:'',fnac:'',tel:'',dir:'',obraSocial:'PAMI',afiliado:'',ojos:'1 ojo',ojo:'OD',lio:'',pre:'',fechaSolLente:'',fechaLlegaLente:'',recepLente:'',fechaCir:'',estadoCir:'',estadoFac:'',cirujano:'',fechaCarga:hoyISO(),notas:''});
+  DB.rows.push({id:nid,clinica:'CDU',nombre:'',dni:'',fnac:'',tel:'',dir:'',obraSocial:'PAMI',afiliado:'',ojos:'1 ojo',ojo:'OD',lio:'',pre:'',fechaSolLente:'',fechaLlegaLente:'',recepLente:'',fechaCir:'',estadoCir:'',estadoFac:'',cirujano:MEDICO_UNICO,fechaCarga:hoyISO(),notas:''});
   save();
   render();
   openSide(nid);
@@ -873,6 +892,25 @@ function usarLente(id){
   save(p); render();
   toast('Stock de lente actualizado');
 }
+function abrirStockModal(){
+  renderStockModal();
+  document.getElementById('stockModal').style.display='flex';
+}
+function closeStockModal(){document.getElementById('stockModal').style.display='none'}
+function renderStockModal(){
+  DB.lensStock=DB.lensStock||[];
+  const rows=[...DB.lensStock].sort((a,b)=> (a.model||'').localeCompare(b.model||'') || String(a.dioptria||'').localeCompare(String(b.dioptria||'')));
+  document.getElementById('stockBody').innerHTML = rows.length ? `
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr>${['Modelo','Dioptría','Stock','Estado'].map(h=>`<th style="padding:7px 10px;background:#f1f5f9;text-align:left;font-size:11px;color:#6b7280;border-bottom:1px solid #e2e8f0">${h}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map((x,i)=>`<tr>
+        <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${x.model}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${x.dioptria}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${x.stock||0}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9;color:${(x.stock||0)<=1?'#dc2626':'#059669'}">${(x.stock||0)<=1?'CRÍTICO':'OK'}</td>
+      </tr>`).join('')}</tbody>
+    </table>` : '<div class="empty" style="padding:20px">Sin stock cargado.</div>';
+}
 function cargarStockLente(){
   const model=prompt('Modelo de lente:'); if(!model) return;
   const dioptria=prompt('Dioptría:'); if(!dioptria) return;
@@ -882,7 +920,39 @@ function cargarStockLente(){
   if(!it){it={model,dioptria,stock:0}; DB.lensStock.push(it);}
   it.stock+=Math.max(stock,0);
   save();
+  renderStockModal();
+  render();
   toast('Stock actualizado');
+}
+function exportarBackupJSON(){
+  const payload={version:'1.0', exportedAt:new Date().toISOString(), data:DB};
+  const b=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`backup_cirugias_${hoyISO()}.json`;a.click();
+  toast('Backup JSON descargado');
+}
+function importarBackupJSON(){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange=()=>{
+    const f=inp.files&&inp.files[0]; if(!f) return;
+    const fr=new FileReader();
+    fr.onload=()=>{
+      try{
+        const obj=JSON.parse(String(fr.result||'{}'));
+        const data=obj.data||obj;
+        if(!data.rows||!Array.isArray(data.rows)) throw new Error('formato inválido');
+        DB={rows:data.rows,nid:data.nid||((Math.max(...data.rows.map(r=>r.id||0),0))+1),lensStock:data.lensStock||[]};
+        normalizarData();
+        save();
+        render();
+        toast('Backup importado correctamente');
+      }catch(e){
+        toast('Error al importar JSON');
+      }
+    };
+    fr.readAsText(f);
+  };
+  inp.click();
 }
 function backupDiario(){
   const key='cirugias_backup_'+hoyISO();
@@ -892,7 +962,7 @@ function normalizarData(){
   DB.rows.forEach(r=>{
     r.clinica=normalizarClinica(r.clinica);
     if(!r.fechaCarga) r.fechaCarga=hoyISO();
-    if(!r.cirujano) r.cirujano='';
+    r.cirujano=MEDICO_UNICO;
     normalizeEstadoCir(r);
   });
   DB.lensStock=DB.lensStock||[{model:'AcrySof',dioptria:'20',stock:5},{model:'Akreos',dioptria:'21',stock:3}];
