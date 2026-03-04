@@ -1072,8 +1072,10 @@ function isValidPhone(phone){return !!phone && /^54\d{8,13}$/.test(phone);}
 function formatFechaLarga(fechaTexto){
   const d=toDateOnly(fechaTexto);
   if(!d) return String(fechaTexto||'');
-  const texto=new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'numeric',month:'long',timeZone:'America/Argentina/Buenos_Aires'}).format(d);
-  return texto.replace(',','');
+  const texto=new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'2-digit',month:'long',timeZone:'America/Argentina/Buenos_Aires'}).format(d).replace(',','').trim();
+  const p=texto.split(' ');
+  const cap=s=>String(s||'').charAt(0).toUpperCase()+String(s||'').slice(1);
+  return `${cap(p[0]||'')} ${p[1]||''} de ${cap(p[3]||p[2]||'')}`.trim();
 }
 function waFmtTs(iso){if(!iso) return '—'; const dt=new Date(iso); if(isNaN(dt)) return '—'; return `${dt.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'})} ${dt.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}`;}
 function waPatientKey(r){return String(r.sourceId||`${r.patient_id||''}|${r.CLINICA||''}|${normText(r.PACIENTE||'')}`);}
@@ -1150,11 +1152,44 @@ function waCounter(){const c=document.getElementById('waContador'); if(c) c.inne
 function waResetCounters(){WA_ENVIADOS=0; WA_ERRORES=0; waCounter();}
 function waBuildUrl(phone,msg){return WA_PREF.channel==='web' ? `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}` : `whatsapp://send?phone=${phone}&text=${encodeURIComponent(msg)}`;}
 function waDoOpen(phone,msg){window.location.href=waBuildUrl(phone,msg);}
-function waMensajeTurno(r,hora){
-  return `Hola ${r.PACIENTE}, le confirmamos que su cirugía está programada para el ${formatFechaLarga(WA_GLOBAL_DATE)} a las ${hora} en ${r.CLINICA}. Ante cualquier consulta comuníquese con nosotros.`;
+function waOjoTexto(ojo){
+  const o=String(ojo||'').toUpperCase();
+  if(o.includes('OD')) return 'Derecho';
+  if(o.includes('OI')) return 'Izquierdo';
+  return '';
 }
-function waMensajeDocs(r){
-  return `Hola ${r.PACIENTE}, le enviamos la preparación y el consentimiento para la cirugía. Por favor revise los archivos adjuntos. Gracias.`;
+function waRenderTemplate(tpl,r,hora){
+  const vars={
+    PACIENTE:r.PACIENTE||'',
+    FECHA_LARGA:formatFechaLarga(WA_GLOBAL_DATE),
+    HORA:hora||'',
+    OJO:(r.OJO||''),
+    OJO_TEXTO:waOjoTexto(r.OJO)
+  };
+  return String(tpl||'').replace(/\{\{\s*(PACIENTE|FECHA_LARGA|HORA|OJO|OJO_TEXTO)\s*\}\}/g,(_,k)=>String(vars[k]||''));
+}
+const WA_CONFIRM_TPL=`Buenas tardes, {{PACIENTE}}.
+
+Desde el *Centro de Ojos Esteves* le confirmamos su cirugía en *Gualeguaychú* para el día *{{FECHA_LARGA}}* a las *{{HORA}}HS* (presentarse 30 minutos antes).
+
+Por favor confirme si puede asistir para enviarle los preparativos y documentación de la cirugía del *ojo {{OJO_TEXTO}}*.`;
+const WA_DOCS_TPL=`Le enviamos los documentos para la cirugía del *ojo {{OJO_TEXTO}}* programada para el *{{FECHA_LARGA}}* a las *{{HORA}}HS*.
+
+📎 Adjuntamos:
+1) *Preparación quirúrgica*
+2) *Consentimiento informado*
+
+Por favor, *lea con mucha atención* la preparación y *lleve impreso y firmado* el consentimiento informado el día de la cirugía.
+
+📍 Dirección (Gualeguaychú):
+https://share.google/KQuwuBRJt0ZMQj7KX
+
+Si tiene alguna duda, responda a este mensaje y la ayudamos.`;
+function waMensajeTurno(r,hora){
+  return waRenderTemplate(WA_CONFIRM_TPL,r,hora);
+}
+function waMensajeDocs(r,hora){
+  return waRenderTemplate(WA_DOCS_TPL,r,hora);
 }
 function waValidateTurno(r,hora){
   if(!WA_GLOBAL_DATE) return 'Seleccione Fecha de cirugía (global).';
@@ -1204,6 +1239,8 @@ function waEnviarDocs(i){
   const key=waPatientKey(r);
   if(!WA_CONFIRMED_MAP[key]){WA_ERRORES++; waSetStatus(r,'❌ Marcar “Confirmó” primero'); waRender(); return false;}
   if(!WA_GLOBAL_DATE){WA_ERRORES++; waSetStatus(r,'❌ Seleccione Fecha global'); waRender(); return false;}
+  const hora=waGetRowHora(r);
+  if(!hora || !/^\d{2}:\d{2}$/.test(hora)){WA_ERRORES++; waSetStatus(r,'❌ Falta hora del paciente'); waRender(); return false;}
   const phone=normalizePhone(waGetRowPhone(r));
   if(!isValidPhone(phone)){WA_ERRORES++; waSetStatus(r,'❌ Teléfono inválido'); waRender(); return false;}
   window.open('https://catalogodervie.github.io/cirugias/PREPARACIN%20PARA%20LA%20CIRUGIA.pdf','_blank');
@@ -1213,7 +1250,7 @@ function waEnviarDocs(i){
   waSetStatus(r,'✅ Docs enviados');
   WA_ENVIADOS++;
   waRender();
-  waDoOpen(phone,waMensajeDocs(r));
+  waDoOpen(phone,waMensajeDocs(r,hora));
   return true;
 }
 async function waLoop(kind){
