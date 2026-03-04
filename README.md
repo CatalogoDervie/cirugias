@@ -1,20 +1,25 @@
 # Cirugías - Pestaña WhatsApp
 
-## Cómo usar la pestaña WhatsApp
-1. Abrí la pestaña **💬 WhatsApp**.
-2. Elegí el origen:
-   - **Cargar desde sistema**: toma pacientes desde la app.
-   - **Archivo Excel**: cargá `.xlsx/.xls/.csv` con columnas (Apellido, Nombre, Telefono_WhatsApp, Fecha, Hora).
-3. Opcionales:
-   - Activá **Solo estado: Llegó lente** para enviar solo esos casos.
-   - Elegí canal: **WhatsApp Desktop** (`whatsapp://`) o **WhatsApp Web**.
-   - Ajustá delay (default 4000 ms) para **Enviar todos**.
-4. Podés enviar individual con **Abrir** o masivo con **Enviar todos**.
+## Uso operativo (sin Excel)
+1. Abrí la pestaña **💬 WhatsApp** (carga pacientes del sistema automáticamente).
+2. Elegí **Fecha de cirugía (global)**. Esa fecha se usa para todos los envíos y queda guardada en `localStorage` (`wa_global_date`).
+3. Si querés, activá **Solo estado: Llegó lente** para trabajar únicamente esos casos.
+4. Completá/ajustá la **Hora** por paciente directamente en la tabla (se guarda en el registro principal del paciente).
+5. Elegí canal: **WhatsApp Desktop** (`whatsapp://`) o **WhatsApp Web**.
 
-## Tracking “Enviado”
-- Cada envío marca `enviadoAt` en `localStorage` por paciente/fila (tracking WhatsApp, no clínico).
-- Se muestra como `✅ Enviado (dd/mm hh:mm)` en la tabla.
+## Acciones por paciente
+- **📩 Confirmar turno**: valida fecha global + hora + teléfono y envía el mensaje de confirmación.
+- **✅ Confirmó**: checkbox persistente por paciente (`wa_confirmed_map`).
+- **📎 Enviar documentos**: se habilita solo si está confirmado; envía mensaje, abre los 2 PDFs y actualiza el registro principal a **FECHA PROGRAMADA** con la fecha global (y hora si existe).
 
-## Reset de enviados
-- Usá **Reset enviados** en la pestaña WhatsApp para limpiar todo el tracking local y comenzar de cero.
-- Al cambiar entre **Excel / sistema** o al alternar **Solo estado: Llegó lente**, también se reinician los contadores de la corrida actual (enviados/errores).
+## Teléfono override (solo WhatsApp)
+- El teléfono editable del tab WhatsApp es un override local y **no modifica** el teléfono clínico principal.
+- Se guarda en `localStorage` (`wa_phone_override`) y se usa en los envíos.
+
+## Tracking y reset
+- Se guarda tracking por paciente para **turno enviado** y **docs enviados** (`wa_tracking_map`).
+- Botones masivos:
+  - **Enviar turnos (filtrados)**
+  - **Enviar docs (confirmados)**
+  - **Detener**
+- **Reset tracking** limpia tracking, confirmaciones y overrides para reiniciar la campaña.
