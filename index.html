@@ -538,7 +538,9 @@ function alertas(p,opts={}){
     if(dts!==null && dts<=SETTINGS.scheduled_but_lens_not_arrived_days) res.push({type:'scheduled_no_lens',days:dts,key:`scheduled_no_lens|${p.id}|${p.fechaCir}`,severity:dts<=0?'red':'yellow',msg:`CIRUGÍA PRÓXIMA SIN LENTE (${dts} DÍAS)`});
   }
 
-  if(st==='CIRUGÍA REALIZADA - FALTA FACTURAR' || (st==='FINALIZADO - FACTURADA' && (p.estadoFac||'').toUpperCase()!=='FACTURADA')){
+  const fac=(p.estadoFac||'').toUpperCase();
+  const facturacionRealizada = fac==='REALIZADA' || fac==='FACTURADA';
+  if((st==='CIRUGÍA REALIZADA - FALTA FACTURAR' || st==='FINALIZADO - FACTURADA') && !facturacionRealizada){
     const d=diffDays(today,p.fechaCir);
     if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.billing_not_done_days)) res.push(mkAlert('billing_pending',p,d,p.fechaCir,p.ojo,'FACTURACIÓN NO REALIZADA '));
   }
