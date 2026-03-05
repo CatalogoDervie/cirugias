@@ -66,9 +66,6 @@ header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-
 
 .header-sep{width:1px;height:24px;background:#e2e8f0}
 .content-card{margin-top:10px}
-.critical-banner{display:none;position:sticky;top:0;z-index:260;margin:10px 0;padding:9px 12px;border-radius:8px;background:#C0392B;color:#fff;font-weight:600;align-items:center;justify-content:space-between;gap:8px}
-.critical-banner.warn{background:#E07B2A}
-.critical-banner.show{display:flex}
 /* ALERTS PANEL */
 .alerts-panel{margin:10px 0;background:#fff;border:1.5px solid #fca5a5;border-radius:10px;overflow:hidden;display:none}
 .alerts-panel.open{display:block}
@@ -81,7 +78,7 @@ header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-
 
 /* MAIN TABLE AREA */
 .tablewrap{margin:10px 0 20px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px #0001}
-.table-scroll{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 260px)}
+.table-scroll{overflow-x:auto;overflow-y:visible;max-height:none}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead{position:sticky;top:0;z-index:10}
 thead th{background:#1B4F8A;padding:0;border-bottom:1px solid #E8ECF2;border-right:1px solid #2c5f9a;white-space:nowrap;font-weight:600;color:#fff;font-size:11px;user-select:none}
@@ -318,7 +315,6 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   </div>
 </div>
 <div class="app-shell content-card">
-<div id="criticalBanner" class="critical-banner" role="status" aria-live="polite"><span id="criticalBannerText">⚠️ Alertas críticas</span><button class="btn" aria-label="Cerrar alerta crítica" style="padding:4px 8px;background:#ffffff22;border-color:#ffffff55;color:#fff" onclick="dismissCriticalBanner()">✕</button></div>
 
 <!-- ALERTS PANEL -->
 <div class="alerts-panel" id="alertsPanel">
@@ -672,18 +668,26 @@ function alertas(p,opts={}){
     if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.billing_not_done_days)) res.push(mkAlert('billing_pending',p,d,p.fechaCir,p.ojo,'FACTURACIÓN NO REALIZADA '));
   }
 
-  // FALTA 2º OJO (crítico) aunque no exista segunda fila
+  // FALTA 2º OJO: solo si requiere 2 ojos, ya hubo primer ojo realizado,
+  // y todavía NO existe una fila del ojo contrario para el mismo DNI.
   if(p.ojos==='2 ojos' || p.requires_two_eyes){
     const dni=String(p.dni||'').trim();
-    const epi=episodeIdFor(p);
-    const episodeRows=DB.rows.filter(x=>String(x.dni||'').trim()===dni && episodeIdFor(x)===epi);
-    const realized=episodeRows.filter(x=>estado(x)==='CIRUGÍA REALIZADA - FALTA FACTURAR' || estado(x)==='FINALIZADO - FACTURADA');
-    const eyes=new Set(realized.map(x=>x.ojo).filter(Boolean));
-    if(realized.length>=1 && eyes.size<2){
-      const first=realized.map(x=>x.fechaCir).filter(Boolean).sort()[0];
-      if(first){
-        const d=diffDays(today,first);
-        if(d!==null && d>=Math.max(SETTINGS.CRIT_DAYS, SETTINGS.second_eye_missing_days)) res.push(mkAlert('second_eye_missing',p,d,first,'NA','FALTA 2° OJO – '));
+    const ojoActual=String(p.ojo||'').toUpperCase();
+    const ojoOpuesto=ojoActual==='OD'?'OI':ojoActual==='OI'?'OD':'';
+    const sameDniRows=DB.rows.filter(x=>String(x.dni||'').trim()===dni);
+    const existeOjoOpuesto = !!ojoOpuesto && sameDniRows.some(x=>x.id!==p.id && String(x.ojo||'').toUpperCase()===ojoOpuesto);
+
+    if(!existeOjoOpuesto){
+      const primerRealizado=sameDniRows
+        .filter(x=>estado(x)==='CIRUGÍA REALIZADA - FALTA FACTURAR' || estado(x)==='FINALIZADO - FACTURADA')
+        .map(x=>x.fechaCir)
+        .filter(Boolean)
+        .sort()[0];
+      if(primerRealizado){
+        const d=diffDays(today,primerRealizado);
+        if(d!==null && d>=Math.max(SETTINGS.CRIT_DAYS, SETTINGS.second_eye_missing_days)){
+          res.push(mkAlert('second_eye_missing',p,d,primerRealizado,'NA','FALTA 2° OJO – '));
+        }
       }
     }
   }
@@ -990,8 +994,6 @@ function goBackSecondary(){
   else {closeSide(); closeExport(); closeStockModal();}
 }
 
-let criticalBannerDismissed=false;
-function dismissCriticalBanner(){criticalBannerDismissed=true; const b=document.getElementById('criticalBanner'); if(b) b.classList.remove('show');}
 
 function closeSide(){
   document.getElementById('sidePanel').classList.remove('open');
@@ -1425,6 +1427,7 @@ function renderWhatsApp(){
       <label style='font-size:12px'><input type='radio' name='waCh' value='desktop' ${WA_PREF.channel==='desktop'?'checked':''}> WhatsApp Desktop</label>
       <label style='font-size:12px'><input type='radio' name='waCh' value='web' ${WA_PREF.channel==='web'?'checked':''}> WhatsApp Web</label>
       <button id='waReset' class='btn'>Reset tracking</button>
+      <button id='waBackMain' class='btn'>← Volver a página principal</button>
     </div>
     <div id='waContador' style='margin:6px 0 10px;font-weight:700'>Enviados: ${WA_ENVIADOS} | Errores: ${WA_ERRORES}</div>
     <div style='margin:0 0 8px;color:#475569;font-size:12px'>Dominio público del sistema: <a href='${WA_APP_PUBLIC_URL}' target='_blank' rel='noopener'>${WA_APP_PUBLIC_URL}</a></div>
@@ -1438,7 +1441,14 @@ function renderWhatsApp(){
   document.getElementById('waStartDocs').onclick=()=>waLoop('docs');
   document.getElementById('waStop').onclick=()=>waStopLoop();
   document.getElementById('waReset').onclick=()=>waResetTracking();
+  document.getElementById('waBackMain').onclick=()=>goMainFromWhatsApp();
   waRender();
+}
+
+
+function goMainFromWhatsApp(){
+  const tablaBtn=[...document.querySelectorAll('.tablink')].find(b=>b.textContent.includes('Tabla'));
+  if(tablaBtn) setTab('tabla',tablaBtn);
 }
 
 function setTab(tab,el){
