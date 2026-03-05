@@ -347,7 +347,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
           <th><div class="th-inner" onclick="sortBy('fechaSolLente')">Sol. Lente ↕</div></th>
           <th><div class="th-inner" onclick="sortBy('fechaLlegaLente')">Llegó ↕</div></th>
           <th><div class="th-inner" onclick="sortBy('fechaCir')">Fecha Cir. ↕</div></th>
-          <th><div class="th-inner">Est. Cir.</div></th>
+          <th><div class="th-inner">Cirujano</div></th><th><div class="th-inner">Est. Cir.</div></th>
           <th><div class="th-inner">Facturación</div></th>
           <th><div class="th-inner">Estado Actual</div></th>
           <th><div class="th-inner">Alertas</div></th>
@@ -822,6 +822,13 @@ function renderStats(){
   const btn=document.getElementById('alertsToggle');
   document.getElementById('alertsCount').textContent=nalerts;
   btn.classList.toggle('has-alerts',nalerts>0);
+  const cb=document.getElementById('criticalBanner');
+  const cbt=document.getElementById('criticalBannerText');
+  if(cb && cbt){
+    if(nCrit>0 && !criticalBannerDismissed){cbt.textContent=`⚠️ ${nCrit} alertas críticas activas`; cb.classList.add('show'); cb.classList.remove('warn');}
+    else if(nalerts>0 && !criticalBannerDismissed){cbt.textContent=`⚠️ ${nalerts} alertas activas`; cb.classList.add('show'); cb.classList.add('warn');}
+    else cb.classList.remove('show');
+  }
 }
 
 // ─────────────────────────────────────────────
