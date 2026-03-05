@@ -2,7 +2,7 @@
 
 ## Uso operativo (sin Excel)
 ## Dominio productivo
-- App: `https://centrodeojos-estevesesteves.com.ar/controldecirugias`
+- App: `https://centrodeojos-estevesesteves.com.ar/controldecirugias/`
 - Documento preparación: `https://centrodeojos-estevesesteves.com.ar/preparacion`
 - Documento consentimiento: `https://centrodeojos-estevesesteves.com.ar/consentimiento`
 
