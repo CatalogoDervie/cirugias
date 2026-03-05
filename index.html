@@ -4,30 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control de Cirugías</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 /* Header */
-body{font-family:'Inter',sans-serif;background:#edf2f7;color:#1a2332;min-height:100vh;font-size:13px}
+body{font-family:'DM Sans',sans-serif;background:#F4F6F9;color:#1a2332;min-height:100vh;font-size:14px;line-height:1.5}
 .app-shell{max-width:1320px;margin:0 auto;padding:0 14px 18px}
-.topbar{position:sticky;top:0;z-index:210;background:linear-gradient(180deg,#f8fbff 0%,#f2f7ff 100%);border-bottom:1px solid #dbe6f4;box-shadow:0 8px 20px #0f172a12}
+.topbar{position:sticky;top:0;z-index:210;background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 6px 18px #0f172a10}
 header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-direction:column;gap:10px;height:auto;position:static;box-shadow:none}
 .brandbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 6px}
-.logo{font-size:21px;font-weight:700;color:#0f4ab8;white-space:nowrap;letter-spacing:.1px;display:flex;align-items:baseline;gap:8px}
+.logo{font-size:21px;font-weight:700;color:#1B4F8A;white-space:nowrap;letter-spacing:.1px;display:flex;align-items:baseline;gap:8px}
 .logo small{font-weight:500;color:#64748b;font-size:12px}
 .status-pill{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid #d6e3f5;border-radius:999px;padding:6px 11px;font-size:11px;font-weight:600;color:#334155}
-.status-dot{width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px #10b98133}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#2E7D5E;box-shadow:0 0 0 3px #2E7D5E33}
 #syncBadge{font-size:11px;color:#1a56db;display:inline-flex!important;align-items:center;gap:4px}
 .hspacer{flex:1}
 
 /* Action bar */
 .actionbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dce6f6;border-radius:12px;padding:8px 10px;box-shadow:0 2px 8px #0f172a0d}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 13px;border-radius:9px;border:1px solid #d1d9e6;background:#fff;color:#334155;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .16s;white-space:nowrap;min-height:36px}
-.btn:hover{border-color:#93c5fd;background:#eff6ff;color:#1d4ed8;transform:translateY(-1px)}
-.btn.primary{background:#1a56db;border-color:#1a56db;color:#fff;box-shadow:0 6px 14px #1a56db33}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 13px;border-radius:6px;border:1px solid #d1d9e6;background:#fff;color:#334155;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .1s,background .15s,border-color .15s,color .15s;white-space:nowrap;min-height:36px}
+.btn:hover{border-color:#93c5fd;background:#eff6ff;color:#1d4ed8}
+.btn.primary{background:#1B4F8A;border-color:#1B4F8A;color:#fff;box-shadow:0 4px 10px #1b4f8a2a}
 .btn.primary:hover{background:#1e40af;border-color:#1e40af;color:#fff}
-.btn.green{background:#059669;border-color:#059669;color:#fff}
+.btn.green{background:#2E7D5E;border-color:#2E7D5E;color:#fff}
 .btn.green:hover{background:#047857;color:#fff}
 .btn.orange{background:#d97706;border-color:#d97706;color:#fff}
 .btn.orange:hover{background:#b45309;color:#fff}
@@ -41,8 +40,8 @@ header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-
 .more-menu-list .btn{width:100%;justify-content:flex-start}
 
 /* Stats */
-.statsbar{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 0}
-.stat{display:flex;flex-direction:column;align-items:center;padding:6px 16px;border-radius:8px;border:1px solid #e2e8f0;min-width:100px;gap:2px;background:#fff}
+.statsbar{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:10px;margin:10px 0 0}
+.stat{display:flex;flex-direction:column;align-items:flex-start;padding:10px 12px;border-radius:10px;border:1px solid #e8ecf2;gap:4px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
 
 /* Tabs */
 .tabrow{margin-top:10px;background:#fff;border:1px solid #dde5f0;border-radius:12px;padding:8px;display:flex;gap:8px;flex-wrap:wrap}
@@ -63,8 +62,13 @@ header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-
 .alerts-toggle.has-alerts{display:inline-flex;align-items:center;gap:4px}
 
 /* Utilities */
+:focus-visible{outline:2px solid #1B4F8A;outline-offset:2px}
+
 .header-sep{width:1px;height:24px;background:#e2e8f0}
 .content-card{margin-top:10px}
+.critical-banner{display:none;position:sticky;top:0;z-index:260;margin:10px 0;padding:9px 12px;border-radius:8px;background:#C0392B;color:#fff;font-weight:600;align-items:center;justify-content:space-between;gap:8px}
+.critical-banner.warn{background:#E07B2A}
+.critical-banner.show{display:flex}
 /* ALERTS PANEL */
 .alerts-panel{margin:10px 0;background:#fff;border:1.5px solid #fca5a5;border-radius:10px;overflow:hidden;display:none}
 .alerts-panel.open{display:block}
@@ -78,21 +82,22 @@ header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-
 /* MAIN TABLE AREA */
 .tablewrap{margin:10px 0 20px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px #0001}
 .table-scroll{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 260px)}
-table{width:100%;border-collapse:collapse;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead{position:sticky;top:0;z-index:10}
-thead th{background:#f1f5f9;padding:0;border-bottom:2px solid #e2e8f0;border-right:1px solid #e2e8f0;white-space:nowrap;font-weight:600;color:#374151;font-size:11px;user-select:none}
+thead th{background:#1B4F8A;padding:0;border-bottom:1px solid #E8ECF2;border-right:1px solid #2c5f9a;white-space:nowrap;font-weight:600;color:#fff;font-size:11px;user-select:none}
 thead th .th-inner{display:flex;align-items:center;padding:8px 10px;gap:4px;cursor:pointer}
 thead th .th-inner:hover{background:#e2e8f0}
 thead th.th-check{width:36px;cursor:default}
 thead th.th-check .th-inner{justify-content:center;cursor:default}
 
-tbody tr{border-bottom:1px solid #f1f5f9;transition:background .1s;cursor:pointer}
-tbody tr:hover{background:#f8fafc}
+tbody tr{border-bottom:1px solid #E8ECF2;transition:background .15s ease;cursor:pointer}
+tbody tr:hover{background:#EEF3FB}
 tbody tr.selected{background:#eff6ff!important;outline:2px solid #3b82f6;outline-offset:-2px}
 tbody tr.dup-error{background:#fef2f2!important}
 tbody tr.dup-error td{border-color:#fecaca}
-tbody td{padding:0;border-right:1px solid #f1f5f9;white-space:nowrap;vertical-align:middle}
-tbody td .cell{padding:7px 10px;min-height:34px;display:flex;align-items:center}
+tbody tr:nth-child(even):not(.dup-error){background:#FAFBFD}
+tbody td{padding:0;border-right:1px solid #E8ECF2;white-space:nowrap;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+tbody td .cell{padding:7px 10px;min-height:34px;display:flex;align-items:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* INLINE EDITING */
 td.editable .cell{cursor:text}
@@ -101,7 +106,7 @@ td.editing .cell{padding:0}
 td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:none;border-bottom:2px solid #3b82f6;background:#eff6ff;font-family:inherit;font-size:12px;color:#1a2332;outline:none}
 
 /* BADGES */
-.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;white-space:nowrap}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
 .b0{background:#fee2e2;color:#991b1b}   /* FALTA DIOPTRÍA */
 .b1{background:#ffedd5;color:#9a3412}   /* FALTA PRE */
 .b2{background:#fef9c3;color:#854d0e}   /* LISTO */
@@ -169,7 +174,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 /* WHATSAPP TAB */
 .wa-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
 .wa-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-.wa-table{width:100%;border-collapse:collapse;font-size:12px}
+.wa-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 .wa-table th,.wa-table td{border:1px solid #e5e7eb;padding:6px;text-align:center;vertical-align:middle}
 .wa-table th{background:#f0f6ff}
 .wa-table input[type='text'],.wa-table input[type='time']{width:100%;padding:5px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px}
@@ -212,6 +217,21 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   .mode-whatsapp .whatsapp-confirmar .wa-tools > *{grid-column:span 1}
 }
 
+
+@media(max-width:768px){
+  #mainTable thead{display:none}
+  #mainTable,#mainTable tbody,#mainTable tr,#mainTable td{display:block;width:100%}
+  #mainTable tr{background:#fff;border:1px solid #e8ecf2;border-radius:10px;margin:0 0 10px;overflow:hidden}
+  #mainTable td{border-right:none;border-bottom:1px solid #eef2f7;white-space:normal}
+  #mainTable td:last-child{border-bottom:none}
+  #mainTable td .cell{display:flex;justify-content:space-between;gap:10px;white-space:normal}
+  #mainTable td[data-label] .cell::before{content:attr(data-label);font-weight:600;color:#1B4F8A;min-width:120px}
+  #mainTable td.th-check .cell::before{content:'Selección'}
+}
+@media(max-width:1280px){.statsbar{grid-template-columns:repeat(4,minmax(0,1fr));}}
+@media(max-width:768px){.statsbar{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(min-width:1281px){.statsbar{grid-template-columns:repeat(10,minmax(0,1fr));}}
+
 @media(max-width:960px){.actionbar{padding:8px}.header-sep{display:none}.filterbar{gap:7px}.filterbar input{width:100%}.more-menu-list{left:0;right:auto}}
 @media(max-width:640px){.side{width:100%}.tabrow{gap:6px}.tablink{padding:7px 11px}.tablewrap{margin:8px 0}}
 </style>
@@ -227,8 +247,8 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
         <div class="status-pill"><span class="status-dot"></span> <span>Listo</span> <span id="syncBadge"></span></div>
       </div>
       <div class="actionbar">
-        <button class="btn primary" onclick="nuevoModal()">+ Nuevo Paciente</button>
-        <button class="btn" onclick="sincronizarAhora()" title="Recargar datos del servidor">↺ Sync</button>
+        <button class="btn primary" aria-label="Nuevo paciente" onclick="nuevoModal()">+ Nuevo Paciente</button>
+        <button class="btn" aria-label="Sincronizar datos" onclick="sincronizarAhora()" title="Recargar datos del servidor">↺ Sync</button>
         <span class="header-sep"></span>
         <details class="more-menu">
           <summary class="btn">Más ▾</summary>
@@ -298,6 +318,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   </div>
 </div>
 <div class="app-shell content-card">
+<div id="criticalBanner" class="critical-banner" role="status" aria-live="polite"><span id="criticalBannerText">⚠️ Alertas críticas</span><button class="btn" aria-label="Cerrar alerta crítica" style="padding:4px 8px;background:#ffffff22;border-color:#ffffff55;color:#fff" onclick="dismissCriticalBanner()">✕</button></div>
 
 <!-- ALERTS PANEL -->
 <div class="alerts-panel" id="alertsPanel">
@@ -310,6 +331,9 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 <div class="tablewrap">
   <div class="table-scroll">
     <table id="mainTable">
+      <colgroup>
+        <col style="width:3%"><col style="width:16%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:5%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:8%"><col style="width:8%"><col style="width:13%">
+      </colgroup>
       <thead>
         <tr>
           <th class="th-check"><div class="th-inner"><input type="checkbox" id="chkAll" onchange="toggleAll(this)"></div></th>
@@ -347,6 +371,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 <!-- SIDE PANEL -->
 <div class="side" id="sidePanel">
   <div class="side-head">
+    <button class="btn" aria-label="Volver" onclick="goBackSecondary()">← Volver</button>
     <div>
       <div class="side-name" id="sideName">—</div>
       <div class="side-sub" id="sideSub">—</div>
@@ -363,7 +388,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   <div style="background:#fff;border-radius:12px;max-width:700px;width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
     <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
       <div style="font-size:15px;font-weight:700">📋 Listos para pedir lente</div>
-      <button onclick="closeExport()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button>
+      <div style="display:flex;gap:8px;align-items:center"><button class="btn" aria-label="Volver" onclick="goBackSecondary()">← Volver</button><button onclick="closeExport()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button></div>
     </div>
     <div style="padding:14px 20px;flex:1;overflow-y:auto" id="exportBody"></div>
     <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
@@ -379,7 +404,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   <div style="background:#fff;border-radius:12px;max-width:760px;width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
     <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
       <div style="font-size:15px;font-weight:700">🧪 Inventario de lentes</div>
-      <button onclick="closeStockModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button>
+      <div style="display:flex;gap:8px;align-items:center"><button class="btn" aria-label="Volver" onclick="goBackSecondary()">← Volver</button><button onclick="closeStockModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button></div>
     </div>
     <div style="padding:14px 20px;flex:1;overflow-y:auto" id="stockBody"></div>
     <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
@@ -733,7 +758,6 @@ function sortBy(col){sortCol=col;sortDir=sortCol===col?-sortDir:1;render()}
 function renderStats(){
   const all=DB.rows;
   let nalerts=0,nPedidas=0,nprog=0,nreal=0,nCDU=0,nGchu=0,nFact=0,nPendFac=0,nCrit=0;
-  const stockCritico=(DB.lensStock||[]).filter(x=>(x.stock||0)<=1).length;
   all.forEach(p=>{
     const ars=alertas(p);
     nalerts+=ars.length;
@@ -748,20 +772,26 @@ function renderStats(){
     if(p.clinica==='Gualeguaychú' || p.clinica==='Gualeguaychú') nGchu++;
   });
   document.getElementById('statsbar').innerHTML=`
-    <div class="stat s-blue"><div class="stat-n">${new Set(all.map(x=>String(x.dni||'').trim()).filter(Boolean)).size}</div><div class="stat-l">Total pacientes</div></div>
-    <div class="stat s-purple"><div class="stat-n">${all.length}</div><div class="stat-l">Total cirugías</div></div>
-    <div class="stat s-yellow"><div class="stat-n">${nprog}</div><div class="stat-l">Programadas</div></div>
-    <div class="stat s-green"><div class="stat-n">${nreal}</div><div class="stat-l">Realizadas</div></div>
-    <div class="stat s-green"><div class="stat-n">${nFact}</div><div class="stat-l">Facturadas</div></div>
-    <div class="stat s-red"><div class="stat-n">${nPendFac}</div><div class="stat-l">Pend. facturar</div></div>
-    <div class="stat s-red"><div class="stat-n">${nalerts}</div><div class="stat-l">Alertas activas</div></div>
-    <div class="stat s-red"><div class="stat-n">${nCrit}</div><div class="stat-l">Alertas críticas</div></div>
-    <div class="stat"><div class="stat-n">${nCDU}</div><div class="stat-l">CDU</div></div>
-    <div class="stat"><div class="stat-n">${nGchu}</div><div class="stat-l">Gualeguaychú</div></div>
-    <div class="stat s-red"><div class="stat-n">${stockCritico}</div><div class="stat-l">Stock crítico</div></div>`;
+    <div class="stat s-blue"><div class="stat-n">👥 ${new Set(all.map(x=>String(x.dni||'').trim()).filter(Boolean)).size}</div><div class="stat-l">Total pacientes</div></div>
+    <div class="stat s-purple"><div class="stat-n">🗂 ${all.length}</div><div class="stat-l">Total cirugías</div></div>
+    <div class="stat s-yellow"><div class="stat-n">📅 ${nprog}</div><div class="stat-l">Programadas</div></div>
+    <div class="stat s-green"><div class="stat-n">✅ ${nreal}</div><div class="stat-l">Realizadas</div></div>
+    <div class="stat s-green"><div class="stat-n">💳 ${nFact}</div><div class="stat-l">Facturadas</div></div>
+    <div class="stat s-red"><div class="stat-n">⏳ ${nPendFac}</div><div class="stat-l">Pend. facturar</div></div>
+    <div class="stat s-red"><div class="stat-n">⚠️ ${nalerts}</div><div class="stat-l">Alertas activas</div></div>
+    <div class="stat s-red"><div class="stat-n">🚨 ${nCrit}</div><div class="stat-l">Alertas críticas</div></div>
+    <div class="stat"><div class="stat-n">🏥 ${nCDU}</div><div class="stat-l">CDU</div></div>
+    <div class="stat"><div class="stat-n">🏥 ${nGchu}</div><div class="stat-l">Gualeguaychú</div></div>`;
   const btn=document.getElementById('alertsToggle');
   document.getElementById('alertsCount').textContent=nalerts;
   btn.classList.toggle('has-alerts',nalerts>0);
+  const cb=document.getElementById('criticalBanner');
+  const cbt=document.getElementById('criticalBannerText');
+  if(cb && cbt){
+    if(nCrit>0 && !criticalBannerDismissed){cbt.textContent=`⚠️ ${nCrit} alertas críticas activas`; cb.classList.add('show'); cb.classList.remove('warn');}
+    else if(nalerts>0 && !criticalBannerDismissed){cbt.textContent=`⚠️ ${nalerts} alertas activas`; cb.classList.add('show'); cb.classList.add('warn');}
+    else cb.classList.remove('show');
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -797,28 +827,28 @@ function render(){
 function renderTabla(){
   const rows=filtered();
   const dupIds=duplicateNewestIds();
-  if(!rows.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="17"><div class="empty">No hay pacientes con esos filtros.</div></td></tr>`;return}
+  if(!rows.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="16"><div class="empty">No hay pacientes con esos filtros.</div></td></tr>`;return}
   document.getElementById('tbody').innerHTML=rows.map((p,i)=>{
     const e=estado(p), als=alertas(p);
     const sel=p.id===selId;
     const dup=dupIds.has(p.id);
     return `<tr class="${sel?'selected':''} ${dup?'dup-error':''}" onclick="rowClick(event,${p.id})">
-      <td class="th-check"><div class="cell" style="justify-content:center"><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,${p.id})" onclick="event.stopPropagation()"></div></td>
-      <td><div class="cell"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}</div></td>
-      <td><div class="cell" style="color:#6b7280">${p.dni||'—'}</div></td>
-      <td><div class="cell"><span class="${clinicaClass(p.clinica)}">${p.clinica}</span></div></td>
-      <td><div class="cell">${p.obraSocial||'—'}</div></td>
-      <td><div class="cell"><strong>${p.ojo||'—'}</strong></div></td>
-      <td class="editable" ondblclick="inlineEdit(event,${p.id},'dioptria')" title="Doble clic para editar"><div class="cell">${getDioptria(p)||'—'}</div></td>
-      <td class="editable" ondblclick="inlineEditSel(event,${p.id},'pre',['','OK','Pendiente'])" title="Doble clic para editar"><div class="cell">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</div></td>
-      <td class="editable" ondblclick="inlineEditDate(event,${p.id},'fechaSolLente')" title="Doble clic para editar"><div class="cell">${fd(p.fechaSolLente)}</div></td>
-      <td class="editable" ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}">${fd(p.fechaLlegaLente)}</div></td>
-      <td class="editable" ondblclick="inlineEditSel(event,${p.id},'recepLente',['','Correcta','Devolver'])" title="Doble clic para editar"><div class="cell">${p.recepLente?`<span class="badge" style="background:${p.recepLente==='Correcta'?'#d1fae5':'#fee2e2'};color:${p.recepLente==='Correcta'?'#065f46':'#991b1b'}">${p.recepLente}</span>`:'—'}</div></td>
-      <td class="editable" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell">${fd(p.fechaCir)}</div></td>
-      <td><div class="cell">${p.cirujano||MEDICO_UNICO}</div></td><td class="editable" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>
-      <td class="editable" ondblclick="inlineEditSel(event,${p.id},'estadoFac',['','Realizada','FACTURADA'])" title="Doble clic para editar"><div class="cell">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</div></td>
-      <td><div class="cell"><span class="badge ${bc(e)}">${e.length>28?e.substring(0,26)+'…':e}</span></div></td>
-      <td><div class="cell" style="gap:4px;flex-wrap:wrap">${als.map(a=>`<span style="font-size:10px;color:${a.severity==='red'?'#dc2626':a.severity==='orange'?'#ea580c':a.severity==='yellow'?'#a16207':'#6b7280'};white-space:nowrap">${a.msg}${isSilenced(a)?' (silenciada)':''}</span>`).join('')}</div></td>
+      <td class="th-check" data-label="Selección"><div class="cell" style="justify-content:center"><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,${p.id})" onclick="event.stopPropagation()"></div></td>
+      <td data-label="Nombre"><div class="cell" title="${p.nombre||'—'}"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}</div></td>
+      <td data-label="DNI"><div class="cell" style="color:#6b7280" title="${p.dni||'—'}">${p.dni||'—'}</div></td>
+      <td data-label="Clínica"><div class="cell" title="${p.clinica||'—'}"><span class="${clinicaClass(p.clinica)}">${p.clinica}</span></div></td>
+      <td data-label="Obra social"><div class="cell" title="${p.obraSocial||'—'}">${p.obraSocial||'—'}</div></td>
+      <td data-label="Ojo"><div class="cell"><strong>${p.ojo||'—'}</strong></div></td>
+      <td class="editable" data-label="Dioptría" ondblclick="inlineEdit(event,${p.id},'dioptria')" title="Doble clic para editar"><div class="cell" title="${getDioptria(p)||'—'}">${getDioptria(p)||'—'}</div></td>
+      <td class="editable" data-label="Prequirúrgico" ondblclick="inlineEditSel(event,${p.id},'pre',['','OK','Pendiente'])" title="Doble clic para editar"><div class="cell">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</div></td>
+      <td class="editable" data-label="Solicitud lente" ondblclick="inlineEditDate(event,${p.id},'fechaSolLente')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaSolLente)}">${fd(p.fechaSolLente)}</div></td>
+      <td class="editable" data-label="Lente llegó" ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}" title="${fd(p.fechaLlegaLente)}">${fd(p.fechaLlegaLente)}</div></td>
+      <td class="editable" data-label="Recepción" ondblclick="inlineEditSel(event,${p.id},'recepLente',['','Correcta','Devolver'])" title="Doble clic para editar"><div class="cell">${p.recepLente?`<span class="badge" style="background:${p.recepLente==='Correcta'?'#d1fae5':'#fee2e2'};color:${p.recepLente==='Correcta'?'#065f46':'#991b1b'}">${p.recepLente}</span>`:'—'}</div></td>
+      <td class="editable" data-label="Fecha cirugía" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaCir)}">${fd(p.fechaCir)}</div></td>
+      <td class="editable" data-label="Estado cirugía" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>
+      <td class="editable" data-label="Facturación" ondblclick="inlineEditSel(event,${p.id},'estadoFac',['','Realizada','FACTURADA'])" title="Doble clic para editar"><div class="cell">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</div></td>
+      <td data-label="Estado actual"><div class="cell" title="${e}"><span class="badge ${bc(e)}">${e.length>28?e.substring(0,26)+'…':e}</span></div></td>
+      <td data-label="Alertas"><div class="cell" style="gap:4px;flex-wrap:wrap">${als.map(a=>`<span style="font-size:10px;color:${a.severity==='red'?'#dc2626':a.severity==='orange'?'#ea580c':a.severity==='yellow'?'#a16207':'#6b7280'};white-space:nowrap">${a.msg}${isSilenced(a)?' (silenciada)':''}</span>`).join('')}</div></td>
     </tr>`;
   }).join('');
 }
@@ -954,6 +984,14 @@ function openSide(id){
   document.getElementById('sidePanel').classList.add('open');
   document.getElementById('sideOverlay').style.display='block';
 }
+
+function goBackSecondary(){
+  if(window.history.length>1) window.history.back();
+  else {closeSide(); closeExport(); closeStockModal();}
+}
+
+let criticalBannerDismissed=false;
+function dismissCriticalBanner(){criticalBannerDismissed=true; const b=document.getElementById('criticalBanner'); if(b) b.classList.remove('show');}
 
 function closeSide(){
   document.getElementById('sidePanel').classList.remove('open');
@@ -1600,6 +1638,7 @@ function initUX(){
   let t;
   q.oninput=()=>{clearTimeout(t); t=setTimeout(()=>{render();},180)};
   ['fCli','fEst','fOS','showSilenced'].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('change',()=>{localStorage.setItem('cirugias_saved_filters', JSON.stringify({fCli:document.getElementById('fCli').value,fEst:document.getElementById('fEst').value,fOS:document.getElementById('fOS').value,showSilenced:document.getElementById('showSilenced').checked}));});});
+  document.querySelectorAll('button').forEach(b=>{if(!b.getAttribute('aria-label')) b.setAttribute('aria-label',(b.textContent||'Acción').trim());});
 }
 // INIT
 (async function() {
