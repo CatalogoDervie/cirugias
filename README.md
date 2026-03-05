@@ -1,6 +1,11 @@
 # Cirugías - Pestaña WhatsApp
 
 ## Uso operativo (sin Excel)
+## Dominio productivo
+- App: `https://centrodeojos-estevesesteves.com.ar/controldecirugias`
+- Documento preparación: `https://centrodeojos-estevesesteves.com.ar/preparacion`
+- Documento consentimiento: `https://centrodeojos-estevesesteves.com.ar/consentimiento`
+
 1. Abrí la pestaña **💬 WhatsApp** (carga pacientes del sistema automáticamente).
 2. Elegí **Fecha de cirugía (global)**. Esa fecha se usa para todos los envíos y queda guardada en `localStorage` (`wa_global_date`).
 3. Si querés, activá **Solo estado: Llegó lente** para trabajar únicamente esos casos.
