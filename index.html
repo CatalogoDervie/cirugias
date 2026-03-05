@@ -83,7 +83,7 @@ header{background:#fff;border:none;padding:12px 0 10px;display:flex;flex-directi
 .table-scroll{overflow-x:auto;overflow-y:visible;max-height:none}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead{position:static}
-thead th{position:static;background:#1B4F8A;padding:0;border-bottom:1px solid #E8ECF2;border-right:1px solid #2c5f9a;white-space:nowrap;font-weight:600;color:#fff;font-size:11px;user-select:none}
+thead th{position:sticky;top:calc(var(--header-h) + var(--filter-h));z-index:14;background:#1B4F8A;padding:0;border-bottom:1px solid #E8ECF2;border-right:1px solid #2c5f9a;white-space:nowrap;font-weight:600;color:#fff;font-size:11px;user-select:none;box-sizing:border-box}
 thead th .th-inner{display:flex;align-items:center;padding:8px 10px;gap:4px;cursor:pointer}
 thead th .th-inner:hover{background:#e2e8f0}
 thead th.th-check{width:36px;cursor:default}
@@ -331,28 +331,8 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 <div class="tablewrap">
   <div class="table-scroll">
     <table id="mainTable">
-      <colgroup>
-        <col style="width:36px"><col style="width:15%"><col style="width:8%"><col style="width:7%"><col style="width:7%"><col style="width:4%"><col style="width:6%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:8%"><col style="width:8%"><col style="width:15%"><col style="width:10%">
-      </colgroup>
-      <thead>
-        <tr>
-          <th class="th-check"><div class="th-inner"><input type="checkbox" id="chkAll" onchange="toggleAll(this)"></div></th>
-          <th><div class="th-inner" onclick="sortBy('nombre')">#&nbsp; Nombre ↕</div></th>
-          <th><div class="th-inner" onclick="sortBy('dni')">DNI ↕</div></th>
-          <th><div class="th-inner">Clínica</div></th>
-          <th><div class="th-inner">O.Social</div></th>
-          <th><div class="th-inner">Ojo</div></th>
-          <th><div class="th-inner">Dioptría</div></th>
-          <th><div class="th-inner">Prequir.</div></th>
-          <th><div class="th-inner" onclick="sortBy('fechaSolLente')">Sol. Lente ↕</div></th>
-          <th><div class="th-inner" onclick="sortBy('fechaLlegaLente')">Llegó ↕</div></th>
-          <th><div class="th-inner" onclick="sortBy('fechaCir')">Fecha Cir. ↕</div></th>
-          <th><div class="th-inner">Cirujano</div></th><th><div class="th-inner">Est. Cir.</div></th>
-          <th><div class="th-inner">Facturación</div></th>
-          <th><div class="th-inner">Estado Actual</div></th>
-          <th><div class="th-inner">Alertas</div></th>
-        </tr>
-      </thead>
+      <colgroup id="mainColgroup"></colgroup>
+      <thead id="mainThead"></thead>
       <tbody id="tbody"></tbody>
     </table>
   </div>
@@ -466,6 +446,51 @@ function saveWaPrefs(){
   localStorage.setItem('wa_confirmed_map',JSON.stringify(WA_CONFIRMED_MAP));
   localStorage.setItem('wa_phone_override',JSON.stringify(WA_PHONE_OVERRIDE));
   localStorage.setItem('wa_global_date',WA_GLOBAL_DATE||'');
+}
+
+const MAIN_TABLE_COLUMNS=[
+  {key:'check',label:'',width:'36px',thClass:'th-check',sortable:false},
+  {key:'nombre',label:'#&nbsp; Nombre',width:'15%',sortable:true,sortKey:'nombre'},
+  {key:'dni',label:'DNI',width:'8%',sortable:true,sortKey:'dni'},
+  {key:'clinica',label:'Clínica',width:'7%'},
+  {key:'obraSocial',label:'O.Social',width:'7%'},
+  {key:'ojo',label:'Ojo',width:'4%'},
+  {key:'dioptria',label:'Dioptría',width:'6%'},
+  {key:'pre',label:'Prequir.',width:'6%'},
+  {key:'fechaSolLente',label:'Sol. Lente',width:'7%',sortable:true,sortKey:'fechaSolLente'},
+  {key:'fechaLlegaLente',label:'Llegó',width:'7%',sortable:true,sortKey:'fechaLlegaLente'},
+  {key:'fechaCir',label:'Fecha Cir.',width:'7%',sortable:true,sortKey:'fechaCir'},
+  {key:'cirujano',label:'Cirujano',width:'8%'},
+  {key:'estadoCir',label:'Est. Cir.',width:'8%'},
+  {key:'facturacion',label:'Facturación',width:'15%'},
+  {key:'estadoActual',label:'Estado Actual',width:'10%'}
+];
+
+function renderMainTableHeader(){
+  const colgroup=document.getElementById('mainColgroup');
+  const thead=document.getElementById('mainThead');
+  if(!colgroup||!thead) return;
+  colgroup.innerHTML=MAIN_TABLE_COLUMNS.map(c=>`<col style="width:${c.width}">`).join('');
+  thead.innerHTML=`<tr>${MAIN_TABLE_COLUMNS.map(c=>{
+    const label=c.sortable?`${c.label} ↕`:c.label;
+    const onclick=c.sortable?` onclick="sortBy('${c.sortKey||c.key}')"`:'';
+    const cls=c.thClass?` class="${c.thClass}"`:'';
+    return `<th${cls}><div class="th-inner"${onclick}>${label}</div></th>`;
+  }).join('')}</tr>`;
+  const chkWrap=thead.querySelector('th.th-check .th-inner');
+  if(chkWrap) chkWrap.innerHTML='<input type="checkbox" id="chkAll" onchange="toggleAll(this)">';
+}
+
+function devWarnTableMismatch(){
+  const isDev=['localhost','127.0.0.1',''].includes(location.hostname);
+  if(!isDev) return;
+  const thCount=document.querySelectorAll('#mainThead th').length;
+  const firstRow=document.querySelector('#tbody tr');
+  if(!firstRow) return;
+  const tdCount=firstRow.querySelectorAll('td').length;
+  if(thCount!==tdCount){
+    console.warn(`[table-mismatch] #th (${thCount}) != #td (${tdCount})`);
+  }
 }
 
 
@@ -862,31 +887,36 @@ function render(){
 }
 
 function renderTabla(){
+  renderMainTableHeader();
   const rows=filtered();
   const dupIds=duplicateNewestIds();
-  if(!rows.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="15"><div class="empty">No hay pacientes con esos filtros.</div></td></tr>`;return}
+  if(!rows.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="${MAIN_TABLE_COLUMNS.length}"><div class="empty">No hay pacientes con esos filtros.</div></td></tr>`;return}
   document.getElementById('tbody').innerHTML=rows.map((p,i)=>{
-    const e=estado(p), als=alertas(p);
+    const e=estado(p);
     const sel=p.id===selId;
     const dup=dupIds.has(p.id);
-    return `<tr class="${sel?'selected':''} ${dup?'dup-error':''}" onclick="rowClick(event,${p.id})">
-      <td class="th-check" data-label="Selección"><div class="cell" style="justify-content:center"><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,${p.id})" onclick="event.stopPropagation()"></div></td>
-      <td data-label="Nombre"><div class="cell" title="${p.nombre||'—'}"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}</div></td>
-      <td data-label="DNI"><div class="cell" style="color:#6b7280" title="${p.dni||'—'}">${p.dni||'—'}</div></td>
-      <td data-label="Clínica"><div class="cell" title="${p.clinica||'—'}"><span class="${clinicaClass(p.clinica)}">${p.clinica}</span></div></td>
-      <td data-label="Obra social"><div class="cell" title="${p.obraSocial||'—'}">${p.obraSocial||'—'}</div></td>
-      <td data-label="Ojo"><div class="cell"><strong>${p.ojo||'—'}</strong></div></td>
-      <td class="editable" data-label="Dioptría" ondblclick="inlineEdit(event,${p.id},'dioptria')" title="Doble clic para editar"><div class="cell" title="${getDioptria(p)||'—'}">${getDioptria(p)||'—'}</div></td>
-      <td class="editable" data-label="Prequirúrgico" ondblclick="inlineEditSel(event,${p.id},'pre',['','OK','Pendiente'])" title="Doble clic para editar"><div class="cell">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</div></td>
-      <td class="editable" data-label="Solicitud lente" ondblclick="inlineEditDate(event,${p.id},'fechaSolLente')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaSolLente)}">${fd(p.fechaSolLente)}</div></td>
-      <td class="editable" data-label="Lente llegó" ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}" title="${fd(p.fechaLlegaLente)}">${fd(p.fechaLlegaLente)}</div></td>
-      <td class="editable" data-label="Fecha cirugía" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaCir)}">${fd(p.fechaCir)}</div></td>
-      <td class="editable" data-label="Estado cirugía" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>
-      <td class="editable" data-label="Facturación" ondblclick="inlineEditSel(event,${p.id},'estadoFac',['','Realizada','FACTURADA'])" title="Doble clic para editar"><div class="cell">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</div></td>
-      <td data-label="Estado actual"><div class="cell" title="${e}"><span class="badge ${bc(e)}">${e.length>28?e.substring(0,26)+'…':e}</span></div></td>
-      <td data-label="Alertas"><div class="cell" style="gap:4px;flex-wrap:wrap">${als.map(a=>`<span style="font-size:10px;color:${a.severity==='red'?'#dc2626':a.severity==='orange'?'#ea580c':a.severity==='yellow'?'#a16207':'#6b7280'};white-space:nowrap">${a.msg}${isSilenced(a)?' (silenciada)':''}</span>`).join('')}</div></td>
-    </tr>`;
+    const fact=estado(p);
+    const rowCells={
+      check:`<td class="th-check" data-label="Selección"><div class="cell" style="justify-content:center"><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,${p.id})" onclick="event.stopPropagation()"></div></td>`,
+      nombre:`<td data-label="Nombre"><div class="cell" title="${p.nombre||'—'}"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}</div></td>`,
+      dni:`<td data-label="DNI"><div class="cell" style="color:#6b7280" title="${p.dni||'—'}">${p.dni||'—'}</div></td>`,
+      clinica:`<td data-label="Clínica"><div class="cell" title="${p.clinica||'—'}"><span class="${clinicaClass(p.clinica)}">${p.clinica}</span></div></td>`,
+      obraSocial:`<td data-label="Obra social"><div class="cell" title="${p.obraSocial||'—'}">${p.obraSocial||'—'}</div></td>`,
+      ojo:`<td data-label="Ojo"><div class="cell"><strong>${p.ojo||'—'}</strong></div></td>`,
+      dioptria:`<td class="editable" data-label="Dioptría" ondblclick="inlineEdit(event,${p.id},'dioptria')" title="Doble clic para editar"><div class="cell" title="${getDioptria(p)||'—'}">${getDioptria(p)||'—'}</div></td>`,
+      pre:`<td class="editable" data-label="Prequirúrgico" ondblclick="inlineEditSel(event,${p.id},'pre',['','OK','Pendiente'])" title="Doble clic para editar"><div class="cell">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</div></td>`,
+      fechaSolLente:`<td class="editable" data-label="Solicitud lente" ondblclick="inlineEditDate(event,${p.id},'fechaSolLente')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaSolLente)}">${fd(p.fechaSolLente)}</div></td>`,
+      fechaLlegaLente:`<td class="editable" data-label="Lente llegó" ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}" title="${fd(p.fechaLlegaLente)}">${fd(p.fechaLlegaLente)}</div></td>`,
+      fechaCir:`<td class="editable" data-label="Fecha cirugía" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaCir)}">${fd(p.fechaCir)}</div></td>`,
+      cirujano:`<td data-label="Cirujano"><div class="cell" title="${p.cirujano||MEDICO_UNICO}">${p.cirujano||MEDICO_UNICO}</div></td>`,
+      estadoCir:`<td class="editable" data-label="Estado cirugía" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>`,
+      facturacion:`<td data-label="Facturación"><div class="cell" title="${fact}"><span class="badge ${bc(fact)}">${fact.length>28?fact.substring(0,26)+'…':fact}</span></div></td>`,
+      estadoActual:`<td data-label="Estado actual"><div class="cell">${(p.estadoFac||'').toUpperCase()==='FACTURADA'||(p.estadoFac||'').toUpperCase()==='REALIZADA'?`<span class="badge b7">${p.estadoFac}</span>`:(p.estadoFac?`<span class="badge b6">${p.estadoFac}</span>`:'—')}</div></td>`
+    };
+    const tds=MAIN_TABLE_COLUMNS.map(c=>rowCells[c.key]).join('');
+    return `<tr class="${sel?'selected':''} ${dup?'dup-error':''}" onclick="rowClick(event,${p.id})">${tds}</tr>`;
   }).join('');
+  devWarnTableMismatch();
 }
 
 // ─────────────────────────────────────────────
