@@ -8,10 +8,10 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 /* Header */
-body{font-family:'DM Sans',sans-serif;background:#F4F6F9;color:#1a2332;min-height:100vh;font-size:14px;line-height:1.5}
+body{font-family:'DM Sans',sans-serif;background:#F4F6F9;color:#1a2332;min-height:100vh;font-size:14px;line-height:1.5;overflow-y:auto;--header-h:120px;--filter-h:56px}
 .app-shell{max-width:1320px;margin:0 auto;padding:0 14px 18px}
-.topbar{position:sticky;top:0;z-index:210;background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 6px 18px #0f172a10}
-header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-direction:column;gap:10px;height:auto;position:static;box-shadow:none}
+.topbar{position:static;background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 6px 18px #0f172a10}
+header{background:#fff;border:none;padding:12px 0 10px;display:flex;flex-direction:column;gap:10px;height:auto;position:sticky;top:0;z-index:230;box-shadow:0 2px 10px #0f172a14}
 .brandbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 6px}
 .logo{font-size:21px;font-weight:700;color:#1B4F8A;white-space:nowrap;letter-spacing:.1px;display:flex;align-items:baseline;gap:8px}
 .logo small{font-weight:500;color:#64748b;font-size:12px}
@@ -41,6 +41,7 @@ header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-
 
 /* Stats */
 .statsbar{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:10px;margin:10px 0 0}
+.statsbar.hidden{display:none}
 .stat{display:flex;flex-direction:column;align-items:flex-start;padding:10px 12px;border-radius:10px;border:1px solid #e8ecf2;gap:4px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
 
 /* Tabs */
@@ -50,7 +51,7 @@ header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-
 .tablink.active{color:#1d4ed8;background:#e8f0ff;border-color:#bfd3ff}
 
 /* Filters */
-.filterbar{padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#f8fbff;border:1px solid #dfe8f5;border-radius:12px;margin-top:10px}
+.filterbar{padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#f8fbff;border:1px solid #dfe8f5;border-radius:12px;margin-top:10px;position:sticky;top:var(--header-h);z-index:220;border-bottom:1px solid #d7e3f4;box-shadow:0 8px 18px #0f172a12}
 .filterbar input,.filterbar select{padding:7px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:12px;color:#374151;background:#fff;outline:none;min-height:34px}
 .filterbar input:focus,.filterbar select:focus{border-color:#93c5fd;box-shadow:0 0 0 3px #93c5fd33}
 .filterbar input{width:230px}
@@ -80,7 +81,7 @@ header{background:transparent;border:none;padding:12px 0 10px;display:flex;flex-
 .tablewrap{margin:10px 0 20px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px #0001}
 .table-scroll{overflow-x:auto;overflow-y:visible;max-height:none}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-thead{position:sticky;top:0;z-index:10}
+thead{position:sticky;top:calc(var(--header-h) + var(--filter-h));z-index:10}
 thead th{background:#1B4F8A;padding:0;border-bottom:1px solid #E8ECF2;border-right:1px solid #2c5f9a;white-space:nowrap;font-weight:600;color:#fff;font-size:11px;user-select:none}
 thead th .th-inner{display:flex;align-items:center;padding:8px 10px;gap:4px;cursor:pointer}
 thead th .th-inner:hover{background:#e2e8f0}
@@ -246,6 +247,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
       <div class="actionbar">
         <button class="btn primary" aria-label="Nuevo paciente" onclick="nuevoModal()">+ Nuevo Paciente</button>
         <button class="btn" aria-label="Sincronizar datos" onclick="sincronizarAhora()" title="Recargar datos del servidor">↺ Sync</button>
+        <button class="btn" id="toggleKpisBtn" aria-label="Ocultar KPIs" onclick="toggleKpis()">Ocultar KPIs</button>
         <span class="header-sep"></span>
         <details class="more-menu">
           <summary class="btn">Más ▾</summary>
@@ -755,6 +757,36 @@ function clearTopFilters(){
 }
 
 function sortBy(col){sortCol=col;sortDir=sortCol===col?-sortDir:1;render()}
+
+function updateStickyMetrics(){
+  const h=document.querySelector('header');
+  const fb=document.querySelector('.filterbar');
+  const headerH=h?Math.ceil(h.getBoundingClientRect().height):120;
+  const filterH=fb?Math.ceil(fb.getBoundingClientRect().height):56;
+  document.body.style.setProperty('--header-h',`${headerH}px`);
+  document.body.style.setProperty('--filter-h',`${filterH}px`);
+}
+
+function toggleKpis(){
+  const box=document.getElementById('statsbar');
+  const btn=document.getElementById('toggleKpisBtn');
+  if(!box||!btn) return;
+  const hidden=box.classList.toggle('hidden');
+  btn.textContent=hidden?'Mostrar KPIs':'Ocultar KPIs';
+  btn.setAttribute('aria-label', hidden?'Mostrar KPIs':'Ocultar KPIs');
+  localStorage.setItem('cirugias_hide_kpis', hidden?'1':'0');
+  updateStickyMetrics();
+}
+
+function restoreKpisPref(){
+  const hide=localStorage.getItem('cirugias_hide_kpis')==='1';
+  const box=document.getElementById('statsbar');
+  const btn=document.getElementById('toggleKpisBtn');
+  if(!box||!btn) return;
+  box.classList.toggle('hidden', hide);
+  btn.textContent=hide?'Mostrar KPIs':'Ocultar KPIs';
+  btn.setAttribute('aria-label', hide?'Mostrar KPIs':'Ocultar KPIs');
+}
 
 // ─────────────────────────────────────────────
 // STATS
@@ -1461,6 +1493,7 @@ function setTab(tab,el){
   document.getElementById('calView').style.display=tab==='calendario'?'':'none';
   document.getElementById('statsView').style.display=tab==='estadisticas'?'':'none';
   document.getElementById('waView').style.display=tab==='whatsapp'?'':'none';
+  updateStickyMetrics();
   render();
 }
 
@@ -1641,6 +1674,7 @@ function seed(){return [{"id":1,"clinica":"CDU","nombre":"SABOREDO, ISELDA ESTER
 
 
 function initUX(){
+  restoreKpisPref();
   const fv=JSON.parse(localStorage.getItem('cirugias_saved_filters')||'{}');
   ['fCli','fEst','fOS'].forEach(id=>{if(fv[id]!==undefined && document.getElementById(id)) document.getElementById(id).value=fv[id];});
   if(document.getElementById('showSilenced')) document.getElementById('showSilenced').checked=!!fv.showSilenced;
@@ -1649,6 +1683,8 @@ function initUX(){
   q.oninput=()=>{clearTimeout(t); t=setTimeout(()=>{render();},180)};
   ['fCli','fEst','fOS','showSilenced'].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('change',()=>{localStorage.setItem('cirugias_saved_filters', JSON.stringify({fCli:document.getElementById('fCli').value,fEst:document.getElementById('fEst').value,fOS:document.getElementById('fOS').value,showSilenced:document.getElementById('showSilenced').checked}));});});
   document.querySelectorAll('button').forEach(b=>{if(!b.getAttribute('aria-label')) b.setAttribute('aria-label',(b.textContent||'Acción').trim());});
+  updateStickyMetrics();
+  window.addEventListener('resize', updateStickyMetrics);
 }
 // INIT
 (async function() {
