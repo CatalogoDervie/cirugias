@@ -288,15 +288,6 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
       </select>
       <select id="fEst" onchange="render()">
         <option value="">Todos los estados</option>
-        <option>FALTA DIOPTRÍA</option>
-        <option>FALTA PREQUIRÚRGICO</option>
-        <option>LISTO PARA PEDIR LENTE</option>
-        <option>LENTE SOLICITADA</option>
-        <option>LENTE LLEGÓ</option>
-        <option>FECHA PROGRAMADA</option>
-        <option>CIRUGÍA REALIZADA - FALTA FACTURAR</option>
-        <option>FINALIZADO - FACTURADA</option>
-        <option>DEVOLVER LENTE</option>
       </select>
       <div class="quick-filters" id="quickFilters">
         <button class="qf-btn active" onclick="setQuickFilter('TODOS', this)">TODOS</button>
@@ -603,7 +594,28 @@ async function sincronizarAhora() {
 // BUSINESS LOGIC
 // ─────────────────────────────────────────────
 function hoyISO(){return new Date().toISOString().slice(0,10)}
-function parseDateOnly(d){ if(!d) return null; const dt=new Date(d); if(isNaN(dt)) return null; dt.setHours(0,0,0,0); return dt; }
+function parseDateOnly(d){
+  if(!d) return null;
+  if(d instanceof Date && !isNaN(d)){ const t=new Date(d); t.setHours(0,0,0,0); return t; }
+  const v=String(d).trim();
+  let dt=null;
+  const m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){
+    const day=parseInt(m[1],10), month=parseInt(m[2],10)-1, year=parseInt(m[3],10);
+    dt=new Date(year,month,day);
+    if(dt.getFullYear()!==year||dt.getMonth()!==month||dt.getDate()!==day) return null;
+  }else if(/^\d{4}-\d{2}-\d{2}/.test(v)){
+    const [y,mo,da]=v.slice(0,10).split('-').map(n=>parseInt(n,10));
+    dt=new Date(y,mo-1,da);
+    if(dt.getFullYear()!==y||dt.getMonth()!==mo-1||dt.getDate()!==da) return null;
+  }else{
+    const temp=new Date(v);
+    if(!isNaN(temp)) dt=temp;
+  }
+  if(!dt||isNaN(dt)) return null;
+  dt.setHours(0,0,0,0);
+  return dt;
+}
 function daysSince(d){ const dt=parseDateOnly(d); if(!dt) return -1; const h=parseDateOnly(hoyISO()); return Math.floor((h-dt)/86400000); }
 function clinicaClass(c){ return c==='CDU'?'bcl1':'bcl2'; }
 function normalizarClinica(c){ if(c==='Clínica 1'||c==='CDU') return 'CDU'; if(c==='Clínica 2'||c==='Gualeguaychu'||c==='Gualeguaychú') return 'Gualeguaychú'; return c||'CDU'; }
@@ -648,6 +660,34 @@ function estado(p){
   if(!p.pre||p.pre!=='OK') return 'FALTA PREQUIRÚRGICO';
   return 'LISTO PARA PEDIR LENTE';
 }
+function estadoLabelNorm(v){
+  return String(v||'').trim().replace(/\s+/g,' ').toUpperCase();
+}
+function estadoLabelCanon(v){
+  const n=estadoLabelNorm(v);
+  if(n==='FINALIZADO-FACTURADA') return 'FINALIZADO - FACTURADA';
+  if(n==='FACTURADA|FALTA OD' || n==='FACTURADA | FALTA OD') return 'FACTURADA | FALTA OD';
+  if(n==='FACTURADA|FALTA OI' || n==='FACTURADA | FALTA OI') return 'FACTURADA | FALTA OI';
+  return String(v||'').trim().replace(/\s+/g,' ');
+}
+function refreshEstadoFilterOptions(){
+  const sel=document.getElementById('fEst');
+  if(!sel) return;
+  const current=sel.value||'';
+  const map=new Map();
+  DB.rows.forEach(r=>{
+    const st=estadoLabelCanon(estado(r));
+    const key=estadoLabelNorm(st);
+    if(key&&!map.has(key)) map.set(key,st);
+  });
+  const ordered=Array.from(map.values()).sort((a,b)=>a.localeCompare(b,'es'));
+  sel.innerHTML='<option value="">Todos los estados</option>'+ordered.map(st=>`<option value="${st}">${st}</option>`).join('');
+  if(current && ordered.some(st=>estadoLabelNorm(st)===estadoLabelNorm(current))){
+    const found=ordered.find(st=>estadoLabelNorm(st)===estadoLabelNorm(current));
+    sel.value=found;
+  }
+}
+
 function episodeIdFor(p){
   if(p.episode_id) return p.episode_id;
   const base=(p.fechaCir||p.fechaCarga||hoyISO()).slice(0,7);
@@ -666,8 +706,9 @@ function alertas(p,opts={}){
   const res=[];
   const showSilenced=!!(document.getElementById('showSilenced')?.checked);
   const st=estado(p);
+  const dni=String(p.dni||'').trim();
+  const ojo=String(p.ojo||'').toUpperCase()||'NA';
 
-  // PRIORIDAD ABSOLUTA: DEVOLVER LENTE
   if(p.recepLente==='Devolver' || st==='DEVOLVER LENTE'){
     const a={type:'devolver',days:SETTINGS.CRIT_DAYS,key:`devolver|${p.id}|${p.recepLente||'DEVOLVER'}`,severity:'red',msg:'⚠ DEVOLVER LENTE'};
     if(opts.raw) return [a];
@@ -680,14 +721,20 @@ function alertas(p,opts={}){
     if(d!==null && d>=SETTINGS.WARN_DAYS) res.push(mkAlert('not_scheduled',p,d,base,p.ojo,'FECHA NO PROGRAMADA '));
   }
 
+  // B) DEMORA EN LLEGADA DE LENTE (+X días) > 15
   if(p.fechaSolLente && !p.fechaLlegaLente){
     const d=diffDays(today,p.fechaSolLente);
-    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.lens_delay_days)) res.push(mkAlert('lens_delay',p,d,p.fechaSolLente,p.ojo,'DEMORA LENTE '));
+    if(d!==null && d>15){
+      res.push({type:'lens_delayed',days:d,key:`lens_delayed:${dni}:${ojo}`,severity:severityByDays(d),msg:`DEMORA EN LLEGADA DE LENTE (+${d} días)`});
+    }
   }
 
+  // C) LENTE LLEGÓ Y NO PROGRAMADA (+X días) > 30
   if(p.fechaLlegaLente && !p.fechaCir){
     const d=diffDays(today,p.fechaLlegaLente);
-    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.lens_arrived_not_scheduled_days)) res.push(mkAlert('arrived_not_scheduled',p,d,p.fechaLlegaLente,p.ojo,'LENTE LLEGÓ Y NO PROGRAMADA '));
+    if(d!==null && d>30){
+      res.push({type:'no_schedule_after_arrival',days:d,key:`no_schedule_after_arrival:${dni}:${ojo}`,severity:d>50?'red':'yellow',msg:`LENTE LLEGÓ Y NO PROGRAMADA (+${d} días)`});
+    }
   }
 
   if(p.fechaCir && st==='FECHA PROGRAMADA' && !p.fechaLlegaLente){
@@ -702,25 +749,23 @@ function alertas(p,opts={}){
     if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.billing_not_done_days)) res.push(mkAlert('billing_pending',p,d,p.fechaCir,p.ojo,'FACTURACIÓN NO REALIZADA '));
   }
 
-  // FALTA 2º OJO: solo si requiere 2 ojos, ya hubo primer ojo realizado,
-  // y todavía NO existe una fila del ojo contrario para el mismo DNI.
-  if(p.ojos==='2 ojos' || p.requires_two_eyes){
-    const dni=String(p.dni||'').trim();
-    const ojoActual=String(p.ojo||'').toUpperCase();
-    const ojoOpuesto=ojoActual==='OD'?'OI':ojoActual==='OI'?'OD':'';
-    const sameDniRows=DB.rows.filter(x=>String(x.dni||'').trim()===dni);
-    const existeOjoOpuesto = !!ojoOpuesto && sameDniRows.some(x=>x.id!==p.id && String(x.ojo||'').toUpperCase()===ojoOpuesto);
-
-    if(!existeOjoOpuesto){
-      const primerRealizado=sameDniRows
-        .filter(x=>estado(x)==='CIRUGÍA REALIZADA - FALTA FACTURAR' || estado(x)==='FINALIZADO - FACTURADA')
-        .map(x=>x.fechaCir)
-        .filter(Boolean)
-        .sort()[0];
-      if(primerRealizado){
-        const d=diffDays(today,primerRealizado);
-        if(d!==null && d>=Math.max(SETTINGS.CRIT_DAYS, SETTINGS.second_eye_missing_days)){
-          res.push(mkAlert('second_eye_missing',p,d,primerRealizado,'NA','FALTA 2° OJO – '));
+  // A) PACIENTE NO REALIZÓ SEGUNDA CIRUGÍA (+X días) >30, por DNI (sin duplicar)
+  if((p.ojos==='2 ojos' || p.requires_two_eyes) && dni){
+    const rowsDni=DB.rows.filter(x=>String(x.dni||'').trim()===dni);
+    const realizados=rowsDni.filter(x=>(String(x.estadoCir||'').toUpperCase()==='REALIZADA') && x.fechaCir).sort((a,b)=>String(a.fechaCir).localeCompare(String(b.fechaCir)));
+    if(realizados.length){
+      const first=realizados[0];
+      const firstEye=String(first.ojo||'').toUpperCase();
+      const opposite=firstEye==='OD'?'OI':firstEye==='OI'?'OD':'';
+      const anchorId=first.id;
+      if(p.id===anchorId && opposite){
+        const progress=rowsDni.some(x=>String(x.ojo||'').toUpperCase()===opposite && (x.fechaSolLente || x.fechaCir || String(x.estadoCir||'').toUpperCase()==='REALIZADA'));
+        const stillTwoEyes=rowsDni.some(x=>x.ojos==='2 ojos' || x.requires_two_eyes);
+        if(stillTwoEyes && !progress){
+          const d=diffDays(today,first.fechaCir);
+          if(d!==null && d>30){
+            res.push({type:'second_surgery_missing',days:d,key:`second_surgery_missing:${dni}`,severity:d>50?'red':'yellow',msg:`PACIENTE NO REALIZÓ SEGUNDA CIRUGÍA (+${d} días)`});
+          }
         }
       }
     }
@@ -883,6 +928,7 @@ function renderAlerts(){
 // TABLE RENDER
 // ─────────────────────────────────────────────
 function render(){
+  refreshEstadoFilterOptions();
   renderStats();
   renderAlerts();
   if(currentTab==='tabla') renderTabla();
@@ -1704,6 +1750,29 @@ function normalizarData(){
 // ─────────────────────────────────────────────
 // TOAST
 // ─────────────────────────────────────────────
+function runAlertRulesSelfTest(){
+  const oldRows=DB.rows;
+  const today=toDateOnly(hoyISO());
+  const iso=n=>{const d=new Date(today); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10);};
+  DB.rows=[
+    {id:9001,dni:'X1',nombre:'Caso A',clinica:'CDU',ojos:'2 ojos',ojo:'OD',fechaCir:iso(40),estadoCir:'Realizada',estadoFac:'',pre:'OK'},
+    {id:9002,dni:'Y1',nombre:'Caso B',clinica:'CDU',ojos:'1 ojo',ojo:'OD',fechaSolLente:iso(20),fechaLlegaLente:'',fechaCir:'',estadoCir:'',estadoFac:'',pre:'OK'},
+    {id:9003,dni:'Z1',nombre:'Caso C',clinica:'CDU',ojos:'1 ojo',ojo:'OI',fechaSolLente:iso(50),fechaLlegaLente:iso(45),fechaCir:'',estadoCir:'',estadoFac:'',pre:'OK'}
+  ];
+  const a=alertas(DB.rows[0],{raw:true}).some(x=>x.type==='second_surgery_missing');
+  const b=alertas(DB.rows[1],{raw:true}).some(x=>x.type==='lens_delayed');
+  const c=alertas(DB.rows[2],{raw:true}).some(x=>x.type==='no_schedule_after_arrival');
+  DB.rows.push({id:9004,dni:'X1',clinica:'CDU',ojos:'2 ojos',ojo:'OI',fechaSolLente:hoyISO(),estadoCir:'',estadoFac:''});
+  DB.rows[1].fechaLlegaLente=hoyISO();
+  DB.rows[2].fechaCir=hoyISO();
+  const aOff=!alertas(DB.rows[0],{raw:true}).some(x=>x.type==='second_surgery_missing');
+  const bOff=!alertas(DB.rows[1],{raw:true}).some(x=>x.type==='lens_delayed');
+  const cOff=!alertas(DB.rows[2],{raw:true}).some(x=>x.type==='no_schedule_after_arrival');
+  console.log('[alert-selftest]',{A:a,B:b,C:c,A_off:aOff,B_off:bOff,C_off:cOff});
+  DB.rows=oldRows;
+  return a&&b&&c&&aOff&&bOff&&cOff;
+}
+
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
