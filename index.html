@@ -332,7 +332,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   <div class="table-scroll">
     <table id="mainTable">
       <colgroup>
-        <col style="width:36px"><col style="width:16%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:5%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:8%"><col style="width:8%"><col style="width:13%">
+        <col style="width:36px"><col style="width:15%"><col style="width:8%"><col style="width:7%"><col style="width:7%"><col style="width:4%"><col style="width:6%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:8%"><col style="width:8%"><col style="width:15%"><col style="width:10%">
       </colgroup>
       <thead>
         <tr>
@@ -346,7 +346,6 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
           <th><div class="th-inner">Prequir.</div></th>
           <th><div class="th-inner" onclick="sortBy('fechaSolLente')">Sol. Lente ↕</div></th>
           <th><div class="th-inner" onclick="sortBy('fechaLlegaLente')">Llegó ↕</div></th>
-          <th><div class="th-inner">Recepción</div></th>
           <th><div class="th-inner" onclick="sortBy('fechaCir')">Fecha Cir. ↕</div></th>
           <th><div class="th-inner">Cirujano</div></th><th><div class="th-inner">Est. Cir.</div></th>
           <th><div class="th-inner">Facturación</div></th>
@@ -865,7 +864,7 @@ function render(){
 function renderTabla(){
   const rows=filtered();
   const dupIds=duplicateNewestIds();
-  if(!rows.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="16"><div class="empty">No hay pacientes con esos filtros.</div></td></tr>`;return}
+  if(!rows.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="15"><div class="empty">No hay pacientes con esos filtros.</div></td></tr>`;return}
   document.getElementById('tbody').innerHTML=rows.map((p,i)=>{
     const e=estado(p), als=alertas(p);
     const sel=p.id===selId;
@@ -881,7 +880,6 @@ function renderTabla(){
       <td class="editable" data-label="Prequirúrgico" ondblclick="inlineEditSel(event,${p.id},'pre',['','OK','Pendiente'])" title="Doble clic para editar"><div class="cell">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</div></td>
       <td class="editable" data-label="Solicitud lente" ondblclick="inlineEditDate(event,${p.id},'fechaSolLente')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaSolLente)}">${fd(p.fechaSolLente)}</div></td>
       <td class="editable" data-label="Lente llegó" ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}" title="${fd(p.fechaLlegaLente)}">${fd(p.fechaLlegaLente)}</div></td>
-      <td class="editable" data-label="Recepción" ondblclick="inlineEditSel(event,${p.id},'recepLente',['','Correcta','Devolver'])" title="Doble clic para editar"><div class="cell">${p.recepLente?`<span class="badge" style="background:${p.recepLente==='Correcta'?'#d1fae5':'#fee2e2'};color:${p.recepLente==='Correcta'?'#065f46':'#991b1b'}">${p.recepLente}</span>`:'—'}</div></td>
       <td class="editable" data-label="Fecha cirugía" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaCir)}">${fd(p.fechaCir)}</div></td>
       <td class="editable" data-label="Estado cirugía" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>
       <td class="editable" data-label="Facturación" ondblclick="inlineEditSel(event,${p.id},'estadoFac',['','Realizada','FACTURADA'])" title="Doble clic para editar"><div class="cell">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</div></td>
