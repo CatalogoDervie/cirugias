@@ -410,7 +410,6 @@ let sortCol = 'nombre', sortDir = 1;
 let currentTab = 'tabla';
 let isSyncing = false;
 let quickFilter = 'TODOS';
-const MEDICO_UNICO = 'Dr. Titular';
 
 let SETTINGS = JSON.parse(localStorage.getItem('cirugias_settings')||'{}');
 SETTINGS = Object.assign({
@@ -450,20 +449,19 @@ function saveWaPrefs(){
 
 const MAIN_TABLE_COLUMNS=[
   {key:'check',label:'',width:'36px',thClass:'th-check',sortable:false},
-  {key:'nombre',label:'#&nbsp; Nombre',width:'15%',sortable:true,sortKey:'nombre'},
+  {key:'nombre',label:'#&nbsp; Nombre',width:'16%',sortable:true,sortKey:'nombre'},
   {key:'dni',label:'DNI',width:'8%',sortable:true,sortKey:'dni'},
   {key:'clinica',label:'Clínica',width:'7%'},
-  {key:'obraSocial',label:'O.Social',width:'7%'},
+  {key:'osocial',label:'O.Social',width:'8%'},
   {key:'ojo',label:'Ojo',width:'4%'},
   {key:'dioptria',label:'Dioptría',width:'6%'},
-  {key:'pre',label:'Prequir.',width:'6%'},
-  {key:'fechaSolLente',label:'Sol. Lente',width:'7%',sortable:true,sortKey:'fechaSolLente'},
-  {key:'fechaLlegaLente',label:'Llegó',width:'7%',sortable:true,sortKey:'fechaLlegaLente'},
-  {key:'fechaCir',label:'Fecha Cir.',width:'7%',sortable:true,sortKey:'fechaCir'},
-  {key:'cirujano',label:'Cirujano',width:'8%'},
-  {key:'estadoCir',label:'Est. Cir.',width:'8%'},
-  {key:'facturacion',label:'Facturación',width:'15%'},
-  {key:'estadoActual',label:'Estado Actual',width:'10%'}
+  {key:'prequirurgicos',label:'Prequirúrgicos',width:'8%'},
+  {key:'solLente',label:'Sol.Lente.',width:'7%',sortable:true,sortKey:'fechaSolLente'},
+  {key:'llego',label:'Llegó.',width:'7%',sortable:true,sortKey:'fechaLlegaLente'},
+  {key:'fechaCir',label:'Fecha.Cir',width:'7%',sortable:true,sortKey:'fechaCir'},
+  {key:'estCir',label:'Est.Cir',width:'7%'},
+  {key:'facturacion',label:'Facturación',width:'10%'},
+  {key:'estadoActual',label:'Estado actual',width:'15%'}
 ];
 
 function renderMainTableHeader(){
@@ -496,6 +494,14 @@ function devWarnTableMismatch(){
 
 function toDateOnly(d){const dt=parseDateOnly(d); return dt?new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()):null;}
 function diffDays(a,b){const da=toDateOnly(a), db=toDateOnly(b); if(!da||!db) return null; return Math.floor((da-db)/86400000);}
+function detectDelimiter(line){const c=(line.match(/,/g)||[]).length; const sc=(line.match(/;/g)||[]).length; const t=(line.match(/\t/g)||[]).length; return t>=sc&&t>=c?'\t':(sc>c?';':',');}
+function parseDelimitedRows(text){
+  const lines=String(text||'').split(/\r?\n/).filter(Boolean);
+  if(!lines.length) return [];
+  const d=detectDelimiter(lines[0]);
+  const headers=lines[0].split(d).map(h=>h.trim());
+  return lines.slice(1).map(line=>{const cols=line.split(d); const out={}; headers.forEach((h,i)=>out[h]=String(cols[i]||'').trim()); return out;});
+}
 function severityByDays(days){if(days>=SETTINGS.CRIT_DAYS) return 'red'; if(days>=Math.max(30,SETTINGS.WARN_DAYS+15)) return 'orange'; if(days>=SETTINGS.WARN_DAYS) return 'yellow'; return 'neutral';}
 function saveSettings(){localStorage.setItem('cirugias_settings', JSON.stringify(SETTINGS)); localStorage.setItem('cirugias_alert_silences', JSON.stringify(ALERT_SILENCES));}
 function configureIDB(){return new Promise(res=>{if(!window.indexedDB)return res(null); const req=indexedDB.open('cirugias_db',1); req.onupgradeneeded=()=>{req.result.createObjectStore('kv')}; req.onsuccess=()=>res(req.result); req.onerror=()=>res(null);});}
@@ -895,23 +901,21 @@ function renderTabla(){
     const e=estado(p);
     const sel=p.id===selId;
     const dup=dupIds.has(p.id);
-    const fact=estado(p);
     const rowCells={
       check:`<td class="th-check" data-label="Selección"><div class="cell" style="justify-content:center"><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,${p.id})" onclick="event.stopPropagation()"></div></td>`,
       nombre:`<td data-label="Nombre"><div class="cell" title="${p.nombre||'—'}"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}</div></td>`,
       dni:`<td data-label="DNI"><div class="cell" style="color:#6b7280" title="${p.dni||'—'}">${p.dni||'—'}</div></td>`,
       clinica:`<td data-label="Clínica"><div class="cell" title="${p.clinica||'—'}"><span class="${clinicaClass(p.clinica)}">${p.clinica}</span></div></td>`,
-      obraSocial:`<td data-label="Obra social"><div class="cell" title="${p.obraSocial||'—'}">${p.obraSocial||'—'}</div></td>`,
+      osocial:`<td data-label="O.Social"><div class="cell" title="${p.obraSocial||'—'}">${p.obraSocial||'—'}</div></td>`,
       ojo:`<td data-label="Ojo"><div class="cell"><strong>${p.ojo||'—'}</strong></div></td>`,
       dioptria:`<td class="editable" data-label="Dioptría" ondblclick="inlineEdit(event,${p.id},'dioptria')" title="Doble clic para editar"><div class="cell" title="${getDioptria(p)||'—'}">${getDioptria(p)||'—'}</div></td>`,
-      pre:`<td class="editable" data-label="Prequirúrgico" ondblclick="inlineEditSel(event,${p.id},'pre',['','OK','Pendiente'])" title="Doble clic para editar"><div class="cell">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</div></td>`,
-      fechaSolLente:`<td class="editable" data-label="Solicitud lente" ondblclick="inlineEditDate(event,${p.id},'fechaSolLente')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaSolLente)}">${fd(p.fechaSolLente)}</div></td>`,
-      fechaLlegaLente:`<td class="editable" data-label="Lente llegó" ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}" title="${fd(p.fechaLlegaLente)}">${fd(p.fechaLlegaLente)}</div></td>`,
-      fechaCir:`<td class="editable" data-label="Fecha cirugía" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaCir)}">${fd(p.fechaCir)}</div></td>`,
-      cirujano:`<td data-label="Cirujano"><div class="cell" title="${p.cirujano||MEDICO_UNICO}">${p.cirujano||MEDICO_UNICO}</div></td>`,
-      estadoCir:`<td class="editable" data-label="Estado cirugía" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>`,
-      facturacion:`<td data-label="Facturación"><div class="cell" title="${fact}"><span class="badge ${bc(fact)}">${fact.length>28?fact.substring(0,26)+'…':fact}</span></div></td>`,
-      estadoActual:`<td data-label="Estado actual"><div class="cell">${(p.estadoFac||'').toUpperCase()==='FACTURADA'||(p.estadoFac||'').toUpperCase()==='REALIZADA'?`<span class="badge b7">${p.estadoFac}</span>`:(p.estadoFac?`<span class="badge b6">${p.estadoFac}</span>`:'—')}</div></td>`
+      prequirurgicos:`<td class="editable" data-label="Prequirúrgicos" ondblclick="inlineEditSel(event,${p.id},'pre',['','OK','Pendiente'])" title="Doble clic para editar"><div class="cell">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</div></td>`,
+      solLente:`<td class="editable" data-label="Sol.Lente." ondblclick="inlineEditDate(event,${p.id},'fechaSolLente')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaSolLente)}">${fd(p.fechaSolLente)}</div></td>`,
+      llego:`<td class="editable" data-label="Llegó." ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}" title="${fd(p.fechaLlegaLente)}">${fd(p.fechaLlegaLente)}</div></td>`,
+      fechaCir:`<td class="editable" data-label="Fecha.Cir" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaCir)}">${fd(p.fechaCir)}</div></td>`,
+      estCir:`<td class="editable" data-label="Est.Cir" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>`,
+      facturacion:`<td class="editable" data-label="Facturación" ondblclick="inlineEditSel(event,${p.id},'estadoFac',['','Realizada','FACTURADA'])" title="Doble clic para editar"><div class="cell">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</div></td>`,
+      estadoActual:`<td data-label="Estado actual"><div class="cell" title="${e}"><span class="badge ${bc(e)}">${e.length>28?e.substring(0,26)+'…':e}</span></div></td>`
     };
     const tds=MAIN_TABLE_COLUMNS.map(c=>rowCells[c.key]).join('');
     return `<tr class="${sel?'selected':''} ${dup?'dup-error':''}" onclick="rowClick(event,${p.id})">${tds}</tr>`;
@@ -1018,7 +1022,6 @@ function openSide(id){
       <div class="srow"><label>Ojos a operar</label><select onchange="upd(${id},'ojos',this.value)"><option ${p.ojos==='1 ojo'?'selected':''}>1 ojo</option><option ${p.ojos==='2 ojos'?'selected':''}>2 ojos</option></select></div>
       <div class="srow"><label>Ojo</label><select onchange="upd(${id},'ojo',this.value)"><option ${p.ojo==='OD'?'selected':''}>OD</option><option ${p.ojo==='OI'?'selected':''}>OI</option></select></div>
       <div class="srow"><label>Dioptría</label><input type="text" value="${getDioptria(p)||''}" onchange="upd(${id},'dioptria',this.value)"></div>
-      <div class="srow"><label>Cirujano</label><input type="text" value="${p.cirujano||MEDICO_UNICO}" readonly></div>
       <div class="srow"><label>Modelo lente</label><input type="text" placeholder="Ej: Estándar / Especial" value="${p.model||''}" onchange="upd(${id},'model',this.value)"></div>
       <div class="srow"><label>Precio especial</label><input type="number" min="0" value="${p.precioEspecial||''}" onchange="upd(${id},'precioEspecial',this.value)"></div>
       <div class="srow"><label>Prequirúrgicos</label><select onchange="upd(${id},'pre',this.value)"><option value="" ${!p.pre?'selected':''}>—</option><option ${p.pre==='OK'?'selected':''}>OK</option><option ${p.pre==='Pendiente'?'selected':''}>Pendiente</option></select></div>
@@ -1116,7 +1119,7 @@ function duplicarPaciente(id){
 // ─────────────────────────────────────────────
 function nuevoModal(){
   const nid=DB.nid++;
-  DB.rows.push({id:nid,clinica:'CDU',nombre:'',dni:'',fnac:'',tel:'',dir:'',obraSocial:'PAMI',afiliado:'',ojos:'1 ojo',ojo:'OD',dioptria:'',pre:'',fechaSolLente:'',fechaLlegaLente:'',recepLente:'',fechaCir:'',hora:'',estadoCir:'',estadoFac:'',cirujano:MEDICO_UNICO,fechaCarga:hoyISO(),notas:''});
+  DB.rows.push({id:nid,clinica:'CDU',nombre:'',dni:'',fnac:'',tel:'',dir:'',obraSocial:'PAMI',afiliado:'',ojos:'1 ojo',ojo:'OD',dioptria:'',pre:'',fechaSolLente:'',fechaLlegaLente:'',recepLente:'',fechaCir:'',hora:'',estadoCir:'',estadoFac:'',fechaCarga:hoyISO(),notas:''});
   save();
   render();
   openSide(nid);
@@ -1674,7 +1677,17 @@ function backupDiario(){
   localStorage.setItem(key, JSON.stringify(DB));
 }
 function normalizarData(){
+  let warnedLegacyCirujano=false;
   DB.rows.forEach(r=>{
+    // Migración de esquema legacy / importaciones con encabezados de Excel
+    if(r['O.Social'] && !r.obraSocial) r.obraSocial=r['O.Social'];
+    if(r['Prequirúrgicos'] && !r.pre) r.pre=r['Prequirúrgicos'];
+    if(r['Sol.Lente.'] && !r.fechaSolLente) r.fechaSolLente=r['Sol.Lente.'];
+    if(r['Llegó.'] && !r.fechaLlegaLente) r.fechaLlegaLente=r['Llegó.'];
+    if(r['Fecha.Cir'] && !r.fechaCir) r.fechaCir=r['Fecha.Cir'];
+    if(r['Est.Cir'] && !r.estadoCir) r.estadoCir=r['Est.Cir'];
+    if(r['Facturación'] && !r.estadoFac) r.estadoFac=r['Facturación'];
+    if('cirujano' in r){ delete r.cirujano; warnedLegacyCirujano=true; }
     r.clinica=normalizarClinica(r.clinica);
     if(!r.fechaCarga) r.fechaCarga=hoyISO();
     if(!r.createdAt) r.createdAt=new Date().toISOString();
@@ -1683,10 +1696,10 @@ function normalizarData(){
     if(!r.dioptria && r.lio) r.dioptria=r.lio;
     if(!r.episode_id) r.episode_id=episodeIdFor(r);
     if(!r.hora) r.hora='';
-    r.cirujano=MEDICO_UNICO;
     normalizeEstadoCir(r);
   });
   DB.lensStock=DB.lensStock||[{model:'AcrySof',dioptria:'20',stock:5},{model:'Akreos',dioptria:'21',stock:3}];
+  if(warnedLegacyCirujano) console.warn('[schema-migration] Campo legacy cirujano removido del cache local');
 }
 // ─────────────────────────────────────────────
 // TOAST
