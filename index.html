@@ -52,9 +52,10 @@ header{background:#fff;border:none;padding:12px 0 10px;display:flex;flex-directi
 
 /* Filters */
 .filterbar{padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#f8fbff;border:1px solid #dfe8f5;border-radius:12px;margin-top:10px;position:sticky;top:var(--header-h);z-index:220;border-bottom:1px solid #d7e3f4;box-shadow:0 8px 18px #0f172a12}
-.filterbar input,.filterbar select{padding:7px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:12px;color:#374151;background:#fff;outline:none;min-height:34px}
-.filterbar input:focus,.filterbar select:focus{border-color:#93c5fd;box-shadow:0 0 0 3px #93c5fd33}
-.filterbar input{width:230px}
+.filterbar input[type='text'],.filterbar select{padding:7px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:12px;color:#374151;background:#fff;outline:none;min-height:34px}
+.filterbar input[type='text']:focus,.filterbar select:focus{border-color:#93c5fd;box-shadow:0 0 0 3px #93c5fd33}
+.filterbar input[type='text']{width:230px}
+.filterbar input[type='checkbox']{width:16px;height:16px;min-height:16px;accent-color:#1a56db}
 .filterbar .filter-label{font-size:11px;color:#64748b;font-weight:600;display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px}
 .quick-filters{display:flex;gap:6px;flex-wrap:wrap}
 .qf-btn{padding:6px 10px;border:1px solid #d1d5db;border-radius:999px;background:#fff;font-size:11px;cursor:pointer;font-weight:600}
@@ -81,8 +82,8 @@ header{background:#fff;border:none;padding:12px 0 10px;display:flex;flex-directi
 .tablewrap{margin:10px 0 20px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px #0001}
 .table-scroll{overflow-x:auto;overflow-y:visible;max-height:none}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-thead{position:sticky;top:calc(var(--header-h) + var(--filter-h));z-index:10}
-thead th{background:#1B4F8A;padding:0;border-bottom:1px solid #E8ECF2;border-right:1px solid #2c5f9a;white-space:nowrap;font-weight:600;color:#fff;font-size:11px;user-select:none}
+thead{position:static}
+thead th{position:sticky;top:calc(var(--header-h) + var(--filter-h) + 8px);z-index:12;background:#1B4F8A;padding:0;border-bottom:1px solid #E8ECF2;border-right:1px solid #2c5f9a;white-space:nowrap;font-weight:600;color:#fff;font-size:11px;user-select:none}
 thead th .th-inner{display:flex;align-items:center;padding:8px 10px;gap:4px;cursor:pointer}
 thead th .th-inner:hover{background:#e2e8f0}
 thead th.th-check{width:36px;cursor:default}
@@ -230,7 +231,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 @media(max-width:768px){.statsbar{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(min-width:1281px){.statsbar{grid-template-columns:repeat(10,minmax(0,1fr));}}
 
-@media(max-width:960px){.actionbar{padding:8px}.header-sep{display:none}.filterbar{gap:7px}.filterbar input{width:100%}.more-menu-list{left:0;right:auto}}
+@media(max-width:960px){.actionbar{padding:8px}.header-sep{display:none}.filterbar{gap:7px}.filterbar input[type='text']{width:100%}.more-menu-list{left:0;right:auto}}
 @media(max-width:640px){.side{width:100%}.tabrow{gap:6px}.tablink{padding:7px 11px}.tablewrap{margin:8px 0}}
 </style>
 </head>
