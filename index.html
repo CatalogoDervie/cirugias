@@ -4,46 +4,72 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control de Cirugías</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:#f0f4f8;color:#1a2332;min-height:100vh;font-size:13px}
-
-/* HEADER */
-header{background:#fff;border-bottom:2px solid #e2e8f0;padding:0 20px;display:flex;align-items:center;gap:16px;height:56px;position:sticky;top:0;z-index:200;box-shadow:0 1px 3px #0001}
-.logo{font-size:17px;font-weight:700;color:#1a56db;white-space:nowrap}
-.logo small{font-weight:400;color:#6b7280;font-size:12px;margin-left:6px}
+/* Header */
+body{font-family:'DM Sans',sans-serif;background:#F4F6F9;color:#1a2332;min-height:100vh;font-size:14px;line-height:1.5;overflow-y:auto;--header-h:120px;--filter-h:56px}
+.app-shell{max-width:1320px;margin:0 auto;padding:0 14px 18px}
+.topbar{position:static;background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 6px 18px #0f172a10}
+header{background:#fff;border:none;padding:12px 0 10px;display:flex;flex-direction:column;gap:10px;height:auto;position:sticky;top:0;z-index:230;box-shadow:0 2px 10px #0f172a14}
+.brandbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 6px}
+.logo{font-size:21px;font-weight:700;color:#1B4F8A;white-space:nowrap;letter-spacing:.1px;display:flex;align-items:baseline;gap:8px}
+.logo small{font-weight:500;color:#64748b;font-size:12px}
+.status-pill{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid #d6e3f5;border-radius:999px;padding:6px 11px;font-size:11px;font-weight:600;color:#334155}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#2E7D5E;box-shadow:0 0 0 3px #2E7D5E33}
+#syncBadge{font-size:11px;color:#1a56db;display:inline-flex!important;align-items:center;gap:4px}
 .hspacer{flex:1}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+
+/* Action bar */
+.actionbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dce6f6;border-radius:12px;padding:8px 10px;box-shadow:0 2px 8px #0f172a0d}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 13px;border-radius:6px;border:1px solid #d1d9e6;background:#fff;color:#334155;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .1s,background .15s,border-color .15s,color .15s;white-space:nowrap;min-height:36px}
 .btn:hover{border-color:#93c5fd;background:#eff6ff;color:#1d4ed8}
-.btn.primary{background:#1a56db;border-color:#1a56db;color:#fff}
-.btn.primary:hover{background:#1e40af;border-color:#1e40af}
-.btn.green{background:#059669;border-color:#059669;color:#fff}
-.btn.green:hover{background:#047857}
+.btn.primary{background:#1B4F8A;border-color:#1B4F8A;color:#fff;box-shadow:0 4px 10px #1b4f8a2a}
+.btn.primary:hover{background:#1e40af;border-color:#1e40af;color:#fff}
+.btn.green{background:#2E7D5E;border-color:#2E7D5E;color:#fff}
+.btn.green:hover{background:#047857;color:#fff}
 .btn.orange{background:#d97706;border-color:#d97706;color:#fff}
-.btn.orange:hover{background:#b45309}
+.btn.orange:hover{background:#b45309;color:#fff}
+.btn.red{background:#dc2626;border-color:#dc2626;color:#fff}
+.btn.red:hover{background:#b91c1c;color:#fff}
+.more-menu{position:relative}
+.more-menu summary{list-style:none}
+.more-menu summary::-webkit-details-marker{display:none}
+.more-menu[open] summary{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+.more-menu-list{position:absolute;right:0;top:42px;z-index:240;min-width:220px;display:flex;flex-direction:column;gap:6px;background:#fff;border:1px solid #d7e0ee;border-radius:10px;padding:8px;box-shadow:0 14px 28px #0f172a22}
+.more-menu-list .btn{width:100%;justify-content:flex-start}
 
-/* STATS */
-.statsbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:10px 20px;display:flex;gap:10px;flex-wrap:wrap}
-.stat{display:flex;flex-direction:column;align-items:center;padding:6px 16px;border-radius:8px;border:1px solid #e2e8f0;min-width:100px;gap:2px}
-.stat-n{font-size:22px;font-weight:700;line-height:1}
-.stat-l{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
-.s-blue .stat-n{color:#1a56db}
-.s-green .stat-n{color:#059669}
-.s-yellow .stat-n{color:#d97706}
-.s-red .stat-n{color:#dc2626}
-.s-purple .stat-n{color:#7c3aed}
+/* Stats */
+.statsbar{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:10px;margin:10px 0 0}
+.statsbar.hidden{display:none}
+.stat{display:flex;flex-direction:column;align-items:flex-start;padding:10px 12px;border-radius:10px;border:1px solid #e8ecf2;gap:4px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
 
-/* FILTERS */
-.filterbar{padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#f8fafc;border-bottom:1px solid #e2e8f0}
-.filterbar input,.filterbar select{padding:6px 10px;border:1.5px solid #d1d5db;border-radius:7px;font-family:inherit;font-size:12px;color:#374151;background:#fff;outline:none}
-.filterbar input:focus,.filterbar select:focus{border-color:#93c5fd}
-.filterbar input{width:220px}
+/* Tabs */
+.tabrow{margin-top:10px;background:#fff;border:1px solid #dde5f0;border-radius:12px;padding:8px;display:flex;gap:8px;flex-wrap:wrap}
+.tablink{padding:8px 14px;font-size:12px;font-weight:600;color:#64748b;border:1px solid transparent;border-radius:999px;cursor:pointer;transition:all .16s;background:#f8fafc;font-family:inherit}
+.tablink:hover{color:#1a2332;background:#eef2ff}
+.tablink.active{color:#1d4ed8;background:#e8f0ff;border-color:#bfd3ff}
+
+/* Filters */
+.filterbar{padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#f8fbff;border:1px solid #dfe8f5;border-radius:12px;margin-top:10px;position:sticky;top:var(--header-h);z-index:220;border-bottom:1px solid #d7e3f4;box-shadow:0 8px 18px #0f172a12}
+.filterbar input[type='text'],.filterbar select{padding:7px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:12px;color:#374151;background:#fff;outline:none;min-height:34px}
+.filterbar input[type='text']:focus,.filterbar select:focus{border-color:#93c5fd;box-shadow:0 0 0 3px #93c5fd33}
+.filterbar input[type='text']{width:230px}
+.filterbar input[type='checkbox']{width:16px;height:16px;min-height:16px;accent-color:#1a56db}
+.filterbar .filter-label{font-size:11px;color:#64748b;font-weight:600;display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px}
+.quick-filters{display:flex;gap:6px;flex-wrap:wrap}
+.qf-btn{padding:6px 10px;border:1px solid #d1d5db;border-radius:999px;background:#fff;font-size:11px;cursor:pointer;font-weight:600}
+.qf-btn.active{background:#1a56db;color:#fff;border-color:#1a56db}
 .alerts-toggle{padding:5px 10px;border-radius:6px;border:1.5px solid #fca5a5;background:#fef2f2;color:#dc2626;font-size:11px;font-weight:600;cursor:pointer;display:none}
 .alerts-toggle.has-alerts{display:inline-flex;align-items:center;gap:4px}
 
+/* Utilities */
+:focus-visible{outline:2px solid #1B4F8A;outline-offset:2px}
+
+.header-sep{width:1px;height:24px;background:#e2e8f0}
+.content-card{margin-top:10px}
 /* ALERTS PANEL */
-.alerts-panel{margin:10px 20px;background:#fff;border:1.5px solid #fca5a5;border-radius:10px;overflow:hidden;display:none}
+.alerts-panel{margin:10px 0;background:#fff;border:1.5px solid #fca5a5;border-radius:10px;overflow:hidden;display:none}
 .alerts-panel.open{display:block}
 .alerts-head{background:#fef2f2;padding:8px 14px;font-size:11px;font-weight:600;color:#dc2626;display:flex;justify-content:space-between;align-items:center}
 .alert-row{display:flex;align-items:center;gap:10px;padding:7px 14px;border-top:1px solid #fee2e2;cursor:pointer}
@@ -53,21 +79,25 @@ header{background:#fff;border-bottom:2px solid #e2e8f0;padding:0 20px;display:fl
 .alert-row .ar-cl{font-size:10px;padding:2px 6px;border-radius:4px}
 
 /* MAIN TABLE AREA */
-.tablewrap{margin:10px 20px 20px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px #0001}
-.table-scroll{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 260px)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead{position:sticky;top:0;z-index:10}
-thead th{background:#f1f5f9;padding:0;border-bottom:2px solid #e2e8f0;border-right:1px solid #e2e8f0;white-space:nowrap;font-weight:600;color:#374151;font-size:11px;user-select:none}
+.tablewrap{margin:10px 0 20px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px #0001}
+.table-scroll{overflow-x:auto;overflow-y:visible;max-height:none}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+thead{position:static}
+thead th{position:static;background:#1B4F8A;padding:0;border-bottom:1px solid #E8ECF2;border-right:1px solid #2c5f9a;white-space:nowrap;font-weight:600;color:#fff;font-size:11px;user-select:none;box-sizing:border-box}
 thead th .th-inner{display:flex;align-items:center;padding:8px 10px;gap:4px;cursor:pointer}
 thead th .th-inner:hover{background:#e2e8f0}
 thead th.th-check{width:36px;cursor:default}
 thead th.th-check .th-inner{justify-content:center;cursor:default}
+#mainTable td.th-check,#mainTable th.th-check{width:36px;min-width:36px;max-width:36px}
 
-tbody tr{border-bottom:1px solid #f1f5f9;transition:background .1s;cursor:pointer}
-tbody tr:hover{background:#f8fafc}
+tbody tr{border-bottom:1px solid #E8ECF2;transition:background .15s ease;cursor:pointer}
+tbody tr:hover{background:#EEF3FB}
 tbody tr.selected{background:#eff6ff!important;outline:2px solid #3b82f6;outline-offset:-2px}
-tbody td{padding:0;border-right:1px solid #f1f5f9;white-space:nowrap;vertical-align:middle}
-tbody td .cell{padding:7px 10px;min-height:34px;display:flex;align-items:center}
+tbody tr.dup-error{background:#fef2f2!important}
+tbody tr.dup-error td{border-color:#fecaca}
+tbody tr:nth-child(even):not(.dup-error){background:#FAFBFD}
+tbody td{padding:0;border-right:1px solid #E8ECF2;white-space:nowrap;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+tbody td .cell{padding:7px 10px;min-height:34px;display:flex;align-items:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* INLINE EDITING */
 td.editable .cell{cursor:text}
@@ -76,8 +106,8 @@ td.editing .cell{padding:0}
 td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:none;border-bottom:2px solid #3b82f6;background:#eff6ff;font-family:inherit;font-size:12px;color:#1a2332;outline:none}
 
 /* BADGES */
-.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;white-space:nowrap}
-.b0{background:#fee2e2;color:#991b1b}   /* FALTA LIO */
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.b0{background:#fee2e2;color:#991b1b}   /* FALTA DIOPTRÍA */
 .b1{background:#ffedd5;color:#9a3412}   /* FALTA PRE */
 .b2{background:#fef9c3;color:#854d0e}   /* LISTO */
 .b3{background:#dbeafe;color:#1e40af}   /* SOLICITADA */
@@ -117,7 +147,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 .alerta-item{background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:6px 10px;font-size:11px;color:#dc2626;margin-bottom:4px}
 
 /* KANBAN */
-.kanban{display:flex;gap:12px;padding:10px 20px 20px;overflow-x:auto}
+.kanban{display:flex;gap:12px;padding:10px 0 20px;overflow-x:auto}
 .kancol{flex:0 0 200px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px}
 .kancol-h{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;font-weight:600;display:flex;justify-content:space-between;margin-bottom:8px}
 .kancol-n{background:#f1f5f9;padding:1px 6px;border-radius:8px;font-size:11px}
@@ -126,12 +156,6 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 .kancard-name{font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
 .kancard-meta{font-size:10px;color:#6b7280;display:flex;gap:5px;flex-wrap:wrap}
 .kancard-alert{font-size:10px;color:#dc2626;margin-top:3px}
-
-/* TABS */
-.tabrow{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 20px;display:flex;gap:0}
-.tablink{padding:10px 16px;font-size:12px;font-weight:500;color:#6b7280;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
-.tablink:hover{color:#1a2332}
-.tablink.active{color:#1a56db;border-bottom-color:#1a56db}
 
 /* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:#1a2332;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:1000;opacity:0;transition:all .3s;pointer-events:none}
@@ -146,61 +170,155 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
 
-@media(max-width:640px){.side{width:100%}.statsbar{padding:8px 12px}.tablewrap{margin:8px 12px}}
+
+/* WHATSAPP TAB */
+.wa-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
+.wa-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.wa-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.wa-table th,.wa-table td{border:1px solid #e5e7eb;padding:6px;text-align:center;vertical-align:middle}
+.wa-table th{background:#f0f6ff}
+.wa-table input[type='text'],.wa-table input[type='time']{width:100%;padding:5px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px}
+.wa-table button:disabled{opacity:.45;cursor:not-allowed}
+.wa-estado.ok{color:#059669;font-weight:600}
+.wa-estado.err{color:#dc2626;font-weight:600}
+.wa-estado.pend{color:#6b7280;font-weight:600}
+
+
+/* WhatsApp Focus Mode */
+.mode-whatsapp .statsbar,
+.mode-whatsapp .filterbar,
+.mode-whatsapp .alerts-panel,
+.mode-whatsapp #tabView,
+.mode-whatsapp #kanView,
+.mode-whatsapp #calView,
+.mode-whatsapp #statsView{display:none!important}
+.mode-whatsapp .tabrow{padding:6px 8px;gap:6px;position:sticky;top:0;z-index:220;background:#fff}
+.mode-whatsapp .tabrow .tablink:not(.active){display:none}
+.mode-whatsapp .app-shell.content-card{max-width:1180px;padding-top:8px}
+.mode-whatsapp #waView{margin:0!important;display:block!important}
+.mode-whatsapp .whatsapp-confirmar{border:1px solid #d9e4f5;border-radius:16px;padding:18px;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);box-shadow:0 12px 30px #0f172a12}
+.mode-whatsapp .whatsapp-confirmar h3{font-size:20px;color:#0f4ab8;margin-bottom:14px!important}
+.mode-whatsapp .whatsapp-confirmar .wa-tools{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px;align-items:end}
+.mode-whatsapp .whatsapp-confirmar .wa-tools > *{grid-column:span 3}
+.mode-whatsapp .whatsapp-confirmar #waStartTurnos,
+.mode-whatsapp .whatsapp-confirmar #waStartDocs{grid-column:span 3;background:#1a56db;border-color:#1a56db;color:#fff}
+.mode-whatsapp .whatsapp-confirmar #waStop,
+.mode-whatsapp .whatsapp-confirmar #waReset{grid-column:span 2}
+.mode-whatsapp .whatsapp-confirmar #waContador{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px}
+@media(max-width:960px){
+  .mode-whatsapp .tabrow .tablink:not(.active){display:inline-flex}
+  .mode-whatsapp .whatsapp-confirmar .wa-tools{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .mode-whatsapp .whatsapp-confirmar .wa-tools > *{grid-column:span 3}
+}
+@media(max-width:640px){
+  .mode-whatsapp .app-shell.content-card{padding:6px 8px 14px}
+  .mode-whatsapp .whatsapp-confirmar{padding:12px}
+  .mode-whatsapp .whatsapp-confirmar .wa-tools{grid-template-columns:1fr}
+  .mode-whatsapp .whatsapp-confirmar .wa-tools > *{grid-column:span 1}
+}
+
+
+@media(max-width:768px){
+  #mainTable thead{display:none}
+  #mainTable,#mainTable tbody,#mainTable tr,#mainTable td{display:block;width:100%}
+  #mainTable tr{background:#fff;border:1px solid #e8ecf2;border-radius:10px;margin:0 0 10px;overflow:hidden}
+  #mainTable td{border-right:none;border-bottom:1px solid #eef2f7;white-space:normal}
+  #mainTable td:last-child{border-bottom:none}
+  #mainTable td .cell{display:flex;justify-content:space-between;gap:10px;white-space:normal}
+  #mainTable td[data-label] .cell::before{content:attr(data-label);font-weight:600;color:#1B4F8A;min-width:120px}
+  #mainTable td.th-check .cell::before{content:'Selección'}
+}
+@media(max-width:1280px){.statsbar{grid-template-columns:repeat(4,minmax(0,1fr));}}
+@media(max-width:768px){.statsbar{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(min-width:1281px){.statsbar{grid-template-columns:repeat(10,minmax(0,1fr));}}
+
+@media(max-width:960px){.actionbar{padding:8px}.header-sep{display:none}.filterbar{gap:7px;top:var(--header-h)}.filterbar input[type='text']{width:100%}.more-menu-list{left:0;right:auto}}
+@media(max-width:640px){.side{width:100%}.tabrow{gap:6px}.tablink{padding:7px 11px}.tablewrap{margin:8px 0}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="logo">👁 OftalmoCirugías <small>control de flujo</small></div>
-  <span id="syncBadge" style="font-size:11px;color:#1a56db;display:none"></span>
-  <div class="hspacer"></div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <button class="btn" onclick="sincronizarAhora()" title="Recargar datos del servidor">↺ Sync</button>
-    <button class="btn" onclick="configurarURL()" title="Configurar URL del servidor">⚙ Configurar</button>
-    <button class="btn green" onclick="exportarListos()">↓ Exportar Listos</button>
-    <button class="btn primary" onclick="nuevoModal()">+ Nuevo Paciente</button>
+<div class="topbar">
+  <div class="app-shell">
+    <!-- HEADER -->
+    <header>
+      <div class="brandbar">
+        <div class="logo">Centro de Ojos Esteves <small>Gestión de Cirugías</small></div>
+        <div class="status-pill"><span class="status-dot"></span> <span>Listo</span> <span id="syncBadge"></span></div>
+      </div>
+      <div class="actionbar">
+        <button class="btn primary" aria-label="Nuevo paciente" onclick="nuevoModal()">+ Nuevo Paciente</button>
+        <button class="btn" aria-label="Sincronizar datos" onclick="sincronizarAhora()" title="Recargar datos del servidor">↺ Sync</button>
+        <button class="btn" id="toggleKpisBtn" aria-label="Ocultar KPIs" onclick="toggleKpis()">Ocultar KPIs</button>
+        <span class="header-sep"></span>
+        <details class="more-menu">
+          <summary class="btn">Más ▾</summary>
+          <div class="more-menu-list">
+            <button class="btn" onclick="configurarURL()" title="Configurar URL del servidor">⚙ Configurar</button>
+            <button class="btn green" onclick="exportarListos()">↓ Exportar Listos</button>
+            <button class="btn" onclick="exportarCirugiasDelDia()">📤 Exportar cirugías del día</button>
+            <button class="btn" onclick="abrirStockModal()">🧪 Stock lentes</button>
+            <button class="btn" onclick="exportarFiltradoExcel()">📄 Exportar vista</button>
+            <button class="btn" onclick="exportarBackupJSON()">💾 Backup JSON</button>
+            <button class="btn" onclick="importarBackupJSON()">📥 Importar JSON</button>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    <!-- STATS -->
+    <div class="statsbar" id="statsbar"></div>
+
+    <!-- TABS -->
+    <div class="tabrow">
+      <button class="tablink active" onclick="setTab('tabla',this)">📋 Tabla</button>
+      <button class="tablink" onclick="setTab('kanban',this)">🗂 Kanban</button>
+      <button class="tablink" onclick="setTab('calendario',this)">🗓 Calendario</button>
+      <button class="tablink" onclick="setTab('estadisticas',this)">📊 Estadísticas</button>
+      <button class="tablink" onclick="setTab('whatsapp',this)">💬 WhatsApp</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filterbar">
+      <input type="text" id="q" placeholder="🔍  Buscar nombre o DNI..." oninput="render()">
+      <select id="fCli" onchange="render()">
+        <option value="">Todas las clínicas</option>
+        <option>CDU</option>
+        <option>Gualeguaychú</option>
+      </select>
+      <select id="fEst" onchange="render()">
+        <option value="">Todos los estados</option>
+        <option>FALTA DIOPTRÍA</option>
+        <option>FALTA PREQUIRÚRGICO</option>
+        <option>LISTO PARA PEDIR LENTE</option>
+        <option>LENTE SOLICITADA</option>
+        <option>LENTE LLEGÓ</option>
+        <option>FECHA PROGRAMADA</option>
+        <option>CIRUGÍA REALIZADA - FALTA FACTURAR</option>
+        <option>FINALIZADO - FACTURADA</option>
+        <option>DEVOLVER LENTE</option>
+      </select>
+      <div class="quick-filters" id="quickFilters">
+        <button class="qf-btn active" onclick="setQuickFilter('TODOS', this)">TODOS</button>
+        <button class="qf-btn" onclick="setQuickFilter('PROGRAMADAS', this)">PROGRAMADAS</button>
+        <button class="qf-btn" onclick="setQuickFilter('LENTE PEDIDA', this)">LENTE PEDIDA</button>
+        <button class="qf-btn" onclick="setQuickFilter('REALIZADAS', this)">REALIZADAS</button>
+        <button class="qf-btn" onclick="setQuickFilter('FACTURADAS', this)">FACTURADAS</button>
+      </div>
+      <select id="fOS" onchange="render()">
+        <option value="">Todas las obras sociales</option>
+        <option>PAMI</option>
+        <option>OSER</option>
+        <option>PARTICULAR</option>
+      </select>
+      <label class="filter-label"><input type="checkbox" id="showSilenced" onchange="render()"> Mostrar silenciadas</label>
+      <button class="btn" onclick="configurarAlertas()" style="padding:5px 10px">⚙ Alertas</button>
+      <button class="btn" onclick="clearTopFilters()">Limpiar filtros</button>
+      <button class="alerts-toggle" id="alertsToggle" onclick="toggleAlerts()">⚠ <span id="alertsCount">0</span> alertas</button>
+    </div>
   </div>
-</header>
-
-<!-- STATS -->
-<div class="statsbar" id="statsbar"></div>
-
-<!-- TABS -->
-<div class="tabrow">
-  <button class="tablink active" onclick="setTab('tabla',this)">📋 Tabla</button>
-  <button class="tablink" onclick="setTab('kanban',this)">🗂 Kanban</button>
 </div>
-
-<!-- FILTERS -->
-<div class="filterbar">
-  <input type="text" id="q" placeholder="🔍  Buscar nombre, DNI..." oninput="render()">
-  <select id="fCli" onchange="render()">
-    <option value="">Todas las clínicas</option>
-    <option>Clínica 1</option>
-    <option>Clínica 2</option>
-  </select>
-  <select id="fEst" onchange="render()">
-    <option value="">Todos los estados</option>
-    <option>FALTA LIO</option>
-    <option>FALTA PREQUIRÚRGICO</option>
-    <option>LISTO PARA PEDIR LENTE</option>
-    <option>LENTE SOLICITADA</option>
-    <option>LENTE LLEGÓ</option>
-    <option>FECHA PROGRAMADA</option>
-    <option>CIRUGÍA REALIZADA - FALTA FACTURAR</option>
-    <option>FINALIZADO - FACTURADA</option>
-    <option>DEVOLVER LENTE</option>
-  </select>
-  <select id="fOS" onchange="render()">
-    <option value="">Todas las obras sociales</option>
-    <option>PAMI</option>
-    <option>OSER</option>
-    <option>PARTICULAR</option>
-  </select>
-  <button class="alerts-toggle" id="alertsToggle" onclick="toggleAlerts()">⚠ <span id="alertsCount">0</span> alertas</button>
-</div>
+<div class="app-shell content-card">
 
 <!-- ALERTS PANEL -->
 <div class="alerts-panel" id="alertsPanel">
@@ -213,26 +331,8 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 <div class="tablewrap">
   <div class="table-scroll">
     <table id="mainTable">
-      <thead>
-        <tr>
-          <th class="th-check"><div class="th-inner"><input type="checkbox" id="chkAll" onchange="toggleAll(this)"></div></th>
-          <th><div class="th-inner" onclick="sortBy('nombre')">#&nbsp; Nombre ↕</div></th>
-          <th><div class="th-inner" onclick="sortBy('dni')">DNI ↕</div></th>
-          <th><div class="th-inner">Clínica</div></th>
-          <th><div class="th-inner">O.Social</div></th>
-          <th><div class="th-inner">Ojo</div></th>
-          <th><div class="th-inner">LIO</div></th>
-          <th><div class="th-inner">Prequir.</div></th>
-          <th><div class="th-inner" onclick="sortBy('fechaSolLente')">Sol. Lente ↕</div></th>
-          <th><div class="th-inner" onclick="sortBy('fechaLlegaLente')">Llegó ↕</div></th>
-          <th><div class="th-inner">Recepción</div></th>
-          <th><div class="th-inner" onclick="sortBy('fechaCir')">Fecha Cir. ↕</div></th>
-          <th><div class="th-inner">Est. Cir.</div></th>
-          <th><div class="th-inner">Facturación</div></th>
-          <th><div class="th-inner">Estado Actual</div></th>
-          <th><div class="th-inner">Alertas</div></th>
-        </tr>
-      </thead>
+      <colgroup id="mainColgroup"></colgroup>
+      <thead id="mainThead"></thead>
       <tbody id="tbody"></tbody>
     </table>
   </div>
@@ -241,10 +341,16 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 
 <!-- KANBAN VIEW -->
 <div id="kanView" style="display:none" id="kanView"></div>
+<div id="calView" style="display:none;margin:10px 0 20px"></div>
+<div id="statsView" style="display:none;margin:10px 0 20px"></div>
+<div id="waView" style="display:none;margin:10px 0 20px"></div>
+
+</div>
 
 <!-- SIDE PANEL -->
 <div class="side" id="sidePanel">
   <div class="side-head">
+    <button class="btn" aria-label="Volver" onclick="goBackSecondary()">← Volver</button>
     <div>
       <div class="side-name" id="sideName">—</div>
       <div class="side-sub" id="sideSub">—</div>
@@ -261,13 +367,28 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   <div style="background:#fff;border-radius:12px;max-width:700px;width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
     <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
       <div style="font-size:15px;font-weight:700">📋 Listos para pedir lente</div>
-      <button onclick="closeExport()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button>
+      <div style="display:flex;gap:8px;align-items:center"><button class="btn" aria-label="Volver" onclick="goBackSecondary()">← Volver</button><button onclick="closeExport()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button></div>
     </div>
     <div style="padding:14px 20px;flex:1;overflow-y:auto" id="exportBody"></div>
     <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
       <button class="btn" onclick="closeExport()">Cerrar</button>
-      <button class="btn primary" onclick="copyCSV()">Copiar CSV</button>
-      <button class="btn green" onclick="downloadCSV()">↓ Descargar CSV</button>
+      <button class="btn primary" onclick="copyExcel()">Copiar TSV</button>
+      <button class="btn green" onclick="downloadExcelListos()">↓ Descargar Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- STOCK MODAL -->
+<div id="stockModal" style="display:none;position:fixed;inset:0;background:#0005;z-index:410;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;max-width:760px;width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">
+    <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:15px;font-weight:700">🧪 Inventario de lentes</div>
+      <div style="display:flex;gap:8px;align-items:center"><button class="btn" aria-label="Volver" onclick="goBackSecondary()">← Volver</button><button onclick="closeStockModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button></div>
+    </div>
+    <div style="padding:14px 20px;flex:1;overflow-y:auto" id="stockBody"></div>
+    <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="closeStockModal()">Cerrar</button>
+      <button class="btn primary" onclick="cargarStockLente()">+ Cargar stock</button>
     </div>
   </div>
 </div>
@@ -288,6 +409,105 @@ let selId = null;
 let sortCol = 'nombre', sortDir = 1;
 let currentTab = 'tabla';
 let isSyncing = false;
+let quickFilter = 'TODOS';
+
+let SETTINGS = JSON.parse(localStorage.getItem('cirugias_settings')||'{}');
+SETTINGS = Object.assign({
+  WARN_DAYS:15,
+  CRIT_DAYS:50,
+  second_eye_missing_days:50,
+  lens_arrived_not_scheduled_days:15,
+  billing_not_done_days:15,
+  lens_delay_days:15,
+  scheduled_but_lens_not_arrived_days:7
+}, SETTINGS||{});
+let ALERT_SILENCES = JSON.parse(localStorage.getItem('cirugias_alert_silences')||'{}');
+
+let WA_ROWS=[];
+let WA_ENVIADOS=0;
+let WA_ERRORES=0;
+let WA_STOP=false;
+let WA_STATUS_MAP={};
+let WA_TRACKING_MAP=JSON.parse(localStorage.getItem('wa_tracking_map')||'{}');
+let WA_CONFIRMED_MAP=JSON.parse(localStorage.getItem('wa_confirmed_map')||'{}');
+let WA_PHONE_OVERRIDE=JSON.parse(localStorage.getItem('wa_phone_override')||'{}');
+let WA_GLOBAL_DATE=localStorage.getItem('wa_global_date')||'';
+let WA_PREF={
+  channel: localStorage.getItem('wa_channel')||'desktop',
+  delay: parseInt(localStorage.getItem('wa_delay_ms')||'4000',10)||4000,
+  onlyLlego: localStorage.getItem('wa_only_llego')==='1'
+};
+function saveWaPrefs(){
+  localStorage.setItem('wa_channel',WA_PREF.channel);
+  localStorage.setItem('wa_delay_ms',String(WA_PREF.delay));
+  localStorage.setItem('wa_only_llego',WA_PREF.onlyLlego?'1':'0');
+  localStorage.setItem('wa_tracking_map',JSON.stringify(WA_TRACKING_MAP));
+  localStorage.setItem('wa_confirmed_map',JSON.stringify(WA_CONFIRMED_MAP));
+  localStorage.setItem('wa_phone_override',JSON.stringify(WA_PHONE_OVERRIDE));
+  localStorage.setItem('wa_global_date',WA_GLOBAL_DATE||'');
+}
+
+const MAIN_TABLE_COLUMNS=[
+  {key:'check',label:'',width:'36px',thClass:'th-check',sortable:false},
+  {key:'nombre',label:'#&nbsp; Nombre',width:'16%',sortable:true,sortKey:'nombre'},
+  {key:'dni',label:'DNI',width:'8%',sortable:true,sortKey:'dni'},
+  {key:'clinica',label:'Clínica',width:'7%'},
+  {key:'osocial',label:'O.Social',width:'8%'},
+  {key:'ojo',label:'Ojo',width:'4%'},
+  {key:'dioptria',label:'Dioptría',width:'6%'},
+  {key:'prequirurgicos',label:'Prequirúrgicos',width:'8%'},
+  {key:'solLente',label:'Sol.Lente.',width:'7%',sortable:true,sortKey:'fechaSolLente'},
+  {key:'llego',label:'Llegó.',width:'7%',sortable:true,sortKey:'fechaLlegaLente'},
+  {key:'fechaCir',label:'Fecha.Cir',width:'7%',sortable:true,sortKey:'fechaCir'},
+  {key:'estCir',label:'Est.Cir',width:'7%'},
+  {key:'facturacion',label:'Facturación',width:'10%'},
+  {key:'estadoActual',label:'Estado actual',width:'15%'}
+];
+
+function renderMainTableHeader(){
+  const colgroup=document.getElementById('mainColgroup');
+  const thead=document.getElementById('mainThead');
+  if(!colgroup||!thead) return;
+  colgroup.innerHTML=MAIN_TABLE_COLUMNS.map(c=>`<col style="width:${c.width}">`).join('');
+  thead.innerHTML=`<tr>${MAIN_TABLE_COLUMNS.map(c=>{
+    const label=c.sortable?`${c.label} ↕`:c.label;
+    const onclick=c.sortable?` onclick="sortBy('${c.sortKey||c.key}')"`:'';
+    const cls=c.thClass?` class="${c.thClass}"`:'';
+    return `<th${cls}><div class="th-inner"${onclick}>${label}</div></th>`;
+  }).join('')}</tr>`;
+  const chkWrap=thead.querySelector('th.th-check .th-inner');
+  if(chkWrap) chkWrap.innerHTML='<input type="checkbox" id="chkAll" onchange="toggleAll(this)">';
+}
+
+function devWarnTableMismatch(){
+  const isDev=['localhost','127.0.0.1',''].includes(location.hostname);
+  if(!isDev) return;
+  const thCount=document.querySelectorAll('#mainThead th').length;
+  const firstRow=document.querySelector('#tbody tr');
+  if(!firstRow) return;
+  const tdCount=firstRow.querySelectorAll('td').length;
+  if(thCount!==tdCount){
+    console.warn(`[table-mismatch] #th (${thCount}) != #td (${tdCount})`);
+  }
+}
+
+
+function toDateOnly(d){const dt=parseDateOnly(d); return dt?new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()):null;}
+function diffDays(a,b){const da=toDateOnly(a), db=toDateOnly(b); if(!da||!db) return null; return Math.floor((da-db)/86400000);}
+function detectDelimiter(line){const c=(line.match(/,/g)||[]).length; const sc=(line.match(/;/g)||[]).length; const t=(line.match(/\t/g)||[]).length; return t>=sc&&t>=c?'\t':(sc>c?';':',');}
+function parseDelimitedRows(text){
+  const lines=String(text||'').split(/\r?\n/).filter(Boolean);
+  if(!lines.length) return [];
+  const d=detectDelimiter(lines[0]);
+  const headers=lines[0].split(d).map(h=>h.trim());
+  return lines.slice(1).map(line=>{const cols=line.split(d); const out={}; headers.forEach((h,i)=>out[h]=String(cols[i]||'').trim()); return out;});
+}
+function severityByDays(days){if(days>=SETTINGS.CRIT_DAYS) return 'red'; if(days>=Math.max(30,SETTINGS.WARN_DAYS+15)) return 'orange'; if(days>=SETTINGS.WARN_DAYS) return 'yellow'; return 'neutral';}
+function saveSettings(){localStorage.setItem('cirugias_settings', JSON.stringify(SETTINGS)); localStorage.setItem('cirugias_alert_silences', JSON.stringify(ALERT_SILENCES));}
+function configureIDB(){return new Promise(res=>{if(!window.indexedDB)return res(null); const req=indexedDB.open('cirugias_db',1); req.onupgradeneeded=()=>{req.result.createObjectStore('kv')}; req.onsuccess=()=>res(req.result); req.onerror=()=>res(null);});}
+async function idbSet(key,val){const db=await configureIDB(); if(!db) return; await new Promise(r=>{const tx=db.transaction('kv','readwrite'); tx.objectStore('kv').put(val,key); tx.oncomplete=()=>r(); tx.onerror=()=>r();});}
+async function idbGet(key){const db=await configureIDB(); if(!db) return null; return await new Promise(r=>{const tx=db.transaction('kv','readonly'); const q=tx.objectStore('kv').get(key); q.onsuccess=()=>r(q.result||null); q.onerror=()=>r(null);});}
+
 
 async function apiCall(action, data={}) {
   if (!APPS_SCRIPT_URL) return null;
@@ -306,8 +526,8 @@ async function apiCall(action, data={}) {
 async function loadFromServer() {
   if (!APPS_SCRIPT_URL) {
     // Sin URL configurada → usar datos locales/seed
-    const cached = localStorage.getItem('cirugias_cache');
-    if (cached) { DB = JSON.parse(cached); }
+    const cached = localStorage.getItem('cirugias_cache') || await idbGet('cirugias_cache');
+    if (cached) { DB = typeof cached==='string'?JSON.parse(cached):cached; }
     else { DB = { rows: seed(), nid: 200 }; }
     return;
   }
@@ -320,17 +540,20 @@ async function loadFromServer() {
     const maxId = ids.length ? Math.max(...ids) : 0;
     DB = { rows: result.rows, nid: maxId + 1 };
     localStorage.setItem('cirugias_cache', JSON.stringify(DB));
+    idbSet('cirugias_cache', DB);
     showSyncBadge('✓ En línea', 'green');
   } else {
     showSyncBadge('⚠ Sin conexión — datos locales', 'orange');
-    const cached = localStorage.getItem('cirugias_cache');
-    if (cached) DB = JSON.parse(cached);
+    const cached = localStorage.getItem('cirugias_cache') || await idbGet('cirugias_cache');
+    if (cached) DB = typeof cached==='string'?JSON.parse(cached):cached;
   }
 }
 
 async function save(changedRow) {
   // Guardar cache local siempre
+  backupDiario();
   localStorage.setItem('cirugias_cache', JSON.stringify(DB));
+  idbSet('cirugias_cache', DB);
   if (!APPS_SCRIPT_URL || !changedRow) return;
   showSyncBadge('⟳ Guardando...');
   const result = await apiCall('save', { row: changedRow });
@@ -340,6 +563,7 @@ async function save(changedRow) {
 
 async function deleteFromServer(id) {
   localStorage.setItem('cirugias_cache', JSON.stringify(DB));
+  idbSet('cirugias_cache', DB);
   if (!APPS_SCRIPT_URL) return;
   await apiCall('delete', { id });
 }
@@ -368,6 +592,9 @@ async function configurarURL() {
 
 async function sincronizarAhora() {
   await loadFromServer();
+  normalizarData();
+  backupDiario();
+  initUX();
   render();
   toast('✓ Datos sincronizados');
 }
@@ -375,46 +602,138 @@ async function sincronizarAhora() {
 // ─────────────────────────────────────────────
 // BUSINESS LOGIC
 // ─────────────────────────────────────────────
+function hoyISO(){return new Date().toISOString().slice(0,10)}
+function parseDateOnly(d){ if(!d) return null; const dt=new Date(d); if(isNaN(dt)) return null; dt.setHours(0,0,0,0); return dt; }
+function daysSince(d){ const dt=parseDateOnly(d); if(!dt) return -1; const h=parseDateOnly(hoyISO()); return Math.floor((h-dt)/86400000); }
+function clinicaClass(c){ return c==='CDU'?'bcl1':'bcl2'; }
+function normalizarClinica(c){ if(c==='Clínica 1'||c==='CDU') return 'CDU'; if(c==='Clínica 2'||c==='Gualeguaychu'||c==='Gualeguaychú') return 'Gualeguaychú'; return c||'CDU'; }
+function getDioptria(p){ return p.dioptria||p.lio||''; }
+function normalizeEstadoCir(p){
+  const fc=toDateOnly(p.fechaCir);
+  const hoy=toDateOnly(hoyISO());
+  if(!fc){
+    if((p.estadoCir||'').toUpperCase()==='PROGRAMADA') p.estadoCir='';
+    return;
+  }
+  p.estadoCir = hoy <= fc ? 'Programada' : 'Realizada';
+}
+function secondEyeMissing(p){
+  if(p.ojos!=='2 ojos') return '';
+  const otro = p.ojo==='OD'?'OI':'OD';
+  const dni=String(p.dni||'').trim();
+  const hasOther=DB.rows.some(x=>x.id!==p.id&&String(x.dni||'').trim()===dni&&x.ojo===otro);
+  return hasOther?'':otro;
+}
+function duplicateNewestIds(){
+  const map={};
+  DB.rows.forEach(r=>{const k=`${String(r.dni||'').trim()}|${r.ojo||''}`; if(!map[k]) map[k]=[]; map[k].push(r);});
+  const dup=new Set();
+  Object.values(map).forEach(arr=>{ if(arr.length>1 && arr[0].dni){ arr.sort((a,b)=> (b.id||0)-(a.id||0)); dup.add(arr[0].id); }});
+  return dup;
+}
 function estado(p){
+  normalizeEstadoCir(p);
   if(p.recepLente==='Devolver') return 'DEVOLVER LENTE';
-  const fac = (p.estadoFac||'').toUpperCase();
+  const fac=(p.estadoFac||'').toUpperCase();
+  const missEye=secondEyeMissing(p);
   if(fac==='REALIZADA'||fac==='FACTURADA'){
-    if(p.ojos==='2 ojos'){
-      const otro = p.ojo==='OD'?'OI':'OD';
-      const tieneOtro = DB.rows.some(x=>x.id!==p.id&&String(x.dni).trim()===String(p.dni).trim()&&x.ojo===otro&&['REALIZADA','FACTURADA'].includes((x.estadoFac||'').toUpperCase()));
-      if(!tieneOtro) return `FACTURADA | FALTA HACER OTRO OJO (${otro})`;
-    }
+    if(missEye) return `FACTURADA | FALTA ${missEye}`;
     return 'FINALIZADO - FACTURADA';
   }
   if((p.estadoCir||'').toUpperCase()==='REALIZADA') return 'CIRUGÍA REALIZADA - FALTA FACTURAR';
   if(p.fechaCir) return 'FECHA PROGRAMADA';
   if(p.fechaLlegaLente) return 'LENTE LLEGÓ';
   if(p.fechaSolLente) return 'LENTE SOLICITADA';
-  if(!p.lio) return 'FALTA LIO';
+  if(!getDioptria(p)) return 'FALTA DIOPTRÍA';
   if(!p.pre||p.pre!=='OK') return 'FALTA PREQUIRÚRGICO';
   return 'LISTO PARA PEDIR LENTE';
 }
+function episodeIdFor(p){
+  if(p.episode_id) return p.episode_id;
+  const base=(p.fechaCir||p.fechaCarga||hoyISO()).slice(0,7);
+  return `${String(p.dni||'').trim()}|${p.clinica||''}|${base}`;
+}
+function mkAlert(type,p,days,baseDate,eye='NA',msgPrefix=''){
+  const d=Math.max(0, days||0);
+  const key=`${type}|${String(p.dni||'').trim()}|${p.clinica||''}|${episodeIdFor(p)}|${eye||'NA'}|${baseDate||''}`;
+  return {type,days:d,key,severity:severityByDays(d),msg:`${msgPrefix}${d} DÍAS`};
+}
+function isSilenced(a){ return !!ALERT_SILENCES[a.key]; }
+function silenciarAlerta(key){ ALERT_SILENCES[key]={silencedAt:new Date().toISOString()}; saveSettings(); render(); }
+function reactivarAlerta(key){ delete ALERT_SILENCES[key]; saveSettings(); render(); }
+function alertas(p,opts={}){
+  const today=toDateOnly(hoyISO());
+  const res=[];
+  const showSilenced=!!(document.getElementById('showSilenced')?.checked);
+  const st=estado(p);
 
-function alertas(p){
-  const a=[], hoy=new Date(); hoy.setHours(0,0,0,0);
-  const e=estado(p);
-  if(e==='LENTE SOLICITADA'&&p.fechaSolLente){
-    const d=Math.floor((hoy-new Date(p.fechaSolLente))/86400000);
-    if(d>15) a.push(`⚠ Lente demorada (${d}d)`);
+  // PRIORIDAD ABSOLUTA: DEVOLVER LENTE
+  if(p.recepLente==='Devolver' || st==='DEVOLVER LENTE'){
+    const a={type:'devolver',days:SETTINGS.CRIT_DAYS,key:`devolver|${p.id}|${p.recepLente||'DEVOLVER'}`,severity:'red',msg:'⚠ DEVOLVER LENTE'};
+    if(opts.raw) return [a];
+    return (showSilenced || !isSilenced(a)) ? [a] : [];
   }
-  if(e==='LENTE LLEGÓ'&&p.fechaLlegaLente&&!p.fechaCir){
-    const d=Math.floor((hoy-new Date(p.fechaLlegaLente))/86400000);
-    if(d>20) a.push(`🚨 Sin turno (+20d)`);
-    else if(d>10) a.push(`⚠ Sin turno (+10d)`);
+
+  if((!p.fechaCir || p.fechaCir==='FECHA NO ASIGNADA')){
+    const base=p.createdAt||p.updatedAt||p.fechaCarga||hoyISO();
+    const d=diffDays(today, base);
+    if(d!==null && d>=SETTINGS.WARN_DAYS) res.push(mkAlert('not_scheduled',p,d,base,p.ojo,'FECHA NO PROGRAMADA '));
   }
-  if(p.recepLente==='Devolver') a.push('⚠ Devolver lente');
-  const e2=estado(p);
-  if(e2.includes('FALTA HACER OTRO OJO')) a.push(`⚠ Falta ${p.ojo==='OD'?'OI':'OD'}`);
-  return a;
+
+  if(p.fechaSolLente && !p.fechaLlegaLente){
+    const d=diffDays(today,p.fechaSolLente);
+    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.lens_delay_days)) res.push(mkAlert('lens_delay',p,d,p.fechaSolLente,p.ojo,'DEMORA LENTE '));
+  }
+
+  if(p.fechaLlegaLente && !p.fechaCir){
+    const d=diffDays(today,p.fechaLlegaLente);
+    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.lens_arrived_not_scheduled_days)) res.push(mkAlert('arrived_not_scheduled',p,d,p.fechaLlegaLente,p.ojo,'LENTE LLEGÓ Y NO PROGRAMADA '));
+  }
+
+  if(p.fechaCir && st==='FECHA PROGRAMADA' && !p.fechaLlegaLente){
+    const dts=diffDays(p.fechaCir,today);
+    if(dts!==null && dts<=SETTINGS.scheduled_but_lens_not_arrived_days) res.push({type:'scheduled_no_lens',days:dts,key:`scheduled_no_lens|${p.id}|${p.fechaCir}`,severity:dts<=0?'red':'yellow',msg:`CIRUGÍA PRÓXIMA SIN LENTE (${dts} DÍAS)`});
+  }
+
+  const fac=(p.estadoFac||'').toUpperCase();
+  const facturacionRealizada = fac==='REALIZADA' || fac==='FACTURADA';
+  if((st==='CIRUGÍA REALIZADA - FALTA FACTURAR' || st==='FINALIZADO - FACTURADA') && !facturacionRealizada){
+    const d=diffDays(today,p.fechaCir);
+    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.billing_not_done_days)) res.push(mkAlert('billing_pending',p,d,p.fechaCir,p.ojo,'FACTURACIÓN NO REALIZADA '));
+  }
+
+  // FALTA 2º OJO: solo si requiere 2 ojos, ya hubo primer ojo realizado,
+  // y todavía NO existe una fila del ojo contrario para el mismo DNI.
+  if(p.ojos==='2 ojos' || p.requires_two_eyes){
+    const dni=String(p.dni||'').trim();
+    const ojoActual=String(p.ojo||'').toUpperCase();
+    const ojoOpuesto=ojoActual==='OD'?'OI':ojoActual==='OI'?'OD':'';
+    const sameDniRows=DB.rows.filter(x=>String(x.dni||'').trim()===dni);
+    const existeOjoOpuesto = !!ojoOpuesto && sameDniRows.some(x=>x.id!==p.id && String(x.ojo||'').toUpperCase()===ojoOpuesto);
+
+    if(!existeOjoOpuesto){
+      const primerRealizado=sameDniRows
+        .filter(x=>estado(x)==='CIRUGÍA REALIZADA - FALTA FACTURAR' || estado(x)==='FINALIZADO - FACTURADA')
+        .map(x=>x.fechaCir)
+        .filter(Boolean)
+        .sort()[0];
+      if(primerRealizado){
+        const d=diffDays(today,primerRealizado);
+        if(d!==null && d>=Math.max(SETTINGS.CRIT_DAYS, SETTINGS.second_eye_missing_days)){
+          res.push(mkAlert('second_eye_missing',p,d,primerRealizado,'NA','FALTA 2° OJO – '));
+        }
+      }
+    }
+  }
+
+  const unique=[]; const seen=new Set();
+  res.forEach(a=>{if(!seen.has(a.key)){seen.add(a.key); unique.push(a);}});
+  if(opts.raw) return unique;
+  return unique.filter(a=>showSilenced || !isSilenced(a));
 }
 
 const BCLS={
-  'FALTA LIO':'b0','FALTA PREQUIRÚRGICO':'b1','LISTO PARA PEDIR LENTE':'b2',
+  'FALTA DIOPTRÍA':'b0','FALTA PREQUIRÚRGICO':'b1','LISTO PARA PEDIR LENTE':'b2',
   'LENTE SOLICITADA':'b3','LENTE LLEGÓ':'b4','FECHA PROGRAMADA':'b5',
   'CIRUGÍA REALIZADA - FALTA FACTURAR':'b6','FINALIZADO - FACTURADA':'b7',
   'DEVOLVER LENTE':'b8'
@@ -432,10 +751,14 @@ function filtered(){
   const fe=document.getElementById('fEst').value;
   const fo=document.getElementById('fOS').value;
   let rows=[...DB.rows];
-  if(q) rows=rows.filter(p=>(p.nombre||'').toLowerCase().includes(q)||String(p.dni).includes(q));
+  if(q) rows=rows.filter(p=>(p.nombre||'').toLowerCase().includes(q)||String(p.dni||'').includes(q));
   if(fc) rows=rows.filter(p=>p.clinica===fc);
   if(fe) rows=rows.filter(p=>estado(p)===fe);
   if(fo) rows=rows.filter(p=>p.obraSocial===fo);
+  if(quickFilter==='PROGRAMADAS') rows=rows.filter(p=>estado(p)==='FECHA PROGRAMADA');
+  if(quickFilter==='LENTE PEDIDA') rows=rows.filter(p=>estado(p)==='LENTE SOLICITADA');
+  if(quickFilter==='REALIZADAS') rows=rows.filter(p=>(p.estadoCir||'').toUpperCase()==='REALIZADA');
+  if(quickFilter==='FACTURADAS') rows=rows.filter(p=>['REALIZADA','FACTURADA'].includes((p.estadoFac||'').toUpperCase()));
   rows.sort((a,b)=>{
     const va=a[sortCol]||'',vb=b[sortCol]||'';
     return va<vb?-sortDir:va>vb?sortDir:0;
@@ -443,28 +766,90 @@ function filtered(){
   return rows;
 }
 
+function setQuickFilter(f,el){
+  quickFilter=f;
+  document.querySelectorAll('.qf-btn').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  render();
+}
+
+function clearTopFilters(){
+  const q=document.getElementById('q');
+  const fCli=document.getElementById('fCli');
+  const fEst=document.getElementById('fEst');
+  const fOS=document.getElementById('fOS');
+  const sil=document.getElementById('showSilenced');
+  if(q) q.value='';
+  if(fCli) fCli.value='';
+  if(fEst) fEst.value='';
+  if(fOS) fOS.value='';
+  if(sil) sil.checked=false;
+  const first=document.querySelector('#quickFilters .qf-btn');
+  setQuickFilter('TODOS',first);
+}
+
 function sortBy(col){sortCol=col;sortDir=sortCol===col?-sortDir:1;render()}
+
+function updateStickyMetrics(){
+  const h=document.querySelector('header');
+  const fb=document.querySelector('.filterbar');
+  const headerH=h?Math.ceil(h.getBoundingClientRect().height):120;
+  const filterH=fb?Math.ceil(fb.getBoundingClientRect().height):56;
+  document.body.style.setProperty('--header-h',`${headerH}px`);
+  document.body.style.setProperty('--filter-h',`${filterH}px`);
+}
+
+function toggleKpis(){
+  const box=document.getElementById('statsbar');
+  const btn=document.getElementById('toggleKpisBtn');
+  if(!box||!btn) return;
+  const hidden=box.classList.toggle('hidden');
+  btn.textContent=hidden?'Mostrar KPIs':'Ocultar KPIs';
+  btn.setAttribute('aria-label', hidden?'Mostrar KPIs':'Ocultar KPIs');
+  localStorage.setItem('cirugias_hide_kpis', hidden?'1':'0');
+  updateStickyMetrics();
+}
+
+function restoreKpisPref(){
+  const hide=localStorage.getItem('cirugias_hide_kpis')==='1';
+  const box=document.getElementById('statsbar');
+  const btn=document.getElementById('toggleKpisBtn');
+  if(!box||!btn) return;
+  box.classList.toggle('hidden', hide);
+  btn.textContent=hide?'Mostrar KPIs':'Ocultar KPIs';
+  btn.setAttribute('aria-label', hide?'Mostrar KPIs':'Ocultar KPIs');
+}
 
 // ─────────────────────────────────────────────
 // STATS
 // ─────────────────────────────────────────────
 function renderStats(){
   const all=DB.rows;
-  let nalerts=0,nlentes=0,nprog=0,nlisto=0;
+  let nalerts=0,nPedidas=0,nprog=0,nreal=0,nCDU=0,nGchu=0,nFact=0,nPendFac=0,nCrit=0;
   all.forEach(p=>{
-    if(alertas(p).length) nalerts++;
+    const ars=alertas(p);
+    nalerts+=ars.length;
+    nCrit+=ars.filter(a=>a.severity==='red').length;
     const e=estado(p);
-    if(e==='LENTE LLEGÓ') nlentes++;
+    if(e==='LENTE SOLICITADA') nPedidas++;
     if(e==='FECHA PROGRAMADA') nprog++;
-    if(e==='LISTO PARA PEDIR LENTE') nlisto++;
+    if(e==='CIRUGÍA REALIZADA - FALTA FACTURAR' || e==='FINALIZADO - FACTURADA') nreal++;
+    if((p.estadoFac||'').toUpperCase()==='FACTURADA') nFact++;
+    if((e==='CIRUGÍA REALIZADA - FALTA FACTURAR') && (p.estadoFac||'').toUpperCase()!=='FACTURADA') nPendFac++;
+    if(p.clinica==='CDU') nCDU++;
+    if(p.clinica==='Gualeguaychú' || p.clinica==='Gualeguaychú') nGchu++;
   });
   document.getElementById('statsbar').innerHTML=`
-    <div class="stat s-blue"><div class="stat-n">${all.length}</div><div class="stat-l">Total</div></div>
-    <div class="stat s-yellow"><div class="stat-n">${nlisto}</div><div class="stat-l">Listos pedir</div></div>
-    <div class="stat s-purple"><div class="stat-n">${nlentes}</div><div class="stat-l">Lente en clínica</div></div>
-    <div class="stat s-green"><div class="stat-n">${nprog}</div><div class="stat-l">Programadas</div></div>
-    <div class="stat s-red"><div class="stat-n">${nalerts}</div><div class="stat-l">⚠ Alertas</div></div>`;
-  // alerts toggle
+    <div class="stat s-blue"><div class="stat-n">👥 ${new Set(all.map(x=>String(x.dni||'').trim()).filter(Boolean)).size}</div><div class="stat-l">Total pacientes</div></div>
+    <div class="stat s-purple"><div class="stat-n">🗂 ${all.length}</div><div class="stat-l">Total cirugías</div></div>
+    <div class="stat s-yellow"><div class="stat-n">📅 ${nprog}</div><div class="stat-l">Programadas</div></div>
+    <div class="stat s-green"><div class="stat-n">✅ ${nreal}</div><div class="stat-l">Realizadas</div></div>
+    <div class="stat s-green"><div class="stat-n">💳 ${nFact}</div><div class="stat-l">Facturadas</div></div>
+    <div class="stat s-red"><div class="stat-n">⏳ ${nPendFac}</div><div class="stat-l">Pend. facturar</div></div>
+    <div class="stat s-red"><div class="stat-n">⚠️ ${nalerts}</div><div class="stat-l">Alertas activas</div></div>
+    <div class="stat s-red"><div class="stat-n">🚨 ${nCrit}</div><div class="stat-l">Alertas críticas</div></div>
+    <div class="stat"><div class="stat-n">🏥 ${nCDU}</div><div class="stat-l">CDU</div></div>
+    <div class="stat"><div class="stat-n">🏥 ${nGchu}</div><div class="stat-l">Gualeguaychú</div></div>`;
   const btn=document.getElementById('alertsToggle');
   document.getElementById('alertsCount').textContent=nalerts;
   btn.classList.toggle('has-alerts',nalerts>0);
@@ -475,15 +860,16 @@ function renderStats(){
 // ─────────────────────────────────────────────
 function toggleAlerts(){document.getElementById('alertsPanel').classList.toggle('open')}
 function renderAlerts(){
-  const con=DB.rows.filter(p=>alertas(p).length>0);
-  document.getElementById('alertsTitle').textContent=`⚠ ${con.length} pacientes con alertas`;
-  document.getElementById('alertsList').innerHTML=con.map(p=>
-    alertas(p).map(a=>`<div class="alert-row" onclick="openSide(${p.id})">
+  const showSilenced=!!document.getElementById('showSilenced')?.checked;
+  const withAlerts=DB.rows.map(p=>({p,alerts:alertas(p,{raw:true})})).filter(x=>x.alerts.length>0);
+  const flat=withAlerts.flatMap(x=>x.alerts.filter(a=>showSilenced || !isSilenced(a)).map(a=>({p:x.p,a})));
+  document.getElementById('alertsTitle').textContent=`⚠ ${flat.length} alertas ${showSilenced?'(incluye silenciadas)':'activas'}`;
+  document.getElementById('alertsList').innerHTML=flat.map(({p,a})=>`<div class="alert-row" onclick="openSide(${p.id})">
       <div class="ar-name">${p.nombre||'—'}</div>
-      <div class="ar-msg">${a}</div>
-      <span class="ar-cl ${p.clinica==='Clínica 1'?'bcl1':'bcl2'}">${p.clinica}</span>
-    </div>`).join('')
-  ).join('');
+      <div class="ar-msg" style="color:${a.severity==='red'?'#dc2626':a.severity==='orange'?'#ea580c':a.severity==='yellow'?'#a16207':'#6b7280'}">${a.msg}</div>
+      <button class="btn" style="padding:3px 7px;font-size:10px" onclick="event.stopPropagation();${isSilenced(a)?`reactivarAlerta('${a.key}')`:`silenciarAlerta('${a.key}')`}">${isSilenced(a)?'Reactivar':'Silenciar'}</button>
+      <span class="ar-cl ${clinicaClass(p.clinica)}">${p.clinica}</span>
+    </div>`).join('');
 }
 
 // ─────────────────────────────────────────────
@@ -493,34 +879,41 @@ function render(){
   renderStats();
   renderAlerts();
   if(currentTab==='tabla') renderTabla();
-  else renderKanban();
+  else if(currentTab==='kanban') renderKanban();
+  else if(currentTab==='calendario') renderCalendario();
+  else if(currentTab==='estadisticas') renderEstadisticas();
+  else renderWhatsApp();
 }
 
 function renderTabla(){
+  renderMainTableHeader();
   const rows=filtered();
-  if(!rows.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="16"><div class="empty">No hay pacientes con esos filtros.</div></td></tr>`;return}
+  const dupIds=duplicateNewestIds();
+  if(!rows.length){document.getElementById('tbody').innerHTML=`<tr><td colspan="${MAIN_TABLE_COLUMNS.length}"><div class="empty">No hay pacientes con esos filtros.</div></td></tr>`;return}
   document.getElementById('tbody').innerHTML=rows.map((p,i)=>{
-    const e=estado(p), als=alertas(p);
+    const e=estado(p);
     const sel=p.id===selId;
-    return `<tr class="${sel?'selected':''}" onclick="rowClick(event,${p.id})">
-      <td class="th-check"><div class="cell" style="justify-content:center"><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,${p.id})" onclick="event.stopPropagation()"></div></td>
-      <td><div class="cell"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}</div></td>
-      <td><div class="cell" style="color:#6b7280">${p.dni||'—'}</div></td>
-      <td><div class="cell"><span class="${p.clinica==='Clínica 1'?'bcl1':'bcl2'}">${p.clinica}</span></div></td>
-      <td><div class="cell">${p.obraSocial||'—'}</div></td>
-      <td><div class="cell"><strong>${p.ojo||'—'}</strong></div></td>
-      <td class="editable" ondblclick="inlineEdit(event,${p.id},'lio')" title="Doble clic para editar"><div class="cell">${p.lio||'—'}</div></td>
-      <td class="editable" ondblclick="inlineEditSel(event,${p.id},'pre',['','OK','Pendiente'])" title="Doble clic para editar"><div class="cell">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</div></td>
-      <td class="editable" ondblclick="inlineEditDate(event,${p.id},'fechaSolLente')" title="Doble clic para editar"><div class="cell">${fd(p.fechaSolLente)}</div></td>
-      <td class="editable" ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}">${fd(p.fechaLlegaLente)}</div></td>
-      <td class="editable" ondblclick="inlineEditSel(event,${p.id},'recepLente',['','Correcta','Devolver'])" title="Doble clic para editar"><div class="cell">${p.recepLente?`<span class="badge" style="background:${p.recepLente==='Correcta'?'#d1fae5':'#fee2e2'};color:${p.recepLente==='Correcta'?'#065f46':'#991b1b'}">${p.recepLente}</span>`:'—'}</div></td>
-      <td class="editable" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell">${fd(p.fechaCir)}</div></td>
-      <td class="editable" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>
-      <td class="editable" ondblclick="inlineEditSel(event,${p.id},'estadoFac',['','Realizada','FACTURADA'])" title="Doble clic para editar"><div class="cell">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</div></td>
-      <td><div class="cell"><span class="badge ${bc(e)}">${e.length>28?e.substring(0,26)+'…':e}</span></div></td>
-      <td><div class="cell" style="gap:4px;flex-wrap:wrap">${als.map(a=>`<span style="font-size:10px;color:#dc2626;white-space:nowrap">${a}</span>`).join('')}</div></td>
-    </tr>`;
+    const dup=dupIds.has(p.id);
+    const rowCells={
+      check:`<td class="th-check" data-label="Selección"><div class="cell" style="justify-content:center"><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,${p.id})" onclick="event.stopPropagation()"></div></td>`,
+      nombre:`<td data-label="Nombre"><div class="cell" title="${p.nombre||'—'}"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}</div></td>`,
+      dni:`<td data-label="DNI"><div class="cell" style="color:#6b7280" title="${p.dni||'—'}">${p.dni||'—'}</div></td>`,
+      clinica:`<td data-label="Clínica"><div class="cell" title="${p.clinica||'—'}"><span class="${clinicaClass(p.clinica)}">${p.clinica}</span></div></td>`,
+      osocial:`<td data-label="O.Social"><div class="cell" title="${p.obraSocial||'—'}">${p.obraSocial||'—'}</div></td>`,
+      ojo:`<td data-label="Ojo"><div class="cell"><strong>${p.ojo||'—'}</strong></div></td>`,
+      dioptria:`<td class="editable" data-label="Dioptría" ondblclick="inlineEdit(event,${p.id},'dioptria')" title="Doble clic para editar"><div class="cell" title="${getDioptria(p)||'—'}">${getDioptria(p)||'—'}</div></td>`,
+      prequirurgicos:`<td class="editable" data-label="Prequirúrgicos" ondblclick="inlineEditSel(event,${p.id},'pre',['','OK','Pendiente'])" title="Doble clic para editar"><div class="cell">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</div></td>`,
+      solLente:`<td class="editable" data-label="Sol.Lente." ondblclick="inlineEditDate(event,${p.id},'fechaSolLente')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaSolLente)}">${fd(p.fechaSolLente)}</div></td>`,
+      llego:`<td class="editable" data-label="Llegó." ondblclick="inlineEditDate(event,${p.id},'fechaLlegaLente')" title="Doble clic para editar"><div class="cell" style="color:${p.fechaLlegaLente?'#059669':'inherit'}" title="${fd(p.fechaLlegaLente)}">${fd(p.fechaLlegaLente)}</div></td>`,
+      fechaCir:`<td class="editable" data-label="Fecha.Cir" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaCir)}">${fd(p.fechaCir)}</div></td>`,
+      estCir:`<td class="editable" data-label="Est.Cir" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>`,
+      facturacion:`<td class="editable" data-label="Facturación" ondblclick="inlineEditSel(event,${p.id},'estadoFac',['','Realizada','FACTURADA'])" title="Doble clic para editar"><div class="cell">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</div></td>`,
+      estadoActual:`<td data-label="Estado actual"><div class="cell" title="${e}"><span class="badge ${bc(e)}">${e.length>28?e.substring(0,26)+'…':e}</span></div></td>`
+    };
+    const tds=MAIN_TABLE_COLUMNS.map(c=>rowCells[c.key]).join('');
+    return `<tr class="${sel?'selected':''} ${dup?'dup-error':''}" onclick="rowClick(event,${p.id})">${tds}</tr>`;
   }).join('');
+  devWarnTableMismatch();
 }
 
 // ─────────────────────────────────────────────
@@ -612,7 +1005,7 @@ function openSide(id){
       <div class="srow"><label>Fecha Nac.</label><input type="date" value="${fdInput(p.fnac)}" onchange="upd(${id},'fnac',this.value)"></div>
       <div class="srow"><label>Teléfono</label><input type="text" value="${p.tel||''}" onchange="upd(${id},'tel',this.value)"></div>
       <div class="srow"><label>Dirección</label><input type="text" value="${p.dir||''}" onchange="upd(${id},'dir',this.value)"></div>
-      <div class="srow"><label>Clínica</label><select onchange="upd(${id},'clinica',this.value)"><option ${p.clinica==='Clínica 1'?'selected':''}>Clínica 1</option><option ${p.clinica==='Clínica 2'?'selected':''}>Clínica 2</option></select></div>
+      <div class="srow"><label>Clínica</label><select onchange="upd(${id},'clinica',this.value)"><option ${p.clinica==='CDU'?'selected':''}>CDU</option><option ${p.clinica==='Gualeguaychú'?'selected':''}>Gualeguaychu</option></select></div>
       <div class="srow"><label>Obra Social</label><select onchange="upd(${id},'obraSocial',this.value)"><option ${p.obraSocial==='PAMI'?'selected':''}>PAMI</option><option ${p.obraSocial==='OSER'?'selected':''}>OSER</option><option ${p.obraSocial==='PARTICULAR'?'selected':''}>PARTICULAR</option></select></div>
       <div class="srow"><label>N° Afiliado</label><input type="text" value="${p.afiliado||''}" onchange="upd(${id},'afiliado',this.value)"></div>
     </div>
@@ -621,7 +1014,9 @@ function openSide(id){
       <div class="sgroup-title">Cirugía</div>
       <div class="srow"><label>Ojos a operar</label><select onchange="upd(${id},'ojos',this.value)"><option ${p.ojos==='1 ojo'?'selected':''}>1 ojo</option><option ${p.ojos==='2 ojos'?'selected':''}>2 ojos</option></select></div>
       <div class="srow"><label>Ojo</label><select onchange="upd(${id},'ojo',this.value)"><option ${p.ojo==='OD'?'selected':''}>OD</option><option ${p.ojo==='OI'?'selected':''}>OI</option></select></div>
-      <div class="srow"><label>LIO (aumento)</label><input type="text" value="${p.lio||''}" onchange="upd(${id},'lio',this.value)"></div>
+      <div class="srow"><label>Dioptría</label><input type="text" value="${getDioptria(p)||''}" onchange="upd(${id},'dioptria',this.value)"></div>
+      <div class="srow"><label>Modelo lente</label><input type="text" placeholder="Ej: Estándar / Especial" value="${p.model||''}" onchange="upd(${id},'model',this.value)"></div>
+      <div class="srow"><label>Precio especial</label><input type="number" min="0" value="${p.precioEspecial||''}" onchange="upd(${id},'precioEspecial',this.value)"></div>
       <div class="srow"><label>Prequirúrgicos</label><select onchange="upd(${id},'pre',this.value)"><option value="" ${!p.pre?'selected':''}>—</option><option ${p.pre==='OK'?'selected':''}>OK</option><option ${p.pre==='Pendiente'?'selected':''}>Pendiente</option></select></div>
     </div>
 
@@ -631,6 +1026,7 @@ function openSide(id){
       <div class="srow"><label>📦 Fecha llegada lente (Q)</label><input type="date" value="${fdInput(p.fechaLlegaLente)}" onchange="upd(${id},'fechaLlegaLente',this.value)"></div>
       <div class="srow"><label>Recepción lente (S)</label><select onchange="upd(${id},'recepLente',this.value)"><option value="" ${!p.recepLente?'selected':''}>—</option><option ${p.recepLente==='Correcta'?'selected':''}>Correcta</option><option ${p.recepLente==='Devolver'?'selected':''}>Devolver</option></select></div>
       <div class="srow"><label>📅 Fecha cirugía (T)</label><input type="date" value="${fdInput(p.fechaCir)}" onchange="upd(${id},'fechaCir',this.value)"></div>
+      <div class="srow"><label>🕒 Hora cirugía</label><input type="time" value="${p.hora||''}" onchange="upd(${id},'hora',this.value)"></div>
       <div class="srow"><label>Estado cirugía (U)</label><select onchange="upd(${id},'estadoCir',this.value)"><option value="" ${!p.estadoCir?'selected':''}>—</option><option ${p.estadoCir==='Realizada'?'selected':''}>Realizada</option><option ${p.estadoCir==='Programada'?'selected':''}>Programada</option></select></div>
       <div class="srow"><label>💰 Facturación (V)</label><select onchange="upd(${id},'estadoFac',this.value)"><option value="" ${!p.estadoFac?'selected':''}>—</option><option value="Realizada" ${p.estadoFac==='Realizada'?'selected':''}>Realizada</option><option value="FACTURADA" ${p.estadoFac==='FACTURADA'?'selected':''}>FACTURADA</option></select></div>
     </div>
@@ -642,11 +1038,20 @@ function openSide(id){
 
   document.getElementById('sideFoot').innerHTML=`
     <button class="btn orange" onclick="duplicarPaciente(${id})" title="Crea una copia para el otro ojo">⧉ Duplicar para otro ojo</button>
+    <button class="btn" onclick="usarLente(${id})">📦 Usar lente (stock)</button>
+    <button class="btn" onclick="marcarLenteLlegoHoy(${id})">📦 Lente llegó hoy</button>
+    <button class="btn" onclick="marcarFacturadaHoy(${id})">💰 Facturada hoy</button>
     <button class="btn" onclick="eliminar(${id})" style="margin-left:auto;border-color:#fca5a5;color:#dc2626">🗑 Eliminar</button>`;
 
   document.getElementById('sidePanel').classList.add('open');
   document.getElementById('sideOverlay').style.display='block';
 }
+
+function goBackSecondary(){
+  if(window.history.length>1) window.history.back();
+  else {closeSide(); closeExport(); closeStockModal();}
+}
+
 
 function closeSide(){
   document.getElementById('sidePanel').classList.remove('open');
@@ -659,6 +1064,7 @@ function upd(id,field,val){
   const p=DB.rows.find(x=>x.id===id);
   if(!p) return;
   p[field]=val;
+  validarFila(p);
   save(p);
   renderStats();
   renderAlerts();
@@ -671,7 +1077,7 @@ function upd(id,field,val){
   const ec=document.querySelector('.estado-calc');
   if(ec){ec.style.background=bcMap[bcl]||'#f1f5f9';ec.style.color=tcMap[bcl]||'#374151';ec.textContent=e}
   const ab=document.querySelector('.alertas-box');
-  if(ab) ab.innerHTML=als.map(a=>`<div class="alerta-item">${a}</div>`).join('');
+  if(ab) ab.innerHTML=als.map(a=>`<div class="alerta-item">${a.msg}</div>`).join('');
   toast('✓ Guardado');
 }
 
@@ -706,7 +1112,7 @@ function duplicarPaciente(id){
 // ─────────────────────────────────────────────
 function nuevoModal(){
   const nid=DB.nid++;
-  DB.rows.push({id:nid,clinica:'Clínica 1',nombre:'',dni:'',fnac:'',tel:'',dir:'',obraSocial:'PAMI',afiliado:'',ojos:'1 ojo',ojo:'OD',lio:'',pre:'',fechaSolLente:'',fechaLlegaLente:'',recepLente:'',fechaCir:'',estadoCir:'',estadoFac:'',notas:''});
+  DB.rows.push({id:nid,clinica:'CDU',nombre:'',dni:'',fnac:'',tel:'',dir:'',obraSocial:'PAMI',afiliado:'',ojos:'1 ojo',ojo:'OD',dioptria:'',pre:'',fechaSolLente:'',fechaLlegaLente:'',recepLente:'',fechaCir:'',hora:'',estadoCir:'',estadoFac:'',fechaCarga:hoyISO(),notas:''});
   save();
   render();
   openSide(nid);
@@ -723,7 +1129,7 @@ function eliminar(id){
 // KANBAN
 // ─────────────────────────────────────────────
 const KANCOLS=[
-  {key:'FALTA LIO',label:'Falta LIO'},
+  {key:'FALTA DIOPTRÍA',label:'Falta dioptría'},
   {key:'FALTA PREQUIRÚRGICO',label:'Falta Prequirúrgico'},
   {key:'LISTO PARA PEDIR LENTE',label:'Listo p/ pedir'},
   {key:'LENTE SOLICITADA',label:'Lente solicitada'},
@@ -742,7 +1148,7 @@ function renderKanban(){
         const als=alertas(p);
         return `<div class="kancard" onclick="openSide(${p.id})">
           <div class="kancard-name">${p.nombre||'—'}</div>
-          <div class="kancard-meta"><span>${p.ojo||''}</span><span>LIO ${p.lio||'—'}</span><span class="${p.clinica==='Clínica 1'?'bcl1':'bcl2'}" style="border-radius:4px;padding:1px 5px">${p.clinica}</span></div>
+          <div class="kancard-meta"><span>${p.ojo||''}</span><span>Dioptría ${getDioptria(p)||'—'}</span><span class="${clinicaClass(p.clinica)}" style="border-radius:4px;padding:1px 5px">${p.clinica}</span></div>
           ${als.length?`<div class="kancard-alert">${als[0]}</div>`:''}
         </div>`;
       }).join(''):'<div style="color:#9ca3af;font-size:11px;font-style:italic;padding:4px">Sin pacientes</div>'}</div>
@@ -750,12 +1156,370 @@ function renderKanban(){
   }).join('')}</div>`;
 }
 
+
+function renderCalendario(){
+  const rows=filtered().filter(p=>p.fechaCir);
+  const by={};
+  rows.forEach(p=>{const k=p.fechaCir; if(!by[k]) by[k]=[]; by[k].push(p);});
+  const dias=Object.keys(by).sort();
+  const html=dias.map(d=>`<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:8px">
+    <div style="font-weight:700;color:#1e40af;margin-bottom:6px">${fd(d)}</div>
+    <ul style="padding-left:18px">${by[d].map(p=>`<li style="margin:3px 0">${p.nombre||'—'} ${p.ojo||''}</li>`).join('')}</ul>
+  </div>`).join('');
+  document.getElementById('calView').innerHTML=html||'<div class="empty">No hay cirugías programadas.</div>';
+}
+
+let DASH_FILTERS={from:'',to:'',clinic:'AMBAS',onlyAlerts:false,onlyActive:false};
+function getDashboardRows(){
+  return DB.rows.filter(p=>{
+    if(DASH_FILTERS.clinic!=='AMBAS' && p.clinica!==DASH_FILTERS.clinic) return false;
+    if(DASH_FILTERS.from && (!p.fechaCir || p.fechaCir<DASH_FILTERS.from)) return false;
+    if(DASH_FILTERS.to && (!p.fechaCir || p.fechaCir>DASH_FILTERS.to)) return false;
+    if(DASH_FILTERS.onlyAlerts && !alertas(p).length) return false;
+    if(DASH_FILTERS.onlyActive && ['FACTURADA'].includes((p.estadoFac||'').toUpperCase())) return false;
+    return true;
+  });
+}
+function setDashFilter(k,v){DASH_FILTERS[k]=v; renderEstadisticas();}
+function tinyBar(label,val,max,color){return `<div style='display:flex;align-items:center;gap:8px;margin:4px 0'><div style='width:170px;font-size:11px'>${label}</div><div style='flex:1;background:#eef2f7;border-radius:4px;height:12px;position:relative'><div style='position:absolute;inset:0 auto 0 0;width:${max?Math.round((val/max)*100):0}%;background:${color};border-radius:4px'></div></div><div style='width:36px;font-size:11px;text-align:right'>${val}</div></div>`}
+function renderEstadisticas(){
+  const rows=getDashboardRows();
+  const byDni={}; rows.forEach(p=>{const dni=String(p.dni||'').trim(); if(!dni) return; byDni[dni]=(byDni[dni]||0)+1;});
+  const dosOjos=Object.values(byDni).filter(n=>n>=2).length;
+  const unOjo=Object.values(byDni).filter(n=>n===1).length;
+  const prog=rows.filter(p=>estado(p)==='FECHA PROGRAMADA').length;
+  const real=rows.filter(p=>estado(p)==='CIRUGÍA REALIZADA - FALTA FACTURAR' || estado(p)==='FINALIZADO - FACTURADA').length;
+  const fact=rows.filter(p=>(p.estadoFac||'').toUpperCase()==='FACTURADA').length;
+  const pendFact=rows.filter(p=>estado(p)==='CIRUGÍA REALIZADA - FALTA FACTURAR' && (p.estadoFac||'').toUpperCase()!=='FACTURADA').length;
+  const alertRows=rows.map(p=>alertas(p));
+  const allAlerts=alertRows.flat();
+  const crit=allAlerts.filter(a=>a.severity==='red').length;
+  const alertByType={}; allAlerts.forEach(a=>alertByType[a.type]=(alertByType[a.type]||0)+1);
+  const alertByClinic={'CDU':0,'Gualeguaychú':0}; rows.forEach(p=>{const n=alertas(p).length; if((p.clinica||'')==='CDU') alertByClinic['CDU']+=n; else alertByClinic['Gualeguaychú']+=n;});
+  const porMes={}; rows.filter(p=>p.fechaCir).forEach(p=>{const d=parseDateOnly(p.fechaCir); const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; if(!porMes[k]) porMes[k]={prog:0,real:0,fact:0}; if(estado(p)==='FECHA PROGRAMADA') porMes[k].prog++; if(estado(p)!=='FECHA PROGRAMADA') porMes[k].real++; if((p.estadoFac||'').toUpperCase()==='FACTURADA') porMes[k].fact++;});
+  const maxAlertType=Math.max(1,...Object.values(alertByType));
+  const maxClinic=Math.max(1,...Object.values(alertByClinic));
+  const topCrit=rows.map(p=>({p,a:alertas(p).sort((x,y)=>y.days-x.days)[0]})).filter(x=>x.a).sort((x,y)=>y.a.days-x.a.days).slice(0,20);
+  document.getElementById('statsView').innerHTML=`
+    <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:end'>
+      <div><label style='font-size:10px;color:#6b7280'>Desde</label><input type='date' value='${DASH_FILTERS.from}' onchange="setDashFilter('from',this.value)"></div>
+      <div><label style='font-size:10px;color:#6b7280'>Hasta</label><input type='date' value='${DASH_FILTERS.to}' onchange="setDashFilter('to',this.value)"></div>
+      <div><label style='font-size:10px;color:#6b7280'>Clínica</label><select onchange="setDashFilter('clinic',this.value)"><option ${DASH_FILTERS.clinic==='AMBAS'?'selected':''}>AMBAS</option><option ${DASH_FILTERS.clinic==='CDU'?'selected':''}>CDU</option><option ${DASH_FILTERS.clinic==='Gualeguaychú'?'selected':''}>Gualeguaychú</option></select></div>
+      <label style='font-size:11px'><input type='checkbox' ${DASH_FILTERS.onlyActive?'checked':''} onchange="setDashFilter('onlyActive',this.checked)"> Solo activos</label>
+      <label style='font-size:11px'><input type='checkbox' ${DASH_FILTERS.onlyAlerts?'checked':''} onchange="setDashFilter('onlyAlerts',this.checked)"> Solo con alertas</label>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <div class="stat s-blue"><div class="stat-n">${new Set(rows.map(x=>String(x.dni||'').trim()).filter(Boolean)).size}</div><div class="stat-l">Total pacientes</div></div>
+      <div class="stat s-purple"><div class="stat-n">${rows.length}</div><div class="stat-l">Total cirugías</div></div>
+      <div class="stat s-yellow"><div class="stat-n">${prog}</div><div class="stat-l">Programadas</div></div>
+      <div class="stat s-green"><div class="stat-n">${real}</div><div class="stat-l">Realizadas</div></div>
+      <div class="stat s-green"><div class="stat-n">${fact}</div><div class="stat-l">Facturadas</div></div>
+      <div class="stat s-red"><div class="stat-n">${pendFact}</div><div class="stat-l">Pend. facturar</div></div>
+      <div class="stat s-red"><div class="stat-n">${allAlerts.length}</div><div class="stat-l">Alertas activas</div></div>
+      <div class="stat s-red"><div class="stat-n">${crit}</div><div class="stat-l">Alertas críticas</div></div>
+      <div class="stat s-blue"><div class="stat-n">${dosOjos}</div><div class="stat-l">Pacientes con 2 cirugías</div></div>
+      <div class="stat s-purple"><div class="stat-n">${unOjo}</div><div class="stat-l">Pacientes con 1 cirugía</div></div>
+    </div>
+    <div style='display:grid;grid-template-columns:1fr 1fr;gap:10px'>
+      <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px'><div style='font-weight:700;margin-bottom:8px'>Alertas por tipo</div>${Object.entries(alertByType).map(([k,v])=>tinyBar(k,v,maxAlertType,'#1d4ed8')).join('')||'<div class="empty" style="padding:10px">Sin datos</div>'}</div>
+      <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px'><div style='font-weight:700;margin-bottom:8px'>Alertas por clínica</div>${Object.entries(alertByClinic).map(([k,v])=>tinyBar(k,v,maxClinic,'#059669')).join('')}</div>
+      <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;grid-column:1 / -1'><div style='font-weight:700;margin-bottom:8px'>Serie mensual (Prog/Real/Fact)</div><table style='width:100%;border-collapse:collapse;font-size:12px'><thead><tr><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Mes</th><th style='padding:6px;border-bottom:1px solid #e2e8f0'>Prog</th><th style='padding:6px;border-bottom:1px solid #e2e8f0'>Real</th><th style='padding:6px;border-bottom:1px solid #e2e8f0'>Fact</th></tr></thead><tbody>${Object.keys(porMes).sort().map(m=>`<tr><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${m}</td><td style='padding:6px;text-align:center'>${porMes[m].prog}</td><td style='padding:6px;text-align:center'>${porMes[m].real}</td><td style='padding:6px;text-align:center'>${porMes[m].fact}</td></tr>`).join('')||'<tr><td colspan="4" style="padding:6px">Sin datos</td></tr>'}</tbody></table></div>
+      <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;grid-column:1 / -1'><div style='font-weight:700;margin-bottom:8px'>Top 20 casos críticos</div><table style='width:100%;border-collapse:collapse;font-size:12px'><thead><tr><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>DNI</th><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Clínica</th><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Estado</th><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Alerta</th><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Días</th></tr></thead><tbody>${topCrit.map(x=>`<tr onclick='openSide(${x.p.id})' style='cursor:pointer'><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${x.p.dni||'—'}</td><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${x.p.clinica||'—'}</td><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${estado(x.p)}</td><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${x.a.msg}</td><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${x.a.days}</td></tr>`).join('')||'<tr><td colspan="5" style="padding:6px">Sin datos</td></tr>'}</tbody></table></div>
+    </div>`;
+}
+
+
+function normText(t){return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toLowerCase();}
+function isEstadoLlegoLenteTxt(txt){const n=normText(txt); return n==='lente llego' || n==='llego lente';}
+function normalizePhone(raw){
+  let d=String(raw||'').replace(/\D/g,'');
+  if(!d) return '';
+  if(d.startsWith('00')) d=d.slice(2);
+  if(d.startsWith('0')) d=d.slice(1);
+  if(d.startsWith('54')) d=d.slice(2);
+  if(/^\d{2,4}15\d{6,8}$/.test(d)) d=d.replace(/^(\d{2,4})15(\d{6,8})$/,'$1$2');
+  if(d.startsWith('9') && d.length>=11) d=d.slice(1);
+  if(!d) return '';
+  return '54'+d;
+}
+function isValidPhone(phone){return !!phone && /^54\d{8,13}$/.test(phone);}
+function formatFechaLarga(fechaTexto){
+  const d=toDateOnly(fechaTexto);
+  if(!d) return String(fechaTexto||'');
+  const texto=new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'2-digit',month:'long',timeZone:'America/Argentina/Buenos_Aires'}).format(d).replace(',','').trim();
+  const p=texto.split(' ');
+  const cap=s=>String(s||'').charAt(0).toUpperCase()+String(s||'').slice(1);
+  return `${cap(p[0]||'')} ${p[1]||''} de ${cap(p[3]||p[2]||'')}`.trim();
+}
+function waFmtTs(iso){if(!iso) return '—'; const dt=new Date(iso); if(isNaN(dt)) return '—'; return `${dt.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'})} ${dt.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}`;}
+function waPatientKey(r){return String(r.sourceId||`${r.patient_id||''}|${r.CLINICA||''}|${normText(r.PACIENTE||'')}`);}
+function waTracking(r){return WA_TRACKING_MAP[waPatientKey(r)]||{};}
+function waTrackingText(r){
+  const t=waTracking(r);
+  const bits=[];
+  if(t.turnoAt) bits.push(`✅ Turno enviado (${waFmtTs(t.turnoAt)})`);
+  if(t.docsAt) bits.push(`✅ Docs enviados (${waFmtTs(t.docsAt)})`);
+  return bits.join('<br>')||'⏳ Sin envíos';
+}
+function waGetSourceRow(r){return DB.rows.find(x=>x.id===r.sourceId)||null;}
+function waGetRowPhone(r){const over=WA_PHONE_OVERRIDE[waPatientKey(r)]; return String((over ?? r.TELEFONO ?? '')).trim();}
+function waGetRowHora(r){const p=waGetSourceRow(r); return (p?.hora_cirugia||p?.hora||r.HORA||'').trim();}
+function waStatusText(r){return WA_STATUS_MAP[waPatientKey(r)]||'⏳ Pendiente';}
+function waStatusClass(r){const txt=waStatusText(r); if(txt.startsWith('❌')) return 'wa-estado err'; if(txt.startsWith('✅')) return 'wa-estado ok'; return 'wa-estado pend';}
+function waSetStatus(r,msg){WA_STATUS_MAP[waPatientKey(r)]=msg;}
+function waFromInternal(){
+  let base=filtered();
+  const rows=base.map(p=>({
+    source:'internal', sourceId:p.id, patient_id:String(p.dni||''),
+    PACIENTE:p.nombre||'', TELEFONO:p.tel||'', FECHA:p.fechaCir||'', HORA:(p.hora_cirugia||p.hora||''),
+    OJO:p.ojo||'', ESTADO:estado(p), CLINICA:p.clinica||''
+  }));
+  return WA_PREF.onlyLlego ? rows.filter(r=>isEstadoLlegoLenteTxt(r.ESTADO)) : rows;
+}
+function waRender(){
+  const body=document.getElementById('waTbody'); if(!body) return;
+  WA_ROWS=waFromInternal();
+  body.innerHTML='';
+  WA_ROWS.forEach((r,i)=>{
+    const key=waPatientKey(r);
+    const confirmed=!!WA_CONFIRMED_MAP[key];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${i+1}</td><td style='text-align:left'>${r.PACIENTE||''}<div style='color:#6b7280;font-size:11px'>DNI: ${r.patient_id||'—'}</div></td><td>${r.CLINICA||''}</td>
+      <td><input class='wa-phone' data-k='${key}' value='${waGetRowPhone(r)}' placeholder='Teléfono'></td>
+      <td>${r.OJO||'—'}</td>
+      <td><input class='wa-hora' data-id='${r.sourceId||''}' value='${waGetRowHora(r)}' type='time'></td>
+      <td>${r.ESTADO||'—'}</td>
+      <td><label style='display:flex;justify-content:center;gap:4px'><input type='checkbox' class='wa-confirm' data-k='${key}' ${confirmed?'checked':''}><span>Sí</span></label></td>
+      <td class='wa-track'>${waTrackingText(r)}</td>
+      <td><div style='display:flex;flex-direction:column;gap:6px'>
+        <button class='btn wa-turno'>📩 Confirmar turno</button>
+        <button class='btn wa-docs' ${confirmed?'':'disabled'}>📎 Enviar documentos</button>
+      </div></td>
+      <td class='${waStatusClass(r)}'>${waStatusText(r)}</td>`;
+    body.appendChild(tr);
+    tr.querySelector('.wa-turno').onclick=()=>waEnviarTurno(i);
+    tr.querySelector('.wa-docs').onclick=()=>waEnviarDocs(i);
+    tr.querySelector('.wa-confirm').onchange=(e)=>{WA_CONFIRMED_MAP[key]=!!e.target.checked; saveWaPrefs(); waRender();};
+    const phoneInput=tr.querySelector('.wa-phone');
+    phoneInput.onblur=()=>waSavePhoneOverride(key,phoneInput.value);
+    phoneInput.onkeydown=(e)=>{if(e.key==='Enter'){e.preventDefault(); phoneInput.blur();}};
+    const horaInput=tr.querySelector('.wa-hora');
+    horaInput.onchange=()=>waSaveHora(r,horaInput.value);
+  });
+  waCounter();
+}
+function waSaveHora(r,val){
+  if(val && !/^\d{2}:\d{2}$/.test(val)){waSetStatus(r,'❌ Hora inválida (HH:MM)'); waRender(); return;}
+  const p=waGetSourceRow(r); if(!p) return;
+  p.hora_cirugia=val||'';
+  p.hora=val||'';
+  save(p);
+  waSetStatus(r,'✅ Hora guardada');
+  render();
+}
+function waSavePhoneOverride(key,val){
+  const v=String(val||'').trim();
+  if(!v) delete WA_PHONE_OVERRIDE[key];
+  else WA_PHONE_OVERRIDE[key]=v;
+  saveWaPrefs();
+}
+function waCounter(){const c=document.getElementById('waContador'); if(c) c.innerText=`Enviados: ${WA_ENVIADOS} | Errores: ${WA_ERRORES}`;}
+function waResetCounters(){WA_ENVIADOS=0; WA_ERRORES=0; waCounter();}
+function waBuildUrl(phone,msg){return WA_PREF.channel==='web' ? `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}` : `whatsapp://send?phone=${phone}&text=${encodeURIComponent(msg)}`;}
+function waDoOpen(phone,msg){window.location.href=waBuildUrl(phone,msg);}
+function waAbrirDocumentos(){
+  const links=[WA_DOCS_PREP_URL,WA_DOCS_CONSENT_URL];
+  let opened=0;
+  links.forEach(url=>{
+    const w=window.open(url,'_blank','noopener');
+    if(w) opened++;
+  });
+  if(opened===0){
+    alert('El navegador bloqueó la apertura automática de PDFs. Abra los links que van dentro del mensaje de WhatsApp.');
+  }
+}
+function waOjoTexto(ojo){
+  const o=String(ojo||'').toUpperCase();
+  if(o.includes('OD')) return 'Derecho';
+  if(o.includes('OI')) return 'Izquierdo';
+  return '';
+}
+function waRenderTemplate(tpl,r,hora){
+  const src=waGetSourceRow(r);
+  const ojo=(r.OJO||src?.ojo||'');
+  const vars={
+    PACIENTE:r.PACIENTE||'',
+    FECHA_LARGA:formatFechaLarga(WA_GLOBAL_DATE),
+    HORA:hora||'',
+    OJO:ojo,
+    OJO_TEXTO:waOjoTexto(ojo)
+  };
+  return String(tpl||'').replace(/\{\{\s*(PACIENTE|FECHA_LARGA|HORA|OJO|OJO_TEXTO)\s*\}\}/g,(_,k)=>String(vars[k]||''));
+}
+const WA_CONFIRM_TPL=`Buenas tardes, {{PACIENTE}}.
+
+Desde el *Centro de Ojos Esteves* le confirmamos su cirugía en *Gualeguaychú* para el día *{{FECHA_LARGA}}* a las *{{HORA}}HS* (presentarse 30 minutos antes).
+
+Por favor confirme si puede asistir para enviarle los preparativos y documentación de la cirugía del *ojo {{OJO_TEXTO}}*.`;
+const WA_SITE_DOMAIN='https://centrodeojos-estevesesteves.com.ar';
+const WA_APP_PUBLIC_URL=`${WA_SITE_DOMAIN}/controldecirugias/`;
+const WA_DOCS_PREP_URL=`${WA_SITE_DOMAIN}/preparacion`;
+const WA_DOCS_CONSENT_URL=`${WA_SITE_DOMAIN}/consentimiento`;
+const WA_DOCS_TPL=`Le enviamos los documentos para la cirugía del *ojo {{OJO_TEXTO}}* programada para el *{{FECHA_LARGA}}* a las *{{HORA}}HS*.
+
+📎 Documentos:
+
+Preparación quirúrgica
+${WA_DOCS_PREP_URL}
+
+Consentimiento informado
+${WA_DOCS_CONSENT_URL}
+
+Por favor lea con mucha atención la preparación y lleve impreso y firmado el consentimiento el día de la cirugía.
+
+📍 Dirección (Gualeguaychú):
+https://share.google/KQuwuBRJt0ZMQj7KX`;
+function waMensajeTurno(r,hora){
+  return waRenderTemplate(WA_CONFIRM_TPL,r,hora);
+}
+function waMensajeDocs(r,hora){
+  return waRenderTemplate(WA_DOCS_TPL,r,hora);
+}
+function waValidateTurno(r,hora){
+  if(!WA_GLOBAL_DATE) return 'Seleccione Fecha de cirugía (global).';
+  if(!hora) return 'Falta hora del paciente.';
+  if(!/^\d{2}:\d{2}$/.test(hora)) return 'Hora inválida (HH:MM).';
+  const phone=normalizePhone(waGetRowPhone(r));
+  if(!isValidPhone(phone)) return 'Teléfono inválido.';
+  return '';
+}
+function waMarkTurno(r,iso){
+  const key=waPatientKey(r);
+  WA_TRACKING_MAP[key]=Object.assign({},WA_TRACKING_MAP[key]||{},{turnoAt:iso});
+  const p=waGetSourceRow(r);
+  if(p){p.wa_turno_enviado_at=iso; save(p);} else save();
+  saveWaPrefs();
+}
+function waMarkDocs(r,iso){
+  const key=waPatientKey(r);
+  WA_TRACKING_MAP[key]=Object.assign({},WA_TRACKING_MAP[key]||{},{docsAt:iso});
+  const p=waGetSourceRow(r);
+  if(p){
+    p.wa_docs_enviado_at=iso;
+    p.estadoCir='Programada';
+    p.fechaCir=WA_GLOBAL_DATE||p.fechaCir||'';
+    const hora=waGetRowHora(r);
+    if(hora){p.hora_cirugia=hora; p.hora=hora;}
+    save(p);
+  }else save();
+  saveWaPrefs();
+}
+function waEnviarTurno(i){
+  const r=WA_ROWS[i]; if(!r) return;
+  const hora=waGetRowHora(r);
+  const err=waValidateTurno(r,hora);
+  if(err){WA_ERRORES++; waSetStatus(r,`❌ ${err}`); waRender(); return false;}
+  const phone=normalizePhone(waGetRowPhone(r));
+  waSetStatus(r,'✅ Turno enviado');
+  const iso=new Date().toISOString();
+  waMarkTurno(r,iso);
+  WA_ENVIADOS++;
+  waRender();
+  waDoOpen(phone,waMensajeTurno(r,hora));
+  return true;
+}
+function waEnviarDocs(i){
+  const r=WA_ROWS[i]; if(!r) return;
+  const key=waPatientKey(r);
+  if(!WA_CONFIRMED_MAP[key]){WA_ERRORES++; waSetStatus(r,'❌ Marcar “Confirmó” primero'); waRender(); return false;}
+  if(!WA_GLOBAL_DATE){WA_ERRORES++; waSetStatus(r,'❌ Seleccione Fecha global'); waRender(); return false;}
+  const hora=waGetRowHora(r);
+  if(!hora || !/^\d{2}:\d{2}$/.test(hora)){WA_ERRORES++; waSetStatus(r,'❌ Falta hora del paciente'); waRender(); return false;}
+  const phone=normalizePhone(waGetRowPhone(r));
+  if(!isValidPhone(phone)){WA_ERRORES++; waSetStatus(r,'❌ Teléfono inválido'); waRender(); return false;}
+  waAbrirDocumentos();
+  const iso=new Date().toISOString();
+  waMarkDocs(r,iso);
+  waSetStatus(r,'✅ Docs enviados');
+  WA_ENVIADOS++;
+  waRender();
+  waDoOpen(phone,waMensajeDocs(r,hora));
+  return true;
+}
+async function waLoop(kind){
+  WA_STOP=false;
+  waResetCounters();
+  const items=WA_ROWS.map((r,i)=>({r,i})).filter(x=>kind==='docs'?!!WA_CONFIRMED_MAP[waPatientKey(x.r)]:true);
+  for(const {i} of items){
+    if(WA_STOP) break;
+    if(kind==='docs') waEnviarDocs(i); else waEnviarTurno(i);
+    await new Promise(r=>setTimeout(r,WA_PREF.delay||4000));
+  }
+  if(WA_STOP) toast('Envío detenido');
+}
+function waStopLoop(){WA_STOP=true;}
+function waResetTracking(){
+  if(!confirm('¿Resetear tracking WhatsApp (turno/docs/confirmados/teléfonos override)?')) return;
+  WA_TRACKING_MAP={};
+  WA_CONFIRMED_MAP={};
+  WA_PHONE_OVERRIDE={};
+  DB.rows.forEach(p=>{delete p.wa_turno_enviado_at; delete p.wa_docs_enviado_at;});
+  save();
+  saveWaPrefs();
+  waResetCounters();
+  WA_STATUS_MAP={};
+  waRender();
+}
+function renderWhatsApp(){
+  const el=document.getElementById('waView');
+  if(!el) return;
+  el.innerHTML=`<div class='wa-wrap whatsapp-confirmar'>
+    <h3 style='margin-bottom:10px'>Confirmar cirugía - Centro de Ojos Esteves</h3>
+    <div class='wa-tools'>
+      <label style='font-size:12px'>Fecha de cirugía * <input id='waGlobalDate' type='date' value='${WA_GLOBAL_DATE}'></label>
+      <label style='font-size:12px'>Demora (seg): <input id='waDelay' type='number' min='1' step='1' value='${Math.round((WA_PREF.delay||4000)/1000)}' style='width:70px'></label>
+      <button id='waStartTurnos' class='btn'>Enviar turnos (filtrados)</button>
+      <button id='waStartDocs' class='btn'>Enviar docs (confirmados)</button>
+      <button id='waStop' class='btn'>Detener</button>
+      <label style='font-size:12px'><input type='checkbox' id='waOnlyLlego' ${WA_PREF.onlyLlego?'checked':''}> Solo estado: Llegó lente</label>
+      <label style='font-size:12px'><input type='radio' name='waCh' value='desktop' ${WA_PREF.channel==='desktop'?'checked':''}> WhatsApp Desktop</label>
+      <label style='font-size:12px'><input type='radio' name='waCh' value='web' ${WA_PREF.channel==='web'?'checked':''}> WhatsApp Web</label>
+      <button id='waReset' class='btn'>Reset tracking</button>
+      <button id='waBackMain' class='btn'>← Volver a página principal</button>
+    </div>
+    <div id='waContador' style='margin:6px 0 10px;font-weight:700'>Enviados: ${WA_ENVIADOS} | Errores: ${WA_ERRORES}</div>
+    <div style='margin:0 0 8px;color:#475569;font-size:12px'>Dominio público del sistema: <a href='${WA_APP_PUBLIC_URL}' target='_blank' rel='noopener'>${WA_APP_PUBLIC_URL}</a></div>
+    <table class='wa-table'><thead><tr><th>#</th><th>Paciente</th><th>Clínica</th><th>Teléfono</th><th>Ojo</th><th>Hora</th><th>Estado</th><th>Confirmó</th><th>Tracking</th><th>Acciones</th><th>Estado envío</th></tr></thead><tbody id='waTbody'></tbody></table>
+  </div>`;
+  document.getElementById('waGlobalDate').onchange=(e)=>{WA_GLOBAL_DATE=e.target.value||''; saveWaPrefs();};
+  document.getElementById('waDelay').onchange=(e)=>{WA_PREF.delay=Math.max(1000,(parseInt(e.target.value||'4',10)||4)*1000); saveWaPrefs();};
+  document.getElementById('waOnlyLlego').onchange=(e)=>{WA_PREF.onlyLlego=e.target.checked; saveWaPrefs(); waResetCounters(); waRender();};
+  document.querySelectorAll('input[name="waCh"]').forEach(r=>r.onchange=()=>{WA_PREF.channel=r.value; saveWaPrefs();});
+  document.getElementById('waStartTurnos').onclick=()=>waLoop('turnos');
+  document.getElementById('waStartDocs').onclick=()=>waLoop('docs');
+  document.getElementById('waStop').onclick=()=>waStopLoop();
+  document.getElementById('waReset').onclick=()=>waResetTracking();
+  document.getElementById('waBackMain').onclick=()=>goMainFromWhatsApp();
+  waRender();
+}
+
+
+function goMainFromWhatsApp(){
+  const tablaBtn=[...document.querySelectorAll('.tablink')].find(b=>b.textContent.includes('Tabla'));
+  if(tablaBtn) setTab('tabla',tablaBtn);
+}
+
 function setTab(tab,el){
   currentTab=tab;
+  document.body.classList.toggle('mode-whatsapp', tab==='whatsapp');
   document.querySelectorAll('.tablink').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('tabView').style.display=tab==='tabla'?'':'none';
   document.getElementById('kanView').style.display=tab==='kanban'?'':'none';
+  document.getElementById('calView').style.display=tab==='calendario'?'':'none';
+  document.getElementById('statsView').style.display=tab==='estadisticas'?'':'none';
+  document.getElementById('waView').style.display=tab==='whatsapp'?'':'none';
+  updateStickyMetrics();
   render();
 }
 
@@ -766,25 +1530,170 @@ function exportarListos(){
   const listos=DB.rows.filter(p=>estado(p)==='LISTO PARA PEDIR LENTE');
   if(!listos.length){toast('No hay pacientes listos para pedir lente');return}
   document.getElementById('exportBody').innerHTML=`
-    <p style="font-size:12px;color:#6b7280;margin-bottom:10px">${listos.length} pacientes con LIO y prequirúrgicos OK — listos para solicitar lente en el sistema.</p>
+    <p style="font-size:12px;color:#6b7280;margin-bottom:10px">${listos.length} pacientes con dioptría y prequirúrgicos OK — listos para solicitar lente en el sistema.</p>
     <table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr>${['Clínica','Nombre','DNI','O. Social','N° Afiliado','Ojo','LIO'].map(h=>`<th style="padding:7px 10px;background:#f1f5f9;text-align:left;font-size:11px;color:#6b7280;border-bottom:1px solid #e2e8f0">${h}</th>`).join('')}</tr></thead>
-      <tbody>${listos.map(p=>`<tr>${[p.clinica,p.nombre,p.dni,p.obraSocial,p.afiliado||'—',p.ojo,p.lio].map(v=>`<td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${v}</td>`).join('')}</tr>`).join('')}</tbody>
+      <thead><tr>${['Clínica','Nombre','DNI','O. Social','N° Afiliado','Ojo','Dioptría'].map(h=>`<th style="padding:7px 10px;background:#f1f5f9;text-align:left;font-size:11px;color:#6b7280;border-bottom:1px solid #e2e8f0">${h}</th>`).join('')}</tr></thead>
+      <tbody>${listos.map(p=>`<tr>${[p.clinica,p.nombre,p.dni,p.obraSocial,p.afiliado||'—',p.ojo,getDioptria(p)].map(v=>`<td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${v}</td>`).join('')}</tr>`).join('')}</tbody>
     </table>`;
   document.getElementById('exportModal').style.display='flex';
 }
 function closeExport(){document.getElementById('exportModal').style.display='none'}
-function buildCSV(){
-  const listos=DB.rows.filter(p=>estado(p)==='LISTO PARA PEDIR LENTE');
-  return 'clinica,nombre,dni,obra_social,afiliado,ojo,lio\n'+listos.map(p=>[p.clinica,p.nombre,p.dni,p.obraSocial,p.afiliado||'',p.ojo,p.lio].join(',')).join('\n');
+function toExcelFile(filename, headers, rows){
+  const table=`<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${String(v??'')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const html=`<html><head><meta charset='utf-8'></head><body>${table}</body></html>`;
+  const b=new Blob([html],{type:'application/vnd.ms-excel'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=filename;a.click();
 }
-function copyCSV(){navigator.clipboard.writeText(buildCSV()).then(()=>toast('CSV copiado'))}
-function downloadCSV(){
-  const b=new Blob([buildCSV()],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='listos_lente.csv';a.click();
-  toast('CSV descargado');
+function buildTSVListos(){
+  const listos=DB.rows.filter(p=>estado(p)==='LISTO PARA PEDIR LENTE');
+  return 'clinica\tnombre\tdni\tobra_social\tafiliado\tojo\tdioptria\n'+listos.map(p=>[p.clinica,p.nombre,p.dni,p.obraSocial,p.afiliado||'',p.ojo,getDioptria(p)].join('\t')).join('\n');
+}
+function copyExcel(){navigator.clipboard.writeText(buildTSVListos()).then(()=>toast('Datos copiados (TSV para Excel)'))}
+function downloadExcelListos(){
+  const listos=DB.rows.filter(p=>estado(p)==='LISTO PARA PEDIR LENTE');
+  toExcelFile('listos_lente.xls',['Clínica','Nombre','DNI','O. Social','N° Afiliado','Ojo','Dioptría'],listos.map(p=>[p.clinica,p.nombre,p.dni,p.obraSocial,p.afiliado||'',p.ojo,getDioptria(p)]));
+  toast('Excel descargado');
 }
 
+function exportarCirugiasDelDia(){
+  const hoy=hoyISO();
+  const list=DB.rows.filter(p=>p.fechaCir===hoy);
+  if(!list.length){toast('No hay cirugías para hoy');return}
+  const headers=['Nombre','DNI','Fecha Nac.','Teléfono','Dirección','Clínica','Obra social','Afiliado','Ojos','Ojo','Dioptría','Modelo','Precio especial','Prequirúrgicos','Fecha carga','Solicitud lente','Llegada lente','Recepción','Fecha cirugía','Estado cirugía','Facturación','Estado actual','Notas'];
+  const rows=list.map(p=>[p.nombre,p.dni,p.fnac||'',p.tel||'',p.dir||'',p.clinica,p.obraSocial||'',p.afiliado||'',p.ojos||'',p.ojo||'',getDioptria(p),p.model||'',p.precioEspecial||'',p.pre||'',p.fechaCarga||'',p.fechaSolLente||'',p.fechaLlegaLente||'',p.recepLente||'',p.fechaCir||'',p.estadoCir||'',p.estadoFac||'',estado(p),p.notas||'']);
+  toExcelFile('cirugias_hoy.xls',headers,rows);
+  toast('Excel de cirugías del día descargado');
+}
+function usarLente(id){
+  const p=DB.rows.find(x=>x.id===id); if(!p) return;
+  const model=(p.model||'').trim(), d=(getDioptria(p)||'').trim();
+  if(!model||!d){toast('Cargar modelo y dioptría');return}
+  DB.lensStock=DB.lensStock||[];
+  const item=DB.lensStock.find(x=>x.model===model&&x.dioptria===d);
+  if(!item||item.stock<=0){toast('Sin stock para esa lente');return}
+  item.stock--;
+  save(p); render();
+  toast('Stock de lente actualizado');
+}
+function abrirStockModal(){
+  renderStockModal();
+  document.getElementById('stockModal').style.display='flex';
+}
+function closeStockModal(){document.getElementById('stockModal').style.display='none'}
+function renderStockModal(){
+  DB.lensStock=DB.lensStock||[];
+  const rows=[...DB.lensStock].sort((a,b)=> (a.model||'').localeCompare(b.model||'') || String(a.dioptria||'').localeCompare(String(b.dioptria||'')));
+  document.getElementById('stockBody').innerHTML = rows.length ? `
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr>${['Modelo','Dioptría','Stock','Estado'].map(h=>`<th style="padding:7px 10px;background:#f1f5f9;text-align:left;font-size:11px;color:#6b7280;border-bottom:1px solid #e2e8f0">${h}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map((x,i)=>`<tr>
+        <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${x.model}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${x.dioptria}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${x.stock||0}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9;color:${(x.stock||0)<=1?'#dc2626':'#059669'}">${(x.stock||0)<=1?'CRÍTICO':'OK'}</td>
+      </tr>`).join('')}</tbody>
+    </table>` : '<div class="empty" style="padding:20px">Sin stock cargado.</div>';
+}
+function cargarStockLente(){
+  const model=prompt('Modelo de lente:'); if(!model) return;
+  const dioptria=prompt('Dioptría:'); if(!dioptria) return;
+  const stock=parseInt(prompt('Stock a cargar:', '1')||'0',10);
+  DB.lensStock=DB.lensStock||[];
+  let it=DB.lensStock.find(x=>x.model===model&&x.dioptria===dioptria);
+  if(!it){it={model,dioptria,stock:0}; DB.lensStock.push(it);}
+  it.stock+=Math.max(stock,0);
+  save();
+  renderStockModal();
+  render();
+  toast('Stock actualizado');
+}
+function exportarFiltradoExcel(){
+  const rows=filtered();
+  const headers=['Nombre','DNI','Clínica','Ojo','Dioptría','Fecha cirugía','Estado calculado','Alertas','Silenciadas'];
+  const data=rows.map(p=>{const all=alertas(p,{raw:true}); const active=all.filter(a=>!isSilenced(a)); const sil=all.filter(a=>isSilenced(a)); return [p.nombre||'',p.dni||'',p.clinica||'',p.ojo||'',getDioptria(p),p.fechaCir||'',estado(p),active.map(a=>a.msg).join(' | '),sil.map(a=>a.msg).join(' | ')];});
+  toExcelFile('vista_filtrada.xls',headers,data);
+  toast('Excel de vista filtrada descargado');
+}
+function exportarBackupJSON(){
+  const payload={version:'1.0', exportedAt:new Date().toISOString(), data:DB, settings:SETTINGS, silences:ALERT_SILENCES};
+  const b=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`backup_cirugias_${hoyISO()}.json`;a.click();
+  toast('Backup JSON descargado');
+}
+function importarBackupJSON(){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange=()=>{
+    const f=inp.files&&inp.files[0]; if(!f) return;
+    const fr=new FileReader();
+    fr.onload=()=>{
+      try{
+        const obj=JSON.parse(String(fr.result||'{}'));
+        const data=obj.data||obj;
+        if(!data.rows||!Array.isArray(data.rows)) throw new Error('formato inválido');
+        DB={rows:data.rows,nid:data.nid||((Math.max(...data.rows.map(r=>r.id||0),0))+1),lensStock:data.lensStock||[]};
+        SETTINGS=Object.assign(SETTINGS,obj.settings||{});
+        ALERT_SILENCES=obj.silences||{};
+        saveSettings();
+        normalizarData();
+        save();
+        render();
+        toast('Backup importado correctamente');
+      }catch(e){
+        toast('Error al importar JSON');
+      }
+    };
+    fr.readAsText(f);
+  };
+  inp.click();
+}
+
+function configurarAlertas(){
+  SETTINGS.WARN_DAYS=parseInt(prompt('Días aviso (amarillo)',SETTINGS.WARN_DAYS),10)||SETTINGS.WARN_DAYS;
+  SETTINGS.CRIT_DAYS=parseInt(prompt('Días crítico (rojo)',SETTINGS.CRIT_DAYS),10)||SETTINGS.CRIT_DAYS;
+  SETTINGS.second_eye_missing_days=parseInt(prompt('Días alerta 2° ojo faltante',SETTINGS.second_eye_missing_days),10)||SETTINGS.second_eye_missing_days;
+  SETTINGS.lens_arrived_not_scheduled_days=parseInt(prompt('Días lente llegó sin programación',SETTINGS.lens_arrived_not_scheduled_days),10)||SETTINGS.lens_arrived_not_scheduled_days;
+  SETTINGS.billing_not_done_days=parseInt(prompt('Días sin facturación',SETTINGS.billing_not_done_days),10)||SETTINGS.billing_not_done_days;
+  SETTINGS.lens_delay_days=parseInt(prompt('Días demora lente',SETTINGS.lens_delay_days),10)||SETTINGS.lens_delay_days;
+  SETTINGS.scheduled_but_lens_not_arrived_days=parseInt(prompt('Días cirugía próxima sin lente',SETTINGS.scheduled_but_lens_not_arrived_days),10)||SETTINGS.scheduled_but_lens_not_arrived_days;
+  saveSettings(); render(); toast('Configuración de alertas guardada');
+}
+function validarFila(p){
+  if(p.fechaSolLente && p.fechaLlegaLente && p.fechaLlegaLente<p.fechaSolLente) toast('⚠ Validación: llegada lente es anterior a solicitud');
+  if((p.estadoFac||'').toUpperCase()==='FACTURADA' && !p.fechaFacturacion) toast('⚠ Validación: factura sin fecha de facturación');
+  if(p.ojos==='2 ojos' && !p.ojo) toast('⚠ Validación: indicar OD/OI para 2 ojos');
+}
+function marcarLenteLlegoHoy(id){upd(id,'fechaLlegaLente',hoyISO());}
+function marcarFacturadaHoy(id){const p=DB.rows.find(x=>x.id===id); if(!p) return; p.estadoFac='FACTURADA'; p.fechaFacturacion=hoyISO(); save(p); render();}
+function backupDiario(){
+  const key='cirugias_backup_'+hoyISO();
+  localStorage.setItem(key, JSON.stringify(DB));
+}
+function normalizarData(){
+  let warnedLegacyCirujano=false;
+  DB.rows.forEach(r=>{
+    // Migración de esquema legacy / importaciones con encabezados de Excel
+    if(r['O.Social'] && !r.obraSocial) r.obraSocial=r['O.Social'];
+    if(r['Prequirúrgicos'] && !r.pre) r.pre=r['Prequirúrgicos'];
+    if(r['Sol.Lente.'] && !r.fechaSolLente) r.fechaSolLente=r['Sol.Lente.'];
+    if(r['Llegó.'] && !r.fechaLlegaLente) r.fechaLlegaLente=r['Llegó.'];
+    if(r['Fecha.Cir'] && !r.fechaCir) r.fechaCir=r['Fecha.Cir'];
+    if(r['Est.Cir'] && !r.estadoCir) r.estadoCir=r['Est.Cir'];
+    if(r['Facturación'] && !r.estadoFac) r.estadoFac=r['Facturación'];
+    if('cirujano' in r){ delete r.cirujano; warnedLegacyCirujano=true; }
+    r.clinica=normalizarClinica(r.clinica);
+    if(!r.fechaCarga) r.fechaCarga=hoyISO();
+    if(!r.createdAt) r.createdAt=new Date().toISOString();
+    r.updatedAt=new Date().toISOString();
+    r.requires_two_eyes = r.ojos==='2 ojos' || !!r.requires_two_eyes;
+    if(!r.dioptria && r.lio) r.dioptria=r.lio;
+    if(!r.episode_id) r.episode_id=episodeIdFor(r);
+    if(!r.hora) r.hora='';
+    normalizeEstadoCir(r);
+  });
+  DB.lensStock=DB.lensStock||[{model:'AcrySof',dioptria:'20',stock:5},{model:'Akreos',dioptria:'21',stock:3}];
+  if(warnedLegacyCirujano) console.warn('[schema-migration] Campo legacy cirujano removido del cache local');
+}
 // ─────────────────────────────────────────────
 // TOAST
 // ─────────────────────────────────────────────
@@ -797,11 +1706,28 @@ function toast(msg){
 // ─────────────────────────────────────────────
 // SEED DATA
 // ─────────────────────────────────────────────
-function seed(){return [{"id":1,"clinica":"Clínica 1","nombre":"SABOREDO, ISELDA ESTER","dni":"5736129","fnac":"1949-08-19","tel":"3447403944","dir":"Colon entre rios","obraSocial":"PAMI","afiliado":"15048907150100","ojos":"2 ojos","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-15","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":2,"clinica":"Clínica 1","nombre":"VAZQUEZ , GRISELDA ADRIANA","dni":"13718102","fnac":"1957-12-11","tel":"3447640718","dir":"VILLA ELISA - CDELU","obraSocial":"PAMI","afiliado":"15098835080500","ojos":"2 ojos","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":3,"clinica":"Clínica 1","nombre":"INDA, STELLA MARI","dni":"10845709","fnac":"1954-01-28","tel":"3447574699","dir":"CDU","obraSocial":"PAMI","afiliado":"15066759590300","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-19","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":4,"clinica":"Clínica 1","nombre":"LISSI, EDITH","dni":"16977457","fnac":"1964-07-05","tel":"3442402651","dir":"ALMA FUERTE 1600","obraSocial":"PAMI","afiliado":"14024382840400","ojos":"1 ojo","ojo":"OD","lio":"4.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":5,"clinica":"Clínica 1","nombre":"CONTENTI, JULIO CESAR","dni":"8269025","fnac":"1948-01-15","tel":"3442306638","dir":"104 VIVIENDA MANZANA C CASA 16","obraSocial":"PAMI","afiliado":"15577700130200","ojos":"1 ojo","ojo":"OD","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-21","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":6,"clinica":"Clínica 1","nombre":"MURIAS, ANA MARÍA","dni":"6386602","fnac":"1950-06-20","tel":"1165075883","dir":"9 de Julio 2357 san jose","obraSocial":"PAMI","afiliado":"15051081850000","ojos":"2 ojos","ojo":"OI","lio":"15.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":7,"clinica":"Clínica 1","nombre":"MEDINA , ALICIA RAQUEL","dni":"12478015","fnac":"1958-08-05","tel":"3442504168","dir":"VILLA ELISA","obraSocial":"PAMI","afiliado":"15076369000100","ojos":"1 ojo","ojo":"OD","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-12","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":8,"clinica":"Clínica 1","nombre":"ADAMI, SERGIO HECTOR","dni":"10536730","fnac":"1952-10-17","tel":"3442520847","dir":"COLONIA PRIMERO DE MAYO -","obraSocial":"PAMI","afiliado":"15098480010000","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":9,"clinica":"Clínica 1","nombre":"VILLANI, HORACIO","dni":"4705463","fnac":"1948-07-21","tel":"3447467320","dir":"Concepción del Uruguay","obraSocial":"PAMI","afiliado":"15060521810600","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":10,"clinica":"Clínica 1","nombre":"TOURNOUD, Aurora","dni":"4585848","fnac":"1944-10-21","tel":"3447644073","dir":"hector de lia 2725 -","obraSocial":"PAMI","afiliado":"15019754690400","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":11,"clinica":"Clínica 1","nombre":"LAMBERT, CARLOS MIGUEL","dni":"5832527","fnac":"1945-03-20","tel":"3442643880","dir":"","obraSocial":"PAMI","afiliado":"15053925190700","ojos":"2 ojos","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":12,"clinica":"Clínica 1","nombre":"SILVA, IDA LUZ","dni":"11822486","fnac":"1955-10-28","tel":"3447419201","dir":"SAN JOSE - E.R.","obraSocial":"PAMI","afiliado":"15076068380200","ojos":"1 ojo","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-06","recepLente":"Devolver","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":13,"clinica":"Clínica 1","nombre":"BURQUET , ELSA MARIA","dni":"14128440","fnac":"1960-10-09","tel":"3442407550","dir":"","obraSocial":"PAMI","afiliado":"14005716610900","ojos":"1 ojo","ojo":"OI","lio":"20","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":14,"clinica":"Clínica 1","nombre":"HERNANDEZ, LIDIA BESTRIZ","dni":"10380834","fnac":"1952-08-05","tel":"3442400645","dir":"SANTA TERESITA 2303","obraSocial":"PAMI","afiliado":"15075283180800","ojos":"1 ojo","ojo":"OD","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":15,"clinica":"Clínica 1","nombre":"PAULINO, ANDRES HECTOR","dni":"11610945","fnac":"1955-07-13","tel":"3442628475","dir":"11 DEL OESTE BIS 817 CDU - CDELU","obraSocial":"PAMI","afiliado":"14001641950000","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":16,"clinica":"Clínica 1","nombre":"ENRIQUE, VICTOR HUGO","dni":"8421412","fnac":"1948-01-02","tel":"3447528957","dir":"LAVALLE 470 COLON","obraSocial":"PAMI","afiliado":"15057691770900","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-06","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":17,"clinica":"Clínica 1","nombre":"PIERSANTI, HUMBERTO LUIS","dni":"14128614","fnac":"1960-09-09","tel":"3442511294","dir":"Concepción del Uruguay","obraSocial":"PAMI","afiliado":"14028138410000","ojos":"1 ojo","ojo":"OD","lio":"18","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":18,"clinica":"Clínica 1","nombre":"PERALTA, SONIA LEONOR","dni":"14793504","fnac":"1961-10-24","tel":"3447459081","dir":"EBBACHINI267","obraSocial":"PAMI","afiliado":"14008250300000","ojos":"2 ojos","ojo":"OI","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":19,"clinica":"Clínica 1","nombre":"MARR, DELFINA MABEL","dni":"92437777","fnac":"1957-05-05","tel":"3442478565","dir":"PABLO LORENTZ 1909 - CDU","obraSocial":"PAMI","afiliado":"14001817660100","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":20,"clinica":"Clínica 1","nombre":"VILLA, Jacinta Graciela","dni":"12853787","fnac":"1957-07-07","tel":"3447645146","dir":"COLONIA SAN MIGUEL - COLON","obraSocial":"PAMI","afiliado":"14003888520300","ojos":"1 ojo","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-19","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":21,"clinica":"Clínica 1","nombre":"ORTMANN, JULIA CLARA","dni":"4211168","fnac":"1943-04-02","tel":"3445539023","dir":"COLON 537 BASAVILBASO - CDELU","obraSocial":"PAMI","afiliado":"15593222510100","ojos":"2 ojos","ojo":"OD","lio":"23.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":22,"clinica":"Clínica 1","nombre":"GUIONET, AMADO FRANCISCO","dni":"5831320","fnac":"1944-09-11","tel":"3442670908","dir":"CDU","obraSocial":"PAMI","afiliado":"15046443810500","ojos":"1 ojo","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-21","recepLente":"Correcta","fechaCir":"2026-01-30","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":23,"clinica":"Clínica 1","nombre":"BARRETO, CARLOS HORACIO","dni":"10280309","fnac":"1953-03-18","tel":"3447568996","dir":"EL BRILLANTE - CDU","obraSocial":"PAMI","afiliado":"15055246340400","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-30","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":24,"clinica":"Clínica 1","nombre":"HIRSCHFELD, JUAN ALBERTO","dni":"5819722","fnac":"1941-04-17","tel":"3442509066","dir":"SUIPACHA 2621 - CDLU","obraSocial":"PAMI","afiliado":"1502407550400","ojos":"1 ojo","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-21","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":25,"clinica":"Clínica 1","nombre":"AGOYARO , MARI A EVA","dni":"6046718","fnac":"1949-06-19","tel":"3442525055","dir":": CELIA TORRA 230 - CDELU","obraSocial":"PAMI","afiliado":"15589416781000","ojos":"2 ojos","ojo":"OI","lio":"24.5","pre":"OK","autorizacion":"","mejora":"250","fechaSolLente":"2026-01-16","fechaLlegaLente":"2026-01-22","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":26,"clinica":"Clínica 1","nombre":"ELIA, MONICA","dni":"16327109","fnac":"1963-04-15","tel":"3442463414","dir":"MONTONERAS 22 - CDLU","obraSocial":"PAMI","afiliado":"14014382750700","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":27,"clinica":"Clínica 1","nombre":"REYES, AMERICA MARIA","dni":"4578702","fnac":"1943-03-06","tel":"3442523467","dir":"","obraSocial":"PAMI","afiliado":"15031036210100","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":28,"clinica":"Clínica 1","nombre":"CRUZ, JUANA RAMONA","dni":"5667575","fnac":"1949-06-19","tel":"3442580134","dir":"Concepción del Uruguay","obraSocial":"PAMI","afiliado":"15046260640300","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-21","recepLente":"Correcta","fechaCir":"2026-01-21","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":29,"clinica":"Clínica 1","nombre":"SEGOVIA , NELIDA JORGELINA","dni":"14128711","fnac":"1960-12-06","tel":"34425155668","dir":"","obraSocial":"PAMI","afiliado":"14005511570000","ojos":"1 ojo","ojo":"OD","lio":"15.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-19","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":30,"clinica":"Clínica 1","nombre":"ALES, MARIA ANTONIA","dni":"6527474","fnac":"1961-01-02","tel":"3447448707","dir":"ALBERDI 295 COLON","obraSocial":"PAMI","afiliado":"15071379160300","ojos":"2 ojos","ojo":"OI","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-15","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":31,"clinica":"Clínica 1","nombre":"MUÑOZ, JORGE FABIAN","dni":"11235416","fnac":"1954-06-30","tel":"3442400594","dir":"","obraSocial":"PARTICULAR","afiliado":"1009941600500","ojos":"1 ojo","ojo":"OI","lio":"17.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-26","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2025-12-12","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":32,"clinica":"Clínica 1","nombre":"NOBILE, CASILDA JUDITH","dni":"4451820","fnac":"1942-06-07","tel":"3442480346","dir":"","obraSocial":"PAMI","afiliado":"15086217210000","ojos":"1 ojo","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-19","recepLente":"Correcta","fechaCir":"2025-12-12","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":33,"clinica":"Clínica 1","nombre":"GEIST, ELVIO GERARDO","dni":"11870275","fnac":"1958-02-17","tel":"3442514471","dir":"RICARDO BALBIN 1952 - CDELU","obraSocial":"PAMI","afiliado":"14019796820700","ojos":"1 ojo","ojo":"OI","lio":"18","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-16","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":34,"clinica":"Clínica 1","nombre":"BONNIN, ROSANA MARCELA","dni":"21583128","fnac":"1970-07-02","tel":"3442419433","dir":"BALDONI 728","obraSocial":"PAMI","afiliado":"14026649990101","ojos":"2 ojos","ojo":"OI","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":35,"clinica":"Clínica 1","nombre":"LOPEZ , DANIEL OMAR","dni":"11510106","fnac":"1954-04-08","tel":"3447454574","dir":"CDU","obraSocial":"PAMI","afiliado":"15075627340600","ojos":"2 ojos","ojo":"OI","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-15","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":36,"clinica":"Clínica 1","nombre":"CRUZ, ANA ROSA","dni":"12726799","fnac":"1956-05-07","tel":"3442547090","dir":"BALDONI 343 - CDELU","obraSocial":"PAMI","afiliado":"15079897620100","ojos":"1 ojo","ojo":"OI","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":37,"clinica":"Clínica 1","nombre":"GATTI HUGO","dni":"5833812","fnac":"1945-10-13","tel":"3442535126","dir":"Luis Signe 407 Herrera -","obraSocial":"PAMI","afiliado":"15014012350700","ojos":"1 ojo","ojo":"OD","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":38,"clinica":"Clínica 1","nombre":"MACHUCA , CRUZ ALBA ESTHER","dni":"4651108","fnac":"1943-09-15","tel":"3442423830","dir":"ESTRADA 1055 - CDELU","obraSocial":"PAMI","afiliado":"15015645040700","ojos":"1 ojo","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-23","fechaLlegaLente":"2026-01-27","recepLente":"Correcta","fechaCir":"2026-01-30","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":39,"clinica":"Clínica 1","nombre":"FAGUNDEZ, CARLOS MARIANO","dni":"5809772","fnac":"1939-03-22","tel":"3447456152","dir":"","obraSocial":"PAMI","afiliado":"15012463880600","ojos":"2 ojos","ojo":"OI","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-24","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":40,"clinica":"Clínica 1","nombre":"NOMELLINI, ALFREDO NORBERTO","dni":"8398091","fnac":"1951-07-15","tel":"3442479791","dir":"EREÑO 1519 - CDLU","obraSocial":"PAMI","afiliado":"15079606260800","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-23","fechaLlegaLente":"2026-01-27","recepLente":"Correcta","fechaCir":"2026-01-30","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":41,"clinica":"Clínica 1","nombre":"MAMONDE GRACIELA","dni":"11630391","fnac":"1954-06-30","tel":"3442325454","dir":"RUIZ MORENO 575 - CDLU","obraSocial":"PAMI","afiliado":"15070162120200","ojos":"1 ojo","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":42,"clinica":"Clínica 1","nombre":"CARCACHA, LAURA RAQUEL","dni":"17578850","fnac":"1966-07-10","tel":"3445645695","dir":"VILLA SAN MARCIA","obraSocial":"PAMI","afiliado":"15060723710401","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-26","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":43,"clinica":"Clínica 1","nombre":"MASTROIANI, LILIANA","dni":"14571826","fnac":"1962-02-26","tel":"3442643880","dir":"","obraSocial":"PAMI","afiliado":"14010060700600","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":44,"clinica":"Clínica 1","nombre":"VAIMAN, LUIS","dni":"8422168","fnac":"1948-04-03","tel":"3445645420","dir":"ASAVILBASO - CDELU","obraSocial":"PAMI","afiliado":"15059531860400","ojos":"1 ojo","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-23","fechaLlegaLente":"2026-01-28","recepLente":"Correcta","fechaCir":"2026-02-04","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":45,"clinica":"Clínica 1","nombre":"CARMONA , JUSTO RAMON","dni":"5834262","fnac":"1944-09-01","tel":"3442494059(usa fijo) 1133282154","dir":"JULIAN HERRERA 755 - CDELU","obraSocial":"PAMI","afiliado":"15033273600300","ojos":"2 ojos","ojo":"OD","lio":"19.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-23","fechaLlegaLente":"2026-01-27","recepLente":"Correcta","fechaCir":"2026-02-04","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":46,"clinica":"Clínica 1","nombre":"ACOSTA, Marta Maria","dni":"11612539","fnac":"1958-08-28","tel":"3442642602","dir":"Henry 2278, Concepcion del Uruguay -","obraSocial":"PAMI","afiliado":"15069737510500","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":47,"clinica":"Clínica 1","nombre":"LAMBERT, CARLOS MIGUEL","dni":"5832527","fnac":"1945-03-20","tel":"3442643880","dir":"SARMIENTO 2150","obraSocial":"PAMI","afiliado":"15053925190700","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":48,"clinica":"Clínica 1","nombre":"MURIAS, ANA MARÍA","dni":"6386602","fnac":"1950-06-20","tel":"1165075883","dir":"9 de Julio 2357 san jose","obraSocial":"PAMI","afiliado":"15051081850000","ojos":"1 ojo","ojo":"OD","lio":"16","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":49,"clinica":"Clínica 1","nombre":"SEIB, NELIDA LUCIA","dni":"6439804","fnac":"1951-01-04","tel":"3442560189","dir":"hereño 2536","obraSocial":"PAMI","afiliado":"15052577050500","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":50,"clinica":"Clínica 1","nombre":"HUCK, MIRTA MATILDE","dni":"5493052","fnac":"1947-04-20","tel":"3445406553","dir":"ESTRADA 751 BASAVILBASO -","obraSocial":"PAMI","afiliado":"15040257980100","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":51,"clinica":"Clínica 1","nombre":"VALLE, MARTA","dni":"17329613","fnac":"1964-12-25","tel":"3442501996","dir":"","obraSocial":"PARTICULAR","afiliado":"","ojos":"2 ojos","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-28","fechaLlegaLente":"2026-01-28","recepLente":"Correcta","fechaCir":"2026-02-04","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":52,"clinica":"Clínica 1","nombre":"CORDOBA, CARLOS ALCIDES","dni":"8398082","fnac":"1951-05-22","tel":"3446220291","dir":"ALBERDI 1108 - E.R.","obraSocial":"PAMI","afiliado":"15079537650500","ojos":"2 ojos","ojo":"OD","lio":"17","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":53,"clinica":"Clínica 1","nombre":"ROMERO , ANTONIO FERMIN","dni":"10949653","fnac":"1953-08-20","tel":"3442315872","dir":"MALVAR Y PINTOS Y JULIO LAURIA - CDELU","obraSocial":"PAMI","afiliado":"15074524390300","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":54,"clinica":"Clínica 1","nombre":"VARGAS , EDUARDO RAMON","dni":"5186641","fnac":"1940-11-20","tel":"3442545311/3442673085","dir":"HENRY 418 - CDELU","obraSocial":"PAMI","afiliado":"15035724530900","ojos":"2 ojos","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"250","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-10","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":55,"clinica":"Clínica 1","nombre":"TOURNOUD, Aurora","dni":"4585848","fnac":"1944-10-21","tel":"3447644073","dir":"hector de lia 2725 -","obraSocial":"PAMI","afiliado":"15019754690400","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":56,"clinica":"Clínica 1","nombre":"ADAMI, SERGIO HECTOR","dni":"10536730","fnac":"1952-10-17","tel":"3442520847","dir":"COLONIA PRIMERO DE MAYO -","obraSocial":"PAMI","afiliado":"15098480010000","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":57,"clinica":"Clínica 1","nombre":"PAULINO, ANDRES HECTOR","dni":"11610945","fnac":"1955-07-13","tel":"3442628475","dir":"11 DEL OESTE BIS 817 CDU - CDELU","obraSocial":"PAMI","afiliado":"14001641950000","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":58,"clinica":"Clínica 1","nombre":"ENRIQUE, VICTOR HUGO","dni":"8421412","fnac":"1948-01-02","tel":"3447528957","dir":"LAVALLE 470 COLON","obraSocial":"PAMI","afiliado":"15057691770900","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":59,"clinica":"Clínica 1","nombre":"REYES, AMERICA MARIA","dni":"4578702","fnac":"1943-03-06","tel":"3442523467","dir":"","obraSocial":"PAMI","afiliado":"15031036210100","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":60,"clinica":"Clínica 1","nombre":"ORTMANN, JULIA CLARA","dni":"4211168","fnac":"1943-04-02","tel":"3445539023","dir":"COLON 537 BASAVILBASO - CDELU","obraSocial":"PAMI","afiliado":"15593222510100","ojos":"1 ojo","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":61,"clinica":"Clínica 1","nombre":"ALES, MARIA ANTONIA","dni":"6527474","fnac":"1961-01-02","tel":"3447448707","dir":"ALBERDI 295 COLON","obraSocial":"PAMI","afiliado":"15071379160300","ojos":"1 ojo","ojo":"OD","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":62,"clinica":"Clínica 1","nombre":"LOPEZ, SONIA MABEL","dni":"18072050","fnac":"1966-11-19","tel":"3442409329","dir":"","obraSocial":"PAMI","afiliado":"15594207300900","ojos":"2 ojos","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":63,"clinica":"Clínica 1","nombre":"LOPEZ , DANIEL OMAR","dni":"11510106","fnac":"1954-04-08","tel":"3447454574","dir":"CDU","obraSocial":"PAMI","afiliado":"15075627340600","ojos":"1 ojo","ojo":"OD","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-10","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":64,"clinica":"Clínica 1","nombre":"REYES, ESTELA CRISTINA","dni":"17775645","fnac":"1966-04-06","tel":"3442584086","dir":"Ingeniero diaz figuera 243 CDU","obraSocial":"PAMI","afiliado":"15074409960701","ojos":"2 ojos","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":65,"clinica":"Clínica 1","nombre":"GONZALEZ, ELSA ELIDA","dni":"5394774","fnac":"1947-06-22","tel":"3442523722","dir":"Sarmiento 1484 cdu","obraSocial":"PAMI","afiliado":"15583047420200","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-10","recepLente":"Correcta","fechaCir":"2026-02-18","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":66,"clinica":"Clínica 1","nombre":"PERALTA, SONIA LEONOR","dni":"14793504","fnac":"1961-10-24","tel":"3447459081","dir":"EBBACHINI267","obraSocial":"PAMI","afiliado":"14008250300000","ojos":"1 ojo","ojo":"OD","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-18","fechaLlegaLente":"2026-02-23","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":67,"clinica":"Clínica 1","nombre":"VALLEJO, Nelida Delfina","dni":"13599646","fnac":"1959-12-14","tel":"3442462707","dir":"Ruiz Moreno 532","obraSocial":"PAMI","afiliado":"14002985770400","ojos":"2 ojos","ojo":"OI","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":68,"clinica":"Clínica 1","nombre":"ELIA, MONICA","dni":"16327109","fnac":"1963-04-15","tel":"3442463414","dir":"MONTONERAS 22 - CDLU","obraSocial":"PAMI","afiliado":"14014382750700","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":69,"clinica":"Clínica 1","nombre":"PEREYRA , Jose Luis","dni":"13599725","fnac":"1960-04-24","tel":"3442503255","dir":"Supremo Entrerriano 1123 - E.R.","obraSocial":"PAMI","afiliado":"14018513250400","ojos":"1 ojo","ojo":"OD","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-10","fechaLlegaLente":"2026-02-12","recepLente":"Correcta","fechaCir":"2026-02-18","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":70,"clinica":"Clínica 1","nombre":"FELLAY, Graciela","dni":"14528023","fnac":"1961-04-24","tel":"3442629011","dir":"ISAIAS TORRES 651","obraSocial":"PAMI","afiliado":"14007383900800","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-10","fechaLlegaLente":"2026-02-12","recepLente":"Correcta","fechaCir":"2026-02-18","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":71,"clinica":"Clínica 1","nombre":"WOEFFRAY, MARIA DEL CARMEN","dni":"5159942","fnac":"1947-08-01","tel":"34765837775","dir":"","obraSocial":"PAMI","afiliado":"15051779670100","ojos":"2 ojos","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-10","fechaLlegaLente":"2026-02-12","recepLente":"Correcta","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":72,"clinica":"Clínica 1","nombre":"EGEL, Mabel Araceli","dni":"13074234","fnac":"1959-08-22","tel":"3442532135","dir":"","obraSocial":"PAMI","afiliado":"14003858700400","ojos":"2 ojos","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-10","fechaLlegaLente":"2026-02-12","recepLente":"Correcta","fechaCir":"2026-02-18","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":73,"clinica":"Clínica 1","nombre":"RIOS, HILDA NOEMI","dni":"13288824","fnac":"1960-04-28","tel":"3442477655","dir":"CENTENARIO 2241 SAN JOSE -","obraSocial":"PAMI","afiliado":"15057606460900","ojos":"2 ojos","ojo":"OI","lio":"23.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":74,"clinica":"Clínica 1","nombre":"AGOYARO , MARI A EVA","dni":"6046718","fnac":"1949-06-19","tel":"3442525055","dir":": CELIA TORRA 230 - CDELU","obraSocial":"PAMI","afiliado":"15589416781000","ojos":"1 ojo","ojo":"OD","lio":"24.5","pre":"OK","autorizacion":"","mejora":"250","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":75,"clinica":"Clínica 1","nombre":"CRUZ, JUANA RAMONA","dni":"5667575","fnac":"1949-06-19","tel":"3442580134","dir":"Concepción del Uruguay","obraSocial":"PAMI","afiliado":"15046260640300","ojos":"1 ojo","ojo":"OD","lio":"20","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":76,"clinica":"Clínica 1","nombre":"MASTROIANI, LILIANA","dni":"14571826","fnac":"1962-02-26","tel":"3442643880","dir":"","obraSocial":"PAMI","afiliado":"14010060700600","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":77,"clinica":"Clínica 1","nombre":"MANENTTI, IRMA RAQUEL","dni":"11911444","fnac":"1955-10-23","tel":"3442521314","dir":"20 DEL OESTE NORTE 548","obraSocial":"PAMI","afiliado":"150762022900","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-18","fechaLlegaLente":"2026-02-23","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":78,"clinica":"Clínica 1","nombre":"NOMELLINI, ALFREDO NORBERTO","dni":"8398091","fnac":"1951-07-15","tel":"3442479791","dir":"EREÑO 1519 - CDLU","obraSocial":"PAMI","afiliado":"15079606260800","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-18","fechaLlegaLente":"2026-02-23","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":79,"clinica":"Clínica 1","nombre":"WASHINGTON , MIRTA GRACIELA","dni":"22150660","fnac":"1971-08-29","tel":"3442515993","dir":"RUTA 39 KM 313 -","obraSocial":"OSER","afiliado":"22150660","ojos":"2 ojos","ojo":"OI","lio":"22.05","pre":"OK","autorizacion":"Autorizado","mejora":"","fechaSolLente":"2026-02-18","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":80,"clinica":"Clínica 1","nombre":"AVECILLA, PATRICIA","dni":"16843124","fnac":"1964-03-24","tel":"3442628531","dir":"COLONIA PERFECCION - CDELU","obraSocial":"PAMI","afiliado":"14022355820400","ojos":"2 ojos","ojo":"OI","lio":"14","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":81,"clinica":"Clínica 1","nombre":"BONNIN, ROSANA MARCELA","dni":"21583128","fnac":"1970-07-02","tel":"3442419433","dir":"BALDONI 728","obraSocial":"PAMI","afiliado":"14026649990101","ojos":"1 ojo","ojo":"OD","lio":"23.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":82,"clinica":"Clínica 1","nombre":"BARBOSA , LUCIA ELISA","dni":"6714152","fnac":"1951-08-23","tel":"3442628302","dir":"POSADAS 2623","obraSocial":"PAMI","afiliado":"15535619000200","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":83,"clinica":"Clínica 1","nombre":"ACEVEDO, SUSANA VALENTINA","dni":"4923609","fnac":"1944-10-05","tel":"3442549550","dir":"3 DE FEBRERO 826 - CDELU","obraSocial":"PAMI","afiliado":"15017455860300","ojos":"1 ojo","ojo":"OD","lio":"20","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":84,"clinica":"Clínica 1","nombre":"MERIANO, NORMA MARIA AMANDA","dni":"14128756","fnac":"1961-01-14","tel":"3442473178","dir":"CDU","obraSocial":"PAMI","afiliado":"14006497970800","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":85,"clinica":"Clínica 1","nombre":"CASIMIRO , SILVIA DE LOURDES","dni":"12259997","fnac":"1958-11-11","tel":"3442478654","dir":"eNRIQUE GASC 185 -","obraSocial":"PAMI","afiliado":"14001622030200","ojos":"1 ojo","ojo":"OI","lio":"19.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":86,"clinica":"Clínica 1","nombre":"DOMINGUEZ, JUAN JOSE","dni":"12259817","fnac":"1956-11-12","tel":"3442311274","dir":"","obraSocial":"PAMI","afiliado":"14028410910700","ojos":"2 ojos","ojo":"OI","lio":"20","pre":"","autorizacion":"","mejora":"","fechaSolLente":"","fechaLlegaLente":"","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":87,"clinica":"Clínica 1","nombre":"ACOSTA, Marta Maria","dni":"11612539","fnac":"1958-08-28","tel":"3442642602","dir":"Henry 2278, Concepcion del Uruguay -","obraSocial":"PAMI","afiliado":"15069737510500","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":88,"clinica":"Clínica 1","nombre":"SEIB, NELIDA LUCIA","dni":"6439804","fnac":"1951-01-04","tel":"3442560189","dir":"hereño 2536","obraSocial":"PAMI","afiliado":"15052577050500","ojos":"1 ojo","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":89,"clinica":"Clínica 1","nombre":"HUCK, MIRTA MATILDE","dni":"5493052","fnac":"1947-04-20","tel":"3445406553","dir":"ESTRADA 751 BASAVILBASO -","obraSocial":"PAMI","afiliado":"15040257980100","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-03-03","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":90,"clinica":"Clínica 1","nombre":"SABOREDO, ISELDA ESTER","dni":"5736129","fnac":"1949-08-19","tel":"3447403944","dir":"Colon entre rios","obraSocial":"PAMI","afiliado":"15048907150100","ojos":"1 ojo","ojo":"OD","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":91,"clinica":"Clínica 1","nombre":"BRITOS, Marta Noemi","dni":"14128491","fnac":"1960-07-18","tel":"3442529812","dir":"Allais 1524 -","obraSocial":"PAMI","afiliado":"14004649590800","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":92,"clinica":"Clínica 1","nombre":"VALLE, MARTA","dni":"17329613","fnac":"1964-12-25","tel":"3442501996","dir":"","obraSocial":"PARTICULAR","afiliado":"","ojos":"1 ojo","ojo":"OD","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-28","fechaLlegaLente":"2026-01-28","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":93,"clinica":"Clínica 1","nombre":"VARGAS , EDUARDO RAMON","dni":"5186641","fnac":"1940-11-20","tel":"3442545311/3442673085","dir":"HENRY 418 - CDELU","obraSocial":"PAMI","afiliado":"15035724530900","ojos":"1 ojo","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"250","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":94,"clinica":"Clínica 1","nombre":"DECOUD, ANGEL ALBERTO","dni":"10699698","fnac":"1953-06-25","tel":"3447641043","dir":"BARRIO HIPODROMO -","obraSocial":"PAMI","afiliado":"14092167360900","ojos":"2 ojos","ojo":"OD","lio":"","pre":"OK","autorizacion":"","mejora":"2300","fechaSolLente":"2026-02-24","fechaLlegaLente":"","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":95,"clinica":"Clínica 1","nombre":"AGUILAR, TOMAS RAUL","dni":"10196343","fnac":"1951-12-29","tel":"3442623571","dir":"9 DEL OESTE NORTE 728 CDU - E.R.","obraSocial":"PAMI","afiliado":"46590108190200","ojos":"2 ojos","ojo":"OI","lio":"19.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":96,"clinica":"Clínica 1","nombre":"BLATTER, DANIEL","dni":"10685716","fnac":"1953-05-13","tel":"3442664591","dir":"","obraSocial":"PAMI","afiliado":"15096488260100","ojos":"2 ojos","ojo":"OI","lio":"20","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":97,"clinica":"Clínica 1","nombre":"VALLEJO, Nelida Delfina","dni":"13599646","fnac":"1959-12-14","tel":"3442462707","dir":"Ruiz Moreno 532","obraSocial":"PAMI","afiliado":"14002985770400","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"Correcta","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":98,"clinica":"Clínica 1","nombre":"CORDOBA, CARLOS ALCIDES","dni":"8398082","fnac":"1951-05-22","tel":"3446220291","dir":"ALBERDI 1108 - E.R.","obraSocial":"PAMI","afiliado":"15079537650500","ojos":"1 ojo","ojo":"OI","lio":"18","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":99,"clinica":"Clínica 1","nombre":"REYES, ESTELA CRISTINA","dni":"17775645","fnac":"1966-04-06","tel":"3442584086","dir":"Ingeniero diaz figuera 243 CDU","obraSocial":"PAMI","afiliado":"15074409960701","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"Correcta","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":100,"clinica":"Clínica 1","nombre":"FAGUNDEZ, CARLOS MARIANO","dni":"5809772","fnac":"1939-03-22","tel":"3447456152","dir":"","obraSocial":"PAMI","afiliado":"15012463880600","ojos":"1 ojo","ojo":"OD","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2027-03-03","fechaLlegaLente":"","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":101,"clinica":"Clínica 1","nombre":"GONZALEZ, ELSA ELIDA","dni":"5394774","fnac":"1947-06-22","tel":"3442523722","dir":"Sarmiento 1484 cdu","obraSocial":"PAMI","afiliado":"15583047420200","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"","fechaLlegaLente":"","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""}];}
+function seed(){return [{"id":1,"clinica":"CDU","nombre":"SABOREDO, ISELDA ESTER","dni":"5736129","fnac":"1949-08-19","tel":"3447403944","dir":"Colon entre rios","obraSocial":"PAMI","afiliado":"15048907150100","ojos":"2 ojos","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-15","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":2,"clinica":"CDU","nombre":"VAZQUEZ , GRISELDA ADRIANA","dni":"13718102","fnac":"1957-12-11","tel":"3447640718","dir":"VILLA ELISA - CDELU","obraSocial":"PAMI","afiliado":"15098835080500","ojos":"2 ojos","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":3,"clinica":"CDU","nombre":"INDA, STELLA MARI","dni":"10845709","fnac":"1954-01-28","tel":"3447574699","dir":"CDU","obraSocial":"PAMI","afiliado":"15066759590300","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-19","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":4,"clinica":"CDU","nombre":"LISSI, EDITH","dni":"16977457","fnac":"1964-07-05","tel":"3442402651","dir":"ALMA FUERTE 1600","obraSocial":"PAMI","afiliado":"14024382840400","ojos":"1 ojo","ojo":"OD","lio":"4.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":5,"clinica":"CDU","nombre":"CONTENTI, JULIO CESAR","dni":"8269025","fnac":"1948-01-15","tel":"3442306638","dir":"104 VIVIENDA MANZANA C CASA 16","obraSocial":"PAMI","afiliado":"15577700130200","ojos":"1 ojo","ojo":"OD","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-21","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":6,"clinica":"CDU","nombre":"MURIAS, ANA MARÍA","dni":"6386602","fnac":"1950-06-20","tel":"1165075883","dir":"9 de Julio 2357 san jose","obraSocial":"PAMI","afiliado":"15051081850000","ojos":"2 ojos","ojo":"OI","lio":"15.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":7,"clinica":"CDU","nombre":"MEDINA , ALICIA RAQUEL","dni":"12478015","fnac":"1958-08-05","tel":"3442504168","dir":"VILLA ELISA","obraSocial":"PAMI","afiliado":"15076369000100","ojos":"1 ojo","ojo":"OD","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-12","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":8,"clinica":"CDU","nombre":"ADAMI, SERGIO HECTOR","dni":"10536730","fnac":"1952-10-17","tel":"3442520847","dir":"COLONIA PRIMERO DE MAYO -","obraSocial":"PAMI","afiliado":"15098480010000","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":9,"clinica":"CDU","nombre":"VILLANI, HORACIO","dni":"4705463","fnac":"1948-07-21","tel":"3447467320","dir":"Concepción del Uruguay","obraSocial":"PAMI","afiliado":"15060521810600","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":10,"clinica":"CDU","nombre":"TOURNOUD, Aurora","dni":"4585848","fnac":"1944-10-21","tel":"3447644073","dir":"hector de lia 2725 -","obraSocial":"PAMI","afiliado":"15019754690400","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":11,"clinica":"CDU","nombre":"LAMBERT, CARLOS MIGUEL","dni":"5832527","fnac":"1945-03-20","tel":"3442643880","dir":"","obraSocial":"PAMI","afiliado":"15053925190700","ojos":"2 ojos","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":12,"clinica":"CDU","nombre":"SILVA, IDA LUZ","dni":"11822486","fnac":"1955-10-28","tel":"3447419201","dir":"SAN JOSE - E.R.","obraSocial":"PAMI","afiliado":"15076068380200","ojos":"1 ojo","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-06","recepLente":"Devolver","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":13,"clinica":"CDU","nombre":"BURQUET , ELSA MARIA","dni":"14128440","fnac":"1960-10-09","tel":"3442407550","dir":"","obraSocial":"PAMI","afiliado":"14005716610900","ojos":"1 ojo","ojo":"OI","lio":"20","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":14,"clinica":"CDU","nombre":"HERNANDEZ, LIDIA BESTRIZ","dni":"10380834","fnac":"1952-08-05","tel":"3442400645","dir":"SANTA TERESITA 2303","obraSocial":"PAMI","afiliado":"15075283180800","ojos":"1 ojo","ojo":"OD","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":15,"clinica":"CDU","nombre":"PAULINO, ANDRES HECTOR","dni":"11610945","fnac":"1955-07-13","tel":"3442628475","dir":"11 DEL OESTE BIS 817 CDU - CDELU","obraSocial":"PAMI","afiliado":"14001641950000","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-14","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":16,"clinica":"CDU","nombre":"ENRIQUE, VICTOR HUGO","dni":"8421412","fnac":"1948-01-02","tel":"3447528957","dir":"LAVALLE 470 COLON","obraSocial":"PAMI","afiliado":"15057691770900","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-06","fechaLlegaLente":"2026-01-06","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":17,"clinica":"CDU","nombre":"PIERSANTI, HUMBERTO LUIS","dni":"14128614","fnac":"1960-09-09","tel":"3442511294","dir":"Concepción del Uruguay","obraSocial":"PAMI","afiliado":"14028138410000","ojos":"1 ojo","ojo":"OD","lio":"18","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":18,"clinica":"CDU","nombre":"PERALTA, SONIA LEONOR","dni":"14793504","fnac":"1961-10-24","tel":"3447459081","dir":"EBBACHINI267","obraSocial":"PAMI","afiliado":"14008250300000","ojos":"2 ojos","ojo":"OI","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":19,"clinica":"CDU","nombre":"MARR, DELFINA MABEL","dni":"92437777","fnac":"1957-05-05","tel":"3442478565","dir":"PABLO LORENTZ 1909 - CDU","obraSocial":"PAMI","afiliado":"14001817660100","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":20,"clinica":"CDU","nombre":"VILLA, Jacinta Graciela","dni":"12853787","fnac":"1957-07-07","tel":"3447645146","dir":"COLONIA SAN MIGUEL - COLON","obraSocial":"PAMI","afiliado":"14003888520300","ojos":"1 ojo","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-19","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":21,"clinica":"CDU","nombre":"ORTMANN, JULIA CLARA","dni":"4211168","fnac":"1943-04-02","tel":"3445539023","dir":"COLON 537 BASAVILBASO - CDELU","obraSocial":"PAMI","afiliado":"15593222510100","ojos":"2 ojos","ojo":"OD","lio":"23.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":22,"clinica":"CDU","nombre":"GUIONET, AMADO FRANCISCO","dni":"5831320","fnac":"1944-09-11","tel":"3442670908","dir":"CDU","obraSocial":"PAMI","afiliado":"15046443810500","ojos":"1 ojo","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-21","recepLente":"Correcta","fechaCir":"2026-01-30","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":23,"clinica":"CDU","nombre":"BARRETO, CARLOS HORACIO","dni":"10280309","fnac":"1953-03-18","tel":"3447568996","dir":"EL BRILLANTE - CDU","obraSocial":"PAMI","afiliado":"15055246340400","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-30","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":24,"clinica":"CDU","nombre":"HIRSCHFELD, JUAN ALBERTO","dni":"5819722","fnac":"1941-04-17","tel":"3442509066","dir":"SUIPACHA 2621 - CDLU","obraSocial":"PAMI","afiliado":"1502407550400","ojos":"1 ojo","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-09","recepLente":"Correcta","fechaCir":"2026-01-21","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":25,"clinica":"CDU","nombre":"AGOYARO , MARI A EVA","dni":"6046718","fnac":"1949-06-19","tel":"3442525055","dir":": CELIA TORRA 230 - CDELU","obraSocial":"PAMI","afiliado":"15589416781000","ojos":"2 ojos","ojo":"OI","lio":"24.5","pre":"OK","autorizacion":"","mejora":"250","fechaSolLente":"2026-01-16","fechaLlegaLente":"2026-01-22","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":26,"clinica":"CDU","nombre":"ELIA, MONICA","dni":"16327109","fnac":"1963-04-15","tel":"3442463414","dir":"MONTONERAS 22 - CDLU","obraSocial":"PAMI","afiliado":"14014382750700","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":27,"clinica":"CDU","nombre":"REYES, AMERICA MARIA","dni":"4578702","fnac":"1943-03-06","tel":"3442523467","dir":"","obraSocial":"PAMI","afiliado":"15031036210100","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-14","recepLente":"Correcta","fechaCir":"2026-01-16","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":28,"clinica":"CDU","nombre":"CRUZ, JUANA RAMONA","dni":"5667575","fnac":"1949-06-19","tel":"3442580134","dir":"Concepción del Uruguay","obraSocial":"PAMI","afiliado":"15046260640300","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-09","fechaLlegaLente":"2026-01-21","recepLente":"Correcta","fechaCir":"2026-01-21","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":29,"clinica":"CDU","nombre":"SEGOVIA , NELIDA JORGELINA","dni":"14128711","fnac":"1960-12-06","tel":"34425155668","dir":"","obraSocial":"PAMI","afiliado":"14005511570000","ojos":"1 ojo","ojo":"OD","lio":"15.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-19","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":30,"clinica":"CDU","nombre":"ALES, MARIA ANTONIA","dni":"6527474","fnac":"1961-01-02","tel":"3447448707","dir":"ALBERDI 295 COLON","obraSocial":"PAMI","afiliado":"15071379160300","ojos":"2 ojos","ojo":"OI","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-15","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":31,"clinica":"CDU","nombre":"MUÑOZ, JORGE FABIAN","dni":"11235416","fnac":"1954-06-30","tel":"3442400594","dir":"","obraSocial":"PARTICULAR","afiliado":"1009941600500","ojos":"1 ojo","ojo":"OI","lio":"17.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-26","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2025-12-12","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":32,"clinica":"CDU","nombre":"NOBILE, CASILDA JUDITH","dni":"4451820","fnac":"1942-06-07","tel":"3442480346","dir":"","obraSocial":"PAMI","afiliado":"15086217210000","ojos":"1 ojo","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-19","recepLente":"Correcta","fechaCir":"2025-12-12","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":33,"clinica":"CDU","nombre":"GEIST, ELVIO GERARDO","dni":"11870275","fnac":"1958-02-17","tel":"3442514471","dir":"RICARDO BALBIN 1952 - CDELU","obraSocial":"PAMI","afiliado":"14019796820700","ojos":"1 ojo","ojo":"OI","lio":"18","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-13","fechaLlegaLente":"2026-01-16","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":34,"clinica":"CDU","nombre":"BONNIN, ROSANA MARCELA","dni":"21583128","fnac":"1970-07-02","tel":"3442419433","dir":"BALDONI 728","obraSocial":"PAMI","afiliado":"14026649990101","ojos":"2 ojos","ojo":"OI","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":35,"clinica":"CDU","nombre":"LOPEZ , DANIEL OMAR","dni":"11510106","fnac":"1954-04-08","tel":"3447454574","dir":"CDU","obraSocial":"PAMI","afiliado":"15075627340600","ojos":"2 ojos","ojo":"OI","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-07","fechaLlegaLente":"2026-01-15","recepLente":"Correcta","fechaCir":"2026-01-23","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":36,"clinica":"CDU","nombre":"CRUZ, ANA ROSA","dni":"12726799","fnac":"1956-05-07","tel":"3442547090","dir":"BALDONI 343 - CDELU","obraSocial":"PAMI","afiliado":"15079897620100","ojos":"1 ojo","ojo":"OI","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":37,"clinica":"CDU","nombre":"GATTI HUGO","dni":"5833812","fnac":"1945-10-13","tel":"3442535126","dir":"Luis Signe 407 Herrera -","obraSocial":"PAMI","afiliado":"15014012350700","ojos":"1 ojo","ojo":"OD","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":38,"clinica":"CDU","nombre":"MACHUCA , CRUZ ALBA ESTHER","dni":"4651108","fnac":"1943-09-15","tel":"3442423830","dir":"ESTRADA 1055 - CDELU","obraSocial":"PAMI","afiliado":"15015645040700","ojos":"1 ojo","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-23","fechaLlegaLente":"2026-01-27","recepLente":"Correcta","fechaCir":"2026-01-30","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":39,"clinica":"CDU","nombre":"FAGUNDEZ, CARLOS MARIANO","dni":"5809772","fnac":"1939-03-22","tel":"3447456152","dir":"","obraSocial":"PAMI","afiliado":"15012463880600","ojos":"2 ojos","ojo":"OI","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-24","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":40,"clinica":"CDU","nombre":"NOMELLINI, ALFREDO NORBERTO","dni":"8398091","fnac":"1951-07-15","tel":"3442479791","dir":"EREÑO 1519 - CDLU","obraSocial":"PAMI","afiliado":"15079606260800","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-23","fechaLlegaLente":"2026-01-27","recepLente":"Correcta","fechaCir":"2026-01-30","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":41,"clinica":"CDU","nombre":"MAMONDE GRACIELA","dni":"11630391","fnac":"1954-06-30","tel":"3442325454","dir":"RUIZ MORENO 575 - CDLU","obraSocial":"PAMI","afiliado":"15070162120200","ojos":"1 ojo","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":42,"clinica":"CDU","nombre":"CARCACHA, LAURA RAQUEL","dni":"17578850","fnac":"1966-07-10","tel":"3445645695","dir":"VILLA SAN MARCIA","obraSocial":"PAMI","afiliado":"15060723710401","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-26","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":43,"clinica":"CDU","nombre":"MASTROIANI, LILIANA","dni":"14571826","fnac":"1962-02-26","tel":"3442643880","dir":"","obraSocial":"PAMI","afiliado":"14010060700600","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-20","fechaLlegaLente":"2026-01-23","recepLente":"Correcta","fechaCir":"2026-01-28","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":44,"clinica":"CDU","nombre":"VAIMAN, LUIS","dni":"8422168","fnac":"1948-04-03","tel":"3445645420","dir":"ASAVILBASO - CDELU","obraSocial":"PAMI","afiliado":"15059531860400","ojos":"1 ojo","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-23","fechaLlegaLente":"2026-01-28","recepLente":"Correcta","fechaCir":"2026-02-04","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":45,"clinica":"CDU","nombre":"CARMONA , JUSTO RAMON","dni":"5834262","fnac":"1944-09-01","tel":"3442494059(usa fijo) 1133282154","dir":"JULIAN HERRERA 755 - CDELU","obraSocial":"PAMI","afiliado":"15033273600300","ojos":"2 ojos","ojo":"OD","lio":"19.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-23","fechaLlegaLente":"2026-01-27","recepLente":"Correcta","fechaCir":"2026-02-04","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":46,"clinica":"CDU","nombre":"ACOSTA, Marta Maria","dni":"11612539","fnac":"1958-08-28","tel":"3442642602","dir":"Henry 2278, Concepcion del Uruguay -","obraSocial":"PAMI","afiliado":"15069737510500","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":47,"clinica":"CDU","nombre":"LAMBERT, CARLOS MIGUEL","dni":"5832527","fnac":"1945-03-20","tel":"3442643880","dir":"SARMIENTO 2150","obraSocial":"PAMI","afiliado":"15053925190700","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":48,"clinica":"CDU","nombre":"MURIAS, ANA MARÍA","dni":"6386602","fnac":"1950-06-20","tel":"1165075883","dir":"9 de Julio 2357 san jose","obraSocial":"PAMI","afiliado":"15051081850000","ojos":"1 ojo","ojo":"OD","lio":"16","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":49,"clinica":"CDU","nombre":"SEIB, NELIDA LUCIA","dni":"6439804","fnac":"1951-01-04","tel":"3442560189","dir":"hereño 2536","obraSocial":"PAMI","afiliado":"15052577050500","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":50,"clinica":"CDU","nombre":"HUCK, MIRTA MATILDE","dni":"5493052","fnac":"1947-04-20","tel":"3445406553","dir":"ESTRADA 751 BASAVILBASO -","obraSocial":"PAMI","afiliado":"15040257980100","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-27","fechaLlegaLente":"2026-02-02","recepLente":"Correcta","fechaCir":"2026-02-06","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":51,"clinica":"CDU","nombre":"VALLE, MARTA","dni":"17329613","fnac":"1964-12-25","tel":"3442501996","dir":"","obraSocial":"PARTICULAR","afiliado":"","ojos":"2 ojos","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-28","fechaLlegaLente":"2026-01-28","recepLente":"Correcta","fechaCir":"2026-02-04","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":52,"clinica":"CDU","nombre":"CORDOBA, CARLOS ALCIDES","dni":"8398082","fnac":"1951-05-22","tel":"3446220291","dir":"ALBERDI 1108 - E.R.","obraSocial":"PAMI","afiliado":"15079537650500","ojos":"2 ojos","ojo":"OD","lio":"17","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":53,"clinica":"CDU","nombre":"ROMERO , ANTONIO FERMIN","dni":"10949653","fnac":"1953-08-20","tel":"3442315872","dir":"MALVAR Y PINTOS Y JULIO LAURIA - CDELU","obraSocial":"PAMI","afiliado":"15074524390300","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":54,"clinica":"CDU","nombre":"VARGAS , EDUARDO RAMON","dni":"5186641","fnac":"1940-11-20","tel":"3442545311/3442673085","dir":"HENRY 418 - CDELU","obraSocial":"PAMI","afiliado":"15035724530900","ojos":"2 ojos","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"250","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-10","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":55,"clinica":"CDU","nombre":"TOURNOUD, Aurora","dni":"4585848","fnac":"1944-10-21","tel":"3447644073","dir":"hector de lia 2725 -","obraSocial":"PAMI","afiliado":"15019754690400","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":56,"clinica":"CDU","nombre":"ADAMI, SERGIO HECTOR","dni":"10536730","fnac":"1952-10-17","tel":"3442520847","dir":"COLONIA PRIMERO DE MAYO -","obraSocial":"PAMI","afiliado":"15098480010000","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":57,"clinica":"CDU","nombre":"PAULINO, ANDRES HECTOR","dni":"11610945","fnac":"1955-07-13","tel":"3442628475","dir":"11 DEL OESTE BIS 817 CDU - CDELU","obraSocial":"PAMI","afiliado":"14001641950000","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":58,"clinica":"CDU","nombre":"ENRIQUE, VICTOR HUGO","dni":"8421412","fnac":"1948-01-02","tel":"3447528957","dir":"LAVALLE 470 COLON","obraSocial":"PAMI","afiliado":"15057691770900","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":59,"clinica":"CDU","nombre":"REYES, AMERICA MARIA","dni":"4578702","fnac":"1943-03-06","tel":"3442523467","dir":"","obraSocial":"PAMI","afiliado":"15031036210100","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":60,"clinica":"CDU","nombre":"ORTMANN, JULIA CLARA","dni":"4211168","fnac":"1943-04-02","tel":"3445539023","dir":"COLON 537 BASAVILBASO - CDELU","obraSocial":"PAMI","afiliado":"15593222510100","ojos":"1 ojo","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":61,"clinica":"CDU","nombre":"ALES, MARIA ANTONIA","dni":"6527474","fnac":"1961-01-02","tel":"3447448707","dir":"ALBERDI 295 COLON","obraSocial":"PAMI","afiliado":"15071379160300","ojos":"1 ojo","ojo":"OD","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":62,"clinica":"CDU","nombre":"LOPEZ, SONIA MABEL","dni":"18072050","fnac":"1966-11-19","tel":"3442409329","dir":"","obraSocial":"PAMI","afiliado":"15594207300900","ojos":"2 ojos","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":63,"clinica":"CDU","nombre":"LOPEZ , DANIEL OMAR","dni":"11510106","fnac":"1954-04-08","tel":"3447454574","dir":"CDU","obraSocial":"PAMI","afiliado":"15075627340600","ojos":"1 ojo","ojo":"OD","lio":"19","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-10","recepLente":"Correcta","fechaCir":"2026-02-13","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":64,"clinica":"CDU","nombre":"REYES, ESTELA CRISTINA","dni":"17775645","fnac":"1966-04-06","tel":"3442584086","dir":"Ingeniero diaz figuera 243 CDU","obraSocial":"PAMI","afiliado":"15074409960701","ojos":"2 ojos","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":65,"clinica":"CDU","nombre":"GONZALEZ, ELSA ELIDA","dni":"5394774","fnac":"1947-06-22","tel":"3442523722","dir":"Sarmiento 1484 cdu","obraSocial":"PAMI","afiliado":"15583047420200","ojos":"2 ojos","ojo":"OI","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-10","recepLente":"Correcta","fechaCir":"2026-02-18","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":66,"clinica":"CDU","nombre":"PERALTA, SONIA LEONOR","dni":"14793504","fnac":"1961-10-24","tel":"3447459081","dir":"EBBACHINI267","obraSocial":"PAMI","afiliado":"14008250300000","ojos":"1 ojo","ojo":"OD","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-18","fechaLlegaLente":"2026-02-23","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":67,"clinica":"CDU","nombre":"VALLEJO, Nelida Delfina","dni":"13599646","fnac":"1959-12-14","tel":"3442462707","dir":"Ruiz Moreno 532","obraSocial":"PAMI","afiliado":"14002985770400","ojos":"2 ojos","ojo":"OI","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-02","fechaLlegaLente":"2026-02-06","recepLente":"Correcta","fechaCir":"2026-02-11","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":68,"clinica":"CDU","nombre":"ELIA, MONICA","dni":"16327109","fnac":"1963-04-15","tel":"3442463414","dir":"MONTONERAS 22 - CDLU","obraSocial":"PAMI","afiliado":"14014382750700","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":69,"clinica":"CDU","nombre":"PEREYRA , Jose Luis","dni":"13599725","fnac":"1960-04-24","tel":"3442503255","dir":"Supremo Entrerriano 1123 - E.R.","obraSocial":"PAMI","afiliado":"14018513250400","ojos":"1 ojo","ojo":"OD","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-10","fechaLlegaLente":"2026-02-12","recepLente":"Correcta","fechaCir":"2026-02-18","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":70,"clinica":"CDU","nombre":"FELLAY, Graciela","dni":"14528023","fnac":"1961-04-24","tel":"3442629011","dir":"ISAIAS TORRES 651","obraSocial":"PAMI","afiliado":"14007383900800","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-10","fechaLlegaLente":"2026-02-12","recepLente":"Correcta","fechaCir":"2026-02-18","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":71,"clinica":"CDU","nombre":"WOEFFRAY, MARIA DEL CARMEN","dni":"5159942","fnac":"1947-08-01","tel":"34765837775","dir":"","obraSocial":"PAMI","afiliado":"15051779670100","ojos":"2 ojos","ojo":"OI","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-10","fechaLlegaLente":"2026-02-12","recepLente":"Correcta","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":72,"clinica":"CDU","nombre":"EGEL, Mabel Araceli","dni":"13074234","fnac":"1959-08-22","tel":"3442532135","dir":"","obraSocial":"PAMI","afiliado":"14003858700400","ojos":"2 ojos","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-10","fechaLlegaLente":"2026-02-12","recepLente":"Correcta","fechaCir":"2026-02-18","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":73,"clinica":"CDU","nombre":"RIOS, HILDA NOEMI","dni":"13288824","fnac":"1960-04-28","tel":"3442477655","dir":"CENTENARIO 2241 SAN JOSE -","obraSocial":"PAMI","afiliado":"15057606460900","ojos":"2 ojos","ojo":"OI","lio":"23.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":74,"clinica":"CDU","nombre":"AGOYARO , MARI A EVA","dni":"6046718","fnac":"1949-06-19","tel":"3442525055","dir":": CELIA TORRA 230 - CDELU","obraSocial":"PAMI","afiliado":"15589416781000","ojos":"1 ojo","ojo":"OD","lio":"24.5","pre":"OK","autorizacion":"","mejora":"250","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":75,"clinica":"CDU","nombre":"CRUZ, JUANA RAMONA","dni":"5667575","fnac":"1949-06-19","tel":"3442580134","dir":"Concepción del Uruguay","obraSocial":"PAMI","afiliado":"15046260640300","ojos":"1 ojo","ojo":"OD","lio":"20","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":76,"clinica":"CDU","nombre":"MASTROIANI, LILIANA","dni":"14571826","fnac":"1962-02-26","tel":"3442643880","dir":"","obraSocial":"PAMI","afiliado":"14010060700600","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":77,"clinica":"CDU","nombre":"MANENTTI, IRMA RAQUEL","dni":"11911444","fnac":"1955-10-23","tel":"3442521314","dir":"20 DEL OESTE NORTE 548","obraSocial":"PAMI","afiliado":"150762022900","ojos":"2 ojos","ojo":"OI","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-18","fechaLlegaLente":"2026-02-23","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":78,"clinica":"CDU","nombre":"NOMELLINI, ALFREDO NORBERTO","dni":"8398091","fnac":"1951-07-15","tel":"3442479791","dir":"EREÑO 1519 - CDLU","obraSocial":"PAMI","afiliado":"15079606260800","ojos":"1 ojo","ojo":"OD","lio":"21.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-18","fechaLlegaLente":"2026-02-23","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":79,"clinica":"CDU","nombre":"WASHINGTON , MIRTA GRACIELA","dni":"22150660","fnac":"1971-08-29","tel":"3442515993","dir":"RUTA 39 KM 313 -","obraSocial":"OSER","afiliado":"22150660","ojos":"2 ojos","ojo":"OI","lio":"22.05","pre":"OK","autorizacion":"Autorizado","mejora":"","fechaSolLente":"2026-02-18","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":80,"clinica":"CDU","nombre":"AVECILLA, PATRICIA","dni":"16843124","fnac":"1964-03-24","tel":"3442628531","dir":"COLONIA PERFECCION - CDELU","obraSocial":"PAMI","afiliado":"14022355820400","ojos":"2 ojos","ojo":"OI","lio":"14","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":81,"clinica":"CDU","nombre":"BONNIN, ROSANA MARCELA","dni":"21583128","fnac":"1970-07-02","tel":"3442419433","dir":"BALDONI 728","obraSocial":"PAMI","afiliado":"14026649990101","ojos":"1 ojo","ojo":"OD","lio":"23.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-12","fechaLlegaLente":"2026-02-18","recepLente":"Correcta","fechaCir":"2026-03-04","estadoCir":"","estadoFac":"","notas":""},{"id":82,"clinica":"CDU","nombre":"BARBOSA , LUCIA ELISA","dni":"6714152","fnac":"1951-08-23","tel":"3442628302","dir":"POSADAS 2623","obraSocial":"PAMI","afiliado":"15535619000200","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":83,"clinica":"CDU","nombre":"ACEVEDO, SUSANA VALENTINA","dni":"4923609","fnac":"1944-10-05","tel":"3442549550","dir":"3 DE FEBRERO 826 - CDELU","obraSocial":"PAMI","afiliado":"15017455860300","ojos":"1 ojo","ojo":"OD","lio":"20","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":84,"clinica":"CDU","nombre":"MERIANO, NORMA MARIA AMANDA","dni":"14128756","fnac":"1961-01-14","tel":"3442473178","dir":"CDU","obraSocial":"PAMI","afiliado":"14006497970800","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":85,"clinica":"CDU","nombre":"CASIMIRO , SILVIA DE LOURDES","dni":"12259997","fnac":"1958-11-11","tel":"3442478654","dir":"eNRIQUE GASC 185 -","obraSocial":"PAMI","afiliado":"14001622030200","ojos":"1 ojo","ojo":"OI","lio":"19.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-20","fechaLlegaLente":"2026-02-24","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":86,"clinica":"CDU","nombre":"DOMINGUEZ, JUAN JOSE","dni":"12259817","fnac":"1956-11-12","tel":"3442311274","dir":"","obraSocial":"PAMI","afiliado":"14028410910700","ojos":"2 ojos","ojo":"OI","lio":"20","pre":"","autorizacion":"","mejora":"","fechaSolLente":"","fechaLlegaLente":"","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":87,"clinica":"CDU","nombre":"ACOSTA, Marta Maria","dni":"11612539","fnac":"1958-08-28","tel":"3442642602","dir":"Henry 2278, Concepcion del Uruguay -","obraSocial":"PAMI","afiliado":"15069737510500","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":88,"clinica":"CDU","nombre":"SEIB, NELIDA LUCIA","dni":"6439804","fnac":"1951-01-04","tel":"3442560189","dir":"hereño 2536","obraSocial":"PAMI","afiliado":"15052577050500","ojos":"1 ojo","ojo":"OD","lio":"21","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":89,"clinica":"CDU","nombre":"HUCK, MIRTA MATILDE","dni":"5493052","fnac":"1947-04-20","tel":"3445406553","dir":"ESTRADA 751 BASAVILBASO -","obraSocial":"PAMI","afiliado":"15040257980100","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-03-03","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":90,"clinica":"CDU","nombre":"SABOREDO, ISELDA ESTER","dni":"5736129","fnac":"1949-08-19","tel":"3447403944","dir":"Colon entre rios","obraSocial":"PAMI","afiliado":"15048907150100","ojos":"1 ojo","ojo":"OD","lio":"22.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":91,"clinica":"CDU","nombre":"BRITOS, Marta Noemi","dni":"14128491","fnac":"1960-07-18","tel":"3442529812","dir":"Allais 1524 -","obraSocial":"PAMI","afiliado":"14004649590800","ojos":"2 ojos","ojo":"OI","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"2026-03-06","estadoCir":"","estadoFac":"","notas":""},{"id":92,"clinica":"CDU","nombre":"VALLE, MARTA","dni":"17329613","fnac":"1964-12-25","tel":"3442501996","dir":"","obraSocial":"PARTICULAR","afiliado":"","ojos":"1 ojo","ojo":"OD","lio":"23","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-01-28","fechaLlegaLente":"2026-01-28","recepLente":"Correcta","fechaCir":"2026-02-25","estadoCir":"Realizada","estadoFac":"Realizada","notas":""},{"id":93,"clinica":"CDU","nombre":"VARGAS , EDUARDO RAMON","dni":"5186641","fnac":"1940-11-20","tel":"3442545311/3442673085","dir":"HENRY 418 - CDELU","obraSocial":"PAMI","afiliado":"15035724530900","ojos":"1 ojo","ojo":"OI","lio":"21","pre":"OK","autorizacion":"","mejora":"250","fechaSolLente":"2026-02-24","fechaLlegaLente":"2026-02-27","recepLente":"Correcta","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":94,"clinica":"CDU","nombre":"DECOUD, ANGEL ALBERTO","dni":"10699698","fnac":"1953-06-25","tel":"3447641043","dir":"BARRIO HIPODROMO -","obraSocial":"PAMI","afiliado":"14092167360900","ojos":"2 ojos","ojo":"OD","lio":"","pre":"OK","autorizacion":"","mejora":"2300","fechaSolLente":"2026-02-24","fechaLlegaLente":"","recepLente":"Correcta","fechaCir":"2026-02-27","estadoCir":"Realizada","estadoFac":"","notas":""},{"id":95,"clinica":"CDU","nombre":"AGUILAR, TOMAS RAUL","dni":"10196343","fnac":"1951-12-29","tel":"3442623571","dir":"9 DEL OESTE NORTE 728 CDU - E.R.","obraSocial":"PAMI","afiliado":"46590108190200","ojos":"2 ojos","ojo":"OI","lio":"19.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":96,"clinica":"CDU","nombre":"BLATTER, DANIEL","dni":"10685716","fnac":"1953-05-13","tel":"3442664591","dir":"","obraSocial":"PAMI","afiliado":"15096488260100","ojos":"2 ojos","ojo":"OI","lio":"20","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":97,"clinica":"CDU","nombre":"VALLEJO, Nelida Delfina","dni":"13599646","fnac":"1959-12-14","tel":"3442462707","dir":"Ruiz Moreno 532","obraSocial":"PAMI","afiliado":"14002985770400","ojos":"1 ojo","ojo":"OD","lio":"22","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"Correcta","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":98,"clinica":"CDU","nombre":"CORDOBA, CARLOS ALCIDES","dni":"8398082","fnac":"1951-05-22","tel":"3446220291","dir":"ALBERDI 1108 - E.R.","obraSocial":"PAMI","afiliado":"15079537650500","ojos":"1 ojo","ojo":"OI","lio":"18","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":99,"clinica":"CDU","nombre":"REYES, ESTELA CRISTINA","dni":"17775645","fnac":"1966-04-06","tel":"3442584086","dir":"Ingeniero diaz figuera 243 CDU","obraSocial":"PAMI","afiliado":"15074409960701","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2026-02-27","fechaLlegaLente":"2026-03-03","recepLente":"Correcta","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":100,"clinica":"CDU","nombre":"FAGUNDEZ, CARLOS MARIANO","dni":"5809772","fnac":"1939-03-22","tel":"3447456152","dir":"","obraSocial":"PAMI","afiliado":"15012463880600","ojos":"1 ojo","ojo":"OD","lio":"18.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"2027-03-03","fechaLlegaLente":"","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""},{"id":101,"clinica":"CDU","nombre":"GONZALEZ, ELSA ELIDA","dni":"5394774","fnac":"1947-06-22","tel":"3442523722","dir":"Sarmiento 1484 cdu","obraSocial":"PAMI","afiliado":"15583047420200","ojos":"1 ojo","ojo":"OD","lio":"20.5","pre":"OK","autorizacion":"","mejora":"","fechaSolLente":"","fechaLlegaLente":"","recepLente":"","fechaCir":"","estadoCir":"","estadoFac":"","notas":""}];}
 
+
+function initUX(){
+  restoreKpisPref();
+  const fv=JSON.parse(localStorage.getItem('cirugias_saved_filters')||'{}');
+  ['fCli','fEst','fOS'].forEach(id=>{if(fv[id]!==undefined && document.getElementById(id)) document.getElementById(id).value=fv[id];});
+  if(document.getElementById('showSilenced')) document.getElementById('showSilenced').checked=!!fv.showSilenced;
+  const q=document.getElementById('q');
+  let t;
+  q.oninput=()=>{clearTimeout(t); t=setTimeout(()=>{render();},180)};
+  ['fCli','fEst','fOS','showSilenced'].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('change',()=>{localStorage.setItem('cirugias_saved_filters', JSON.stringify({fCli:document.getElementById('fCli').value,fEst:document.getElementById('fEst').value,fOS:document.getElementById('fOS').value,showSilenced:document.getElementById('showSilenced').checked}));});});
+  document.querySelectorAll('button').forEach(b=>{if(!b.getAttribute('aria-label')) b.setAttribute('aria-label',(b.textContent||'Acción').trim());});
+  updateStickyMetrics();
+  window.addEventListener('resize', updateStickyMetrics);
+}
 // INIT
 (async function() {
   await loadFromServer();
+  normalizarData();
+  backupDiario();
+  initUX();
   render();
 })();
 </script>
