@@ -1,5 +1,0 @@
-fastapi>=0.110,<1
-uvicorn[standard]>=0.29,<1
-pydantic>=2.6,<3
-playwright>=1.41,<2
-pyinstaller>=6.0,<7
