@@ -28,3 +28,10 @@
   - **Enviar docs (confirmados)**
   - **Detener**
 - **Reset tracking** limpia tracking, confirmaciones y overrides para reiniciar la campaña.
+
+## Conector local (automatizaciones PAMI/Lentess)
+La web puede conectarse a un servicio local en Windows para ejecutar automatizaciones sin descargar scripts manuales.
+
+- Endpoint base esperado por el frontend: `http://127.0.0.1:8765`
+- API: `/health`, `/jobs/recetas`, `/jobs/lentess`, `/jobs/{job_id}`
+- Implementación técnica: ver `agent_local/README.md`
