@@ -264,6 +264,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
       <div class="actionbar">
         <button class="btn primary" aria-label="Nuevo paciente" onclick="nuevoModal()">+ Nuevo Paciente</button>
         <button class="btn" aria-label="Sincronizar datos" onclick="sincronizarAhora()" title="Recargar datos del servidor">↺ Sync</button>
+        <button class="btn" aria-label="Generar Lentess con filas filtradas" onclick="abrirLentessModal()">🧿 Lentess filtrados</button>
         <button class="btn" id="toggleKpisBtn" aria-label="Ocultar KPIs" onclick="toggleKpis()">Ocultar KPIs</button>
         <span class="header-sep"></span>
         <details class="more-menu">
@@ -399,6 +400,37 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
   </div>
 </div>
 
+<!-- RECETAS PAMI MODAL -->
+<div id="recetasModal" style="display:none;position:fixed;inset:0;background:#0005;z-index:420;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;max-width:760px;width:95%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
+    <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:15px;font-weight:700">🧾 PAMI recetas (post envío de documentos)</div>
+      <button onclick="cerrarModalRecetas()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button>
+    </div>
+    <div id="recetasBody" style="padding:14px 20px;flex:1;overflow-y:auto"></div>
+    <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="cerrarModalRecetas()">Cerrar</button>
+      <button class="btn green" onclick="generarScriptRecetas()">⬇ Descargar script recetas</button>
+    </div>
+  </div>
+</div>
+
+<!-- LENTESS MODAL -->
+<div id="lentessModal" style="display:none;position:fixed;inset:0;background:#0005;z-index:421;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;max-width:900px;width:95%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
+    <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:15px;font-weight:700">🧿 Lentess desde filtros actuales</div>
+      <button onclick="cerrarLentessModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">✕</button>
+    </div>
+    <div id="lentessBody" style="padding:14px 20px;flex:1;overflow-y:auto"></div>
+    <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="cerrarLentessModal()">Cerrar</button>
+      <button class="btn primary" onclick="copyLentessCSV()">Copiar CSV</button>
+      <button class="btn green" onclick="descargarScriptLentess()">⬇ Descargar script Lentess</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -444,6 +476,18 @@ let WA_PREF={
   delay: parseInt(localStorage.getItem('wa_delay_ms')||'4000',10)||4000,
   onlyLlego: localStorage.getItem('wa_only_llego')==='1'
 };
+
+let RECETAS_CTX={patientId:null,row:null};
+let LENTESS_CTX={sourceRows:[],validRows:[]};
+const RECETAS_DEFAULT={
+  diagnostico:'H57',
+  meds:[
+    ['GATIMICIN','TOLF'],
+    ['BRIMOPRESS','NATAX'],
+    ['DEXAMETASONA FABRA','TROPIOFTAL F']
+  ]
+};
+const RECETAS_CREDS_KEY='pami_recetas_creds';
 function saveWaPrefs(){
   localStorage.setItem('wa_channel',WA_PREF.channel);
   localStorage.setItem('wa_delay_ms',String(WA_PREF.delay));
@@ -452,6 +496,28 @@ function saveWaPrefs(){
   localStorage.setItem('wa_confirmed_map',JSON.stringify(WA_CONFIRMED_MAP));
   localStorage.setItem('wa_phone_override',JSON.stringify(WA_PHONE_OVERRIDE));
   localStorage.setItem('wa_global_date',WA_GLOBAL_DATE||'');
+}
+
+function escapeHtml(v){
+  return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function cleanDigits(v){ return String(v||'').replace(/\D+/g,''); }
+function isPamiRow(p){ return String(p?.obraSocial||'').trim().toUpperCase()==='PAMI'; }
+function downloadTextFile(filename,content,mime='text/plain;charset=utf-8'){
+  const blob=new Blob([content],{type:mime});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+function nowTag(){
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+}
+function getPamiRecetasCreds(){
+  try{return JSON.parse(localStorage.getItem(RECETAS_CREDS_KEY)||'{}')||{};}catch(e){return {};}
 }
 
 const MAIN_TABLE_COLUMNS=[
@@ -1514,7 +1580,376 @@ function waEnviarDocs(i){
   WA_ENVIADOS++;
   waRender();
   waDoOpen(phone,waMensajeDocs(r,hora));
+  waAfterDocsAutomation(r);
   return true;
+}
+
+
+// ─────────────────────────────────────────────
+// AUTOMATIZACIÓN LOCAL (PAMI RECETAS + LENTESS)
+// ─────────────────────────────────────────────
+function waAfterDocsAutomation(r){
+  const src=waGetSourceRow(r);
+  if(!src) return;
+  const afiliado=cleanDigits(src.afiliado||'');
+  if(!isPamiRow(src) || !afiliado) return;
+  abrirModalRecetas(src.id);
+}
+
+function abrirModalRecetas(patientId){
+  const row=DB.rows.find(x=>x.id===patientId);
+  if(!row) return;
+  const afiliado=cleanDigits(row.afiliado||'');
+  if(!isPamiRow(row) || !afiliado) return;
+  const creds=getPamiRecetasCreds();
+  RECETAS_CTX={patientId,row};
+  const meds=RECETAS_DEFAULT.meds;
+  const body=document.getElementById('recetasBody');
+  if(!body) return;
+  body.innerHTML=`
+    <div style="display:grid;gap:10px">
+      <div style="font-size:13px;color:#374151">Paciente: <b>${escapeHtml(row.nombre||'')}</b></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+        <label style="font-size:12px">Afiliado<input id="recAfiliado" class="input" type="text" value="${escapeHtml(afiliado)}" style="width:100%;margin-top:4px"></label>
+        <label style="font-size:12px">Obra social<input id="recObraSocial" class="input" type="text" value="${escapeHtml(row.obraSocial||'')}" readonly style="width:100%;margin-top:4px;background:#f8fafc"></label>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+        <label style="font-size:12px">Usuario PAMI<input id="recUser" class="input" type="text" value="${escapeHtml(creds.user||'')}" style="width:100%;margin-top:4px"></label>
+        <label style="font-size:12px">Contraseña PAMI<input id="recPass" class="input" type="password" value="${escapeHtml(creds.pass||'')}" style="width:100%;margin-top:4px"></label>
+      </div>
+      <label style="font-size:12px"><input id="recRemember" type="checkbox" ${creds.user||creds.pass?'checked':''}> guardar credenciales en este navegador</label>
+      <label style="font-size:12px">Diagnóstico CIE10<input id="recDiag" class="input" type="text" value="${RECETAS_DEFAULT.diagnostico}" style="width:160px;margin-top:4px"></label>
+      <div style="font-size:12px;font-weight:700;margin-top:4px">Medicamentos (3 recetas, 2 por receta)</div>
+      <div style="display:grid;gap:8px">
+        ${[1,2,3].map((n,ix)=>`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;align-items:end">
+            <label style="font-size:12px">Receta ${n} - med${n}a<input id="recMed${n}a" class="input" type="text" value="${escapeHtml(meds[ix][0])}" style="width:100%;margin-top:4px"></label>
+            <label style="font-size:12px">Receta ${n} - med${n}b<input id="recMed${n}b" class="input" type="text" value="${escapeHtml(meds[ix][1])}" style="width:100%;margin-top:4px"></label>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  const modal=document.getElementById('recetasModal');
+  if(modal) modal.style.display='flex';
+}
+function cerrarModalRecetas(){
+  const modal=document.getElementById('recetasModal');
+  if(modal) modal.style.display='none';
+}
+function recetasGuardarCreds(){
+  const remember=!!document.getElementById('recRemember')?.checked;
+  const user=String(document.getElementById('recUser')?.value||'').trim();
+  const pass=String(document.getElementById('recPass')?.value||'').trim();
+  if(!remember){ localStorage.removeItem(RECETAS_CREDS_KEY); return; }
+  localStorage.setItem(RECETAS_CREDS_KEY,JSON.stringify({user,pass}));
+}
+function generarScriptRecetas(){
+  if(!RECETAS_CTX.row){toast('No hay paciente seleccionado para recetas');return;}
+  const afiliado=cleanDigits(document.getElementById('recAfiliado')?.value||'');
+  if(!afiliado){toast('Paciente sin afiliado');return;}
+  const user=String(document.getElementById('recUser')?.value||'').trim();
+  const pass=String(document.getElementById('recPass')?.value||'').trim();
+  const diag=String(document.getElementById('recDiag')?.value||'').trim()||RECETAS_DEFAULT.diagnostico;
+  const meds=[[1,'a'],[1,'b'],[2,'a'],[2,'b'],[3,'a'],[3,'b']].map(([n,l])=>String(document.getElementById(`recMed${n}${l}`)?.value||'').trim());
+  if(meds.some(v=>!v)){toast('Complete los 6 medicamentos');return;}
+  recetasGuardarCreds();
+  const py=generarPythonRecetas({afiliado,user,pass,diag,meds});
+  downloadTextFile(`recetas_${afiliado}.py`,py,'text/x-python;charset=utf-8');
+  toast('Script recetas descargado');
+}
+function generarPythonRecetas(cfg){
+  const pairs=[[cfg.meds[0],cfg.meds[1]],[cfg.meds[2],cfg.meds[3]],[cfg.meds[4],cfg.meds[5]]]
+    .map(p=>`    (${JSON.stringify(p[0])}, ${JSON.stringify(p[1])})`).join('\n');
+  return `import re
+import time
+import csv
+from pathlib import Path
+from datetime import datetime
+from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
+
+PAMI_USER = ${JSON.stringify(cfg.user)}
+PAMI_PASS = ${JSON.stringify(cfg.pass)}
+PAMI_URL = "https://recetaelectronica.pami.org.ar/controllers/recetaController.php"
+DIAG = ${JSON.stringify(cfg.diag)}
+MED_PAIRS = [
+${pairs}
+]
+BENEFICIOS = [${JSON.stringify(cfg.afiliado)}]
+QTY_1 = "1"
+QTY_2 = "1"
+USER_DATA_DIR = str(Path(__file__).parent / "chrome_pami_profile")
+
+def clean_benef(s: str) -> str:
+    return re.sub(r"\D", "", (s or "").strip())
+
+def afiliado_no_encontrado(page) -> bool:
+    try:
+        return page.get_by_text("Afiliado no encontrado", exact=False).is_visible(timeout=800)
+    except Exception:
+        return False
+
+def handle_save_confirmations(page):
+    for _ in range(6):
+        try:
+            yes_btn = page.locator("button:has-text('Sí'), button:has-text('Si'), button.ui-confirm-button")
+            if yes_btn.count() > 0 and yes_btn.first.is_visible():
+                yes_btn.first.click(); time.sleep(0.20)
+            ok_btn = page.locator("button:has-text('Aceptar'), button:has-text('OK')")
+            if ok_btn.count() > 0 and ok_btn.first.is_visible():
+                ok_btn.first.click(); time.sleep(0.20)
+        except Exception:
+            pass
+        time.sleep(0.15)
+
+def login_if_needed(page, user: str, password: str):
+    if page.locator("input[type='password']").count() == 0: return
+    pass_field = page.locator("input[type='password']").first
+    for sel in ["input[name*=usuario i]","input[id*=usuario i]","input[name*=user i]","input[id*=user i]","input[type='email']","input[type='text']"]:
+        loc = page.locator(sel)
+        if loc.count() > 0 and loc.first.is_visible():
+            loc.first.fill(user); break
+    pass_field.fill(password)
+    btn = page.get_by_role("button", name=re.compile("Ingresar|Entrar|Acceder|Iniciar", re.I))
+    if btn.count() > 0 and btn.first.is_visible(): btn.first.click()
+    else: pass_field.press("Enter")
+    try: page.wait_for_load_state("networkidle", timeout=15000)
+    except Exception: pass
+    print("→ Si pide OTP, cargalo vos en el navegador.")
+
+def get_meds_context(page, timeout_sec=25):
+    try:
+        page.wait_for_selector("#accion", state="visible", timeout=2500)
+        page.wait_for_selector("#t_busqueda", state="visible", timeout=2500)
+        return page
+    except PWTimeout:
+        pass
+    t0 = time.time()
+    while time.time() - t0 < timeout_sec:
+        for fr in page.frames:
+            if fr == page.main_frame: continue
+            try:
+                if fr.locator("#accion").count() > 0 and fr.locator("#t_busqueda").count() > 0:
+                    return fr
+            except Exception: pass
+        time.sleep(0.2)
+    raise RuntimeError("No apareció el buscador de medicamentos")
+
+def abrir_buscador_y_elegir(page, idx: int, nombre: str):
+    (page.locator(f"#btnNombreComercial_{idx} > span").first if page.locator(f"#btnNombreComercial_{idx} > span").count() else page.locator(f"#btnNombreComercial_{idx}").first).click(force=True)
+    ctx = get_meds_context(page, timeout_sec=25)
+    ctx.locator("#accion").select_option(label="Nombre Comercial")
+    ctx.locator("#t_busqueda").fill(nombre)
+    (ctx.locator("input[value='Buscar']").first if ctx.locator("input[value='Buscar']").count() else ctx.get_by_role("button", name=re.compile("BUSCAR|Buscar", re.I)).first).click()
+    cell = ctx.locator("xpath=//*[@id='t_busqueda']/ancestor::*[self::div or self::form][1]//following::table[1]//tbody//tr[td]/td[3]").first
+    cell.wait_for(state="visible", timeout=15000)
+    cell.click(force=True)
+
+def cargar_una_receta(page, benef: str, med_a: str, med_b: str):
+    page.goto(PAMI_URL)
+    login_if_needed(page, PAMI_USER, PAMI_PASS)
+    page.wait_for_selector("#t_benef", timeout=25000)
+    page.locator("#t_benef").fill(benef); page.click("body"); time.sleep(0.7)
+    if afiliado_no_encontrado(page): raise RuntimeError(f"Afiliado no encontrado: {benef}")
+    page.locator("#t_diag_cod_1").fill(DIAG); page.click("body"); time.sleep(0.15)
+    abrir_buscador_y_elegir(page, 1, med_a); page.locator("#t_cantidad_1").fill(QTY_1)
+    (page.click("#otroMedicamento > span") if page.locator("#otroMedicamento > span").count() else page.click("#otroMedicamento"))
+    page.locator("#t_diag_cod_2").fill(DIAG); page.click("body"); time.sleep(0.15)
+    abrir_buscador_y_elegir(page, 2, med_b); page.locator("#t_cantidad_2").fill(QTY_2)
+    page.click("#btnGuardar"); time.sleep(0.6); handle_save_confirmations(page)
+
+def guardar_resumen(resultados, out_dir="."):
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    txt_path = Path(out_dir) / f"resumen_recetas_{ts}.txt"
+    csv_path = Path(out_dir) / f"resumen_recetas_{ts}.csv"
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f); w.writerow(["afiliado","status","recetas_ok","error_receta","error_msg"])
+        for r in resultados: w.writerow([r["benef"],r["status"],r["recetas_ok"],r["error_receta"],r["error_msg"]])
+    txt_path.write_text("\n".join([f"{x['benef']} | {x['status']} | {x['recetas_ok']}/3" for x in resultados]), encoding="utf-8")
+    return str(txt_path), str(csv_path)
+
+def main():
+    beneficios=[clean_benef(x) for x in BENEFICIOS if clean_benef(x)]
+    if not beneficios: print("No hay afiliados"); return
+    resultados=[]
+    with sync_playwright() as p:
+        context = p.chromium.launch_persistent_context(USER_DATA_DIR, channel="chrome", headless=False)
+        page = context.new_page(); page.goto(PAMI_URL); time.sleep(1.2)
+        login_if_needed(page, PAMI_USER, PAMI_PASS)
+        input("Si PAMI pide OTP, cargalo en el navegador. ENTER para continuar... ")
+        for benef in beneficios:
+            info={"benef":benef,"status":"ERROR","recetas_ok":0,"error_receta":"","error_msg":""}
+            for i,(a,b) in enumerate(MED_PAIRS,start=1):
+                try: cargar_una_receta(page, benef, a, b); info["recetas_ok"]+=1
+                except Exception as e: info["error_receta"]=str(i); info["error_msg"]=str(e); info["status"]=("PARCIAL" if info["recetas_ok"]>0 else "ERROR"); break
+            if info["recetas_ok"]==3: info["status"]="OK"
+            resultados.append(info)
+        txt_path,csv_path=guardar_resumen(resultados,out_dir=".")
+        print(f"Resumen TXT: {txt_path}\nResumen CSV: {csv_path}")
+        input("ENTER para cerrar... ")
+        context.close()
+
+if __name__ == "__main__":
+    main()
+`;
+}
+
+function getFilteredRowsForLentess(){
+  const rows=filtered();
+  return rows.filter(p=>{
+    const afiliado=cleanDigits(p.afiliado||'');
+    const ojo=String(p.ojo||'').trim();
+    const lio=String(getDioptria(p)||'').trim();
+    return isPamiRow(p) && !!afiliado && !!ojo && !!lio;
+  });
+}
+function buildLentessPayload(rows){
+  return rows.map(p=>({
+    nombre:p.nombre||'',
+    afiliado:cleanDigits(p.afiliado||''),
+    ojo:String(p.ojo||'').trim().toUpperCase(),
+    lio:String(getDioptria(p)||'').trim(),
+    clinica:p.clinica||''
+  }));
+}
+function abrirLentessModal(){
+  const sourceRows=filtered();
+  const validRows=buildLentessPayload(getFilteredRowsForLentess());
+  if(!validRows.length){toast('Sin pacientes válidos para Lentess en el filtro actual'); return;}
+  LENTESS_CTX={sourceRows,validRows};
+  const body=document.getElementById('lentessBody');
+  if(!body) return;
+  body.innerHTML=`
+    <p style="font-size:12px;color:#6b7280;margin-bottom:8px">Filtradas: <b>${sourceRows.length}</b> · Válidas Lentess: <b>${validRows.length}</b></p>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr>${['Nombre','Afiliado','Ojo','Lio/Dioptría','Clínica'].map(h=>`<th style="padding:7px 10px;background:#f1f5f9;text-align:left;font-size:11px;color:#6b7280;border-bottom:1px solid #e2e8f0">${h}</th>`).join('')}</tr></thead>
+      <tbody>${validRows.map(p=>`<tr>${[p.nombre,p.afiliado,p.ojo,p.lio,p.clinica].map(v=>`<td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${escapeHtml(v)}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>`;
+  document.getElementById('lentessModal').style.display='flex';
+}
+function cerrarLentessModal(){
+  const modal=document.getElementById('lentessModal');
+  if(modal) modal.style.display='none';
+}
+function lentessCsvText(){
+  const rows=LENTESS_CTX.validRows||[];
+  return rows.map(p=>`${p.afiliado};${p.ojo};${p.lio}`).join('\n');
+}
+function copyLentessCSV(){
+  const txt=lentessCsvText();
+  if(!txt){toast('Sin pacientes válidos para copiar');return;}
+  navigator.clipboard.writeText(txt).then(()=>toast('CSV copiado')).catch(()=>toast('No se pudo copiar al portapapeles'));
+}
+function descargarScriptLentess(){
+  const rows=LENTESS_CTX.validRows||[];
+  if(!rows.length){toast('Sin pacientes válidos para Lentess');return;}
+  const py=generarPythonLentess(rows);
+  downloadTextFile(`lentess_filtrados_${nowTag()}.py`,py,'text/x-python;charset=utf-8');
+  toast('Script Lentess descargado');
+}
+function generarPythonLentess(rows){
+  const payload=JSON.stringify(rows.map(p=>({afiliado:p.afiliado,ojo:p.ojo,lio:p.lio})),null,2);
+  return `import csv
+import time
+from pathlib import Path
+from datetime import datetime, timedelta
+import re
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+
+PAMI_USER = ""
+PAMI_PASS = ""
+LOGIN_URL = "https://efectores.pami.org.ar/pami_efectores/login.php?xgap_historial=clear"
+FORM_URL = "https://efectores.pami.org.ar/pami_efectores/insu_prestador_cirugia_cargar.php?xgap_historial=reset"
+PACIENTES = ${payload}
+LOG_DIR = "logs"
+CIRUGIA_CARACTER = "PROGRAMADO"
+
+def log(msg): print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+def only_digits(s): return re.sub(r"\D+","",str(s or ""))
+def normalize_ojo(o): return str(o or "").upper().replace("O.D.","OD").replace("O.I.","OI").strip()
+def normalize_lio(v): return str(v or "").replace(".",",").strip()
+def split_beneficio_parentesco(af):
+    d=only_digits(af); return (d[:-2],d[-2:]) if len(d)>=3 else (d,"")
+def fecha_probable_hoy_mas_10():
+    f=datetime.today()+timedelta(days=10)
+    if f.weekday()==6: f+=timedelta(days=1)
+    return f.strftime("%d/%m/%Y")
+def ensure_logs_dir(): Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
+def now_tag(): return datetime.now().strftime("%Y%m%d_%H%M%S")
+def do_login_if_needed(page,user,pw):
+    if page.locator("input[type='password']").count()==0: return False
+    page.goto(LOGIN_URL, wait_until="domcontentloaded")
+    page.locator("input[type='text']").first.fill(user)
+    p=page.locator("input[type='password']").first; p.fill(pw); p.press("Enter")
+    page.wait_for_load_state("networkidle")
+    return True
+def attach_dialog_autohandle(page):
+    page.on("dialog", lambda d: (log(f"⚠ Dialog: {d.message[:80]}"), d.accept()))
+def open_fresh_form_page(context, old_page, user, pw):
+    if old_page: 
+        try: old_page.close(run_before_unload=False)
+        except: pass
+    page=context.new_page(); attach_dialog_autohandle(page)
+    page.goto(FORM_URL, wait_until="domcontentloaded")
+    if do_login_if_needed(page,user,pw): page.goto(FORM_URL, wait_until="domcontentloaded")
+    page.wait_for_timeout(2000); return page
+def seleccionar_beneficiario(page, afiliado_full):
+    b,p=split_beneficio_parentesco(afiliado_full)
+    page.locator("a[onclick*='mostrar_seleccionable_beneficiario']").first.click()
+    frame=page.frame_locator("iframe#iframe-seleccionable")
+    frame.locator("#bus_n_beneficio").fill(b)
+    if p and frame.locator("#bus_grado_parentesco").count()>0: frame.locator("#bus_grado_parentesco").fill(p)
+    frame.locator("#b_buscar").click(); frame.locator("#BodyListado tr").first.wait_for(timeout=8000)
+    frame.locator("#BodyListado tr a").first.click()
+def seleccionar_diagnostico(page):
+    page.locator("a[onclick*='mostrar_seleccionable_diagnostico']").first.click()
+    frame=page.frame_locator("iframe#iframe-seleccionable")
+    frame.locator("#bus_d_cie10").fill("CATARATA senil")
+    frame.locator("#b_buscar").click(); frame.locator("a:has-text('CATARATA SENIL')").first.click()
+def seleccionar_insumo(page,ojo,lio):
+    page.locator("a[onclick*='mostrar_seleccionable_insumo']").first.click()
+    frame=page.frame_locator("iframe#iframe-seleccionable")
+    frame.locator("#bus_c_especialidad").select_option(label="OFTALMOLOGÍA")
+    frame.locator("#b_buscar").click(); frame.locator("#BodyListado a").first.wait_for(timeout=8000)
+    frame.locator("#BodyListado a").nth(0 if normalize_ojo(ojo)=="OD" else 2).click()
+    page.locator("#insumo_cantidad").fill("1")
+    page.locator("#insumo_obs").fill(f"DIOPTRIA: {normalize_lio(lio)}\nVISCOELASTICA PESADA")
+    page.locator("#btn_add_insumo").click()
+def completar_campos_fijos(page):
+    page.locator("#c_caracter").select_option(label=CIRUGIA_CARACTER)
+def guardar_y_confirmar(page):
+    page.locator("#b_guardar").first.click()
+    try: page.wait_for_url(re.compile(r"insu_prestador_cirugia_listado\.php"), timeout=15000)
+    except PlaywrightTimeoutError: pass
+def main():
+    ensure_logs_dir()
+    pacientes=[{"afiliado":only_digits(p.get("afiliado")),"ojo":normalize_ojo(p.get("ojo")),"lio":normalize_lio(p.get("lio"))} for p in PACIENTES if only_digits(p.get("afiliado")) and normalize_ojo(p.get("ojo")) and normalize_lio(p.get("lio"))]
+    if not pacientes: print("No hay pacientes válidos"); return
+    user=(PAMI_USER or "").strip() or input("Usuario PAMI: ").strip()
+    pw=(PAMI_PASS or "").strip() or input("Clave PAMI: ").strip()
+    csv_file=Path(LOG_DIR)/f"log_{now_tag()}.csv"
+    with open(csv_file,"w",newline="",encoding="utf-8") as f:
+        writer=csv.DictWriter(f, fieldnames=["afiliado","ojo","lio","estado","detalle"])
+        writer.writeheader()
+        with sync_playwright() as p:
+            browser=p.chromium.launch(channel="chrome",headless=False,args=["--guest","--start-maximized"])
+            context=browser.new_context(no_viewport=True)
+            page=open_fresh_form_page(context,None,user,pw)
+            for i,pac in enumerate(pacientes, start=1):
+                try:
+                    log(f"[{i}/{len(pacientes)}] {pac['afiliado']} {pac['ojo']} {pac['lio']}")
+                    if do_login_if_needed(page,user,pw): page.goto(FORM_URL, wait_until="domcontentloaded")
+                    completar_campos_fijos(page)
+                    seleccionar_beneficiario(page,pac["afiliado"])
+                    seleccionar_diagnostico(page)
+                    seleccionar_insumo(page,pac["ojo"],pac["lio"])
+                    guardar_y_confirmar(page)
+                    writer.writerow({"afiliado":pac["afiliado"],"ojo":pac["ojo"],"lio":pac["lio"],"estado":"OK","detalle":""})
+                except Exception as e:
+                    writer.writerow({"afiliado":pac["afiliado"],"ojo":pac["ojo"],"lio":pac["lio"],"estado":"ERROR","detalle":str(e)})
+                if i < len(pacientes): page=open_fresh_form_page(context,page,user,pw)
+    print(f"Listo. Log: {csv_file}")
+
+if __name__ == "__main__":
+    main()
+`;
 }
 async function waLoop(kind){
   WA_STOP=false;
