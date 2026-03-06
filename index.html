@@ -18,6 +18,11 @@ header{background:#fff;border:none;padding:12px 0 10px;display:flex;flex-directi
 .status-pill{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid #d6e3f5;border-radius:999px;padding:6px 11px;font-size:11px;font-weight:600;color:#334155}
 .status-dot{width:8px;height:8px;border-radius:50%;background:#2E7D5E;box-shadow:0 0 0 3px #2E7D5E33}
 #syncBadge{font-size:11px;color:#1a56db;display:inline-flex!important;align-items:center;gap:4px}
+.connector-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:999px;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8;font-weight:700}
+.connector-badge.ok{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+.connector-badge.off{background:#f8fafc;border-color:#e5e7eb;color:#64748b}
+.connector-badge.run{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+.connector-badge.err{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
 .hspacer{flex:1}
 
 /* Action bar */
@@ -259,7 +264,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
     <header>
       <div class="brandbar">
         <div class="logo">Centro de Ojos Esteves <small>Gestión de Cirugías</small></div>
-        <div class="status-pill"><span class="status-dot"></span> <span>Listo</span> <span id="syncBadge"></span></div>
+        <div class="status-pill"><span class="status-dot"></span> <span>Listo</span> <span id="syncBadge"></span> <span id="connectorBadge" class="connector-badge off">Conector: no detectado</span></div>
       </div>
       <div class="actionbar">
         <button class="btn primary" aria-label="Nuevo paciente" onclick="nuevoModal()">+ Nuevo Paciente</button>
@@ -410,7 +415,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
     <div id="recetasBody" style="padding:14px 20px;flex:1;overflow-y:auto"></div>
     <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
       <button class="btn" onclick="cerrarModalRecetas()">Cerrar</button>
-      <button class="btn green" onclick="generarScriptRecetas()">⬇ Descargar script recetas</button>
+      <button class="btn green" onclick="generarScriptRecetas()">▶ Ejecutar PAMI recetas</button>
     </div>
   </div>
 </div>
@@ -426,7 +431,7 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
     <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end">
       <button class="btn" onclick="cerrarLentessModal()">Cerrar</button>
       <button class="btn primary" onclick="copyLentessCSV()">Copiar CSV</button>
-      <button class="btn green" onclick="descargarScriptLentess()">⬇ Descargar script Lentess</button>
+      <button class="btn green" onclick="descargarScriptLentess()">▶ Ejecutar Lentess</button>
     </div>
   </div>
 </div>
@@ -522,6 +527,75 @@ function getPamiRecetasCreds(){
 }
 function getPamiLentessCreds(){
   try{return JSON.parse(localStorage.getItem(LENTESS_CREDS_KEY)||'{}')||{};}catch(e){return {};}
+}
+
+const CONNECTOR_BASE='http://127.0.0.1:8765';
+let CONNECTOR_STATUS='off';
+let CONNECTOR_HEALTH_TIMER=null;
+function setConnectorBadge(state,msg){
+  CONNECTOR_STATUS=state;
+  const el=document.getElementById('connectorBadge');
+  if(!el) return;
+  el.className=`connector-badge ${state}`;
+  el.textContent=msg;
+}
+async function connectorFetch(path,opts={}){
+  const ctrl=new AbortController();
+  const tm=setTimeout(()=>ctrl.abort(),opts.timeoutMs||12000);
+  try{
+    const res=await fetch(`${CONNECTOR_BASE}${path}`,Object.assign({},opts,{signal:ctrl.signal,headers:Object.assign({'Content-Type':'application/json'},opts.headers||{})}));
+    const txt=await res.text();
+    let data={};
+    try{data=txt?JSON.parse(txt):{};}catch(_){data={raw:txt||''};}
+    if(!res.ok) throw new Error(data?.detail||data?.error||`HTTP ${res.status}`);
+    return data;
+  }finally{ clearTimeout(tm); }
+}
+async function connectorHealthCheck(){
+  try{
+    await connectorFetch('/health',{method:'GET',headers:{},timeoutMs:3500});
+    if(CONNECTOR_STATUS!=='run') setConnectorBadge('ok','Conector: activo');
+    return true;
+  }catch(e){
+    if(CONNECTOR_STATUS!=='run') setConnectorBadge('off','Conector: no detectado');
+    return false;
+  }
+}
+async function connectorStartJob(kind,payload){
+  const healthy=await connectorHealthCheck();
+  if(!healthy) throw new Error('Conector local no detectado. Abrí el conector Windows e intentá nuevamente.');
+  setConnectorBadge('run','Conector: ejecutando automatización');
+  const data=await connectorFetch(`/jobs/${kind}`,{method:'POST',body:JSON.stringify(payload),timeoutMs:12000});
+  const jobId=data.job_id||data.id;
+  if(!jobId) throw new Error('El conector respondió sin job_id.');
+  return jobId;
+}
+async function connectorPollJob(jobId,onUpdate){
+  const started=Date.now();
+  const maxMs=15*60*1000;
+  while(Date.now()-started<maxMs){
+    const data=await connectorFetch(`/jobs/${encodeURIComponent(jobId)}`,{method:'GET',headers:{},timeoutMs:10000});
+    const st=String(data.status||'').toLowerCase();
+    if(onUpdate) onUpdate(data);
+    if(['completed','ok','done','success'].includes(st)){
+      setConnectorBadge('ok','Conector: activo');
+      return data;
+    }
+    if(['error','failed','cancelled'].includes(st)){
+      setConnectorBadge('err','Conector: error de ejecución');
+      throw new Error(data.error||data.detail||'La automatización finalizó con error.');
+    }
+    await new Promise(r=>setTimeout(r,1700));
+  }
+  setConnectorBadge('err','Conector: tiempo de espera agotado');
+  throw new Error('Tiempo de espera agotado al consultar el conector.');
+}
+function renderJobStatus(containerId,type,msg){
+  const el=document.getElementById(containerId); if(!el) return;
+  const colors={ok:'#047857',run:'#c2410c',err:'#b91c1c',off:'#64748b',info:'#1d4ed8'};
+  el.style.color=colors[type]||colors.info;
+  el.style.fontWeight='700';
+  el.textContent=msg;
 }
 
 const MAIN_TABLE_COLUMNS=[
@@ -1605,6 +1679,7 @@ function abrirModalRecetas(patientId){
   if(!body) return;
   body.innerHTML=`
     <div style="display:grid;gap:10px">
+      <div id="recetasJobStatus" style="font-size:12px;color:#64748b">Listo para ejecutar en conector local.</div>
       <div style="font-size:13px;color:#374151">Paciente: <b>${escapeHtml(row.nombre||'')}</b></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
         <label style="font-size:12px">Afiliado<input id="recAfiliado" class="input" type="text" value="${escapeHtml(afiliado)}" style="width:100%;margin-top:4px"></label>
@@ -1647,10 +1722,29 @@ function generarScriptRecetas(){
   const diag=String(document.getElementById('recDiag')?.value||'').trim()||RECETAS_DEFAULT.diagnostico;
   const meds=[[1,'a'],[1,'b'],[2,'a'],[2,'b'],[3,'a'],[3,'b']].map(([n,l])=>String(document.getElementById(`recMed${n}${l}`)?.value||'').trim());
   if(meds.some(v=>!v)){toast('Complete los 6 medicamentos');return;}
+  if(!user||!pass){toast('Completar usuario y contraseña PAMI');return;}
   recetasGuardarCreds();
-  const py=generarPythonRecetas({afiliado,user,pass,diag,meds});
-  downloadTextFile(`recetas_${afiliado}.py`,py,'text/x-python;charset=utf-8');
-  toast('Script recetas descargado');
+  const payload={
+    afiliado,
+    paciente:RECETAS_CTX.row?.nombre||'',
+    obraSocial:RECETAS_CTX.row?.obraSocial||'',
+    credenciales:{user,pass},
+    diagnostico:diag,
+    medicamentos:[[meds[0],meds[1]],[meds[2],meds[3]],[meds[4],meds[5]]]
+  };
+  renderJobStatus('recetasJobStatus','run','⏳ Iniciando automatización de recetas...');
+  connectorStartJob('recetas',payload)
+    .then(jobId=>{
+      toast('Recetas: ejecución iniciada');
+      renderJobStatus('recetasJobStatus','run',`⏳ Ejecutando (job ${jobId})`);
+      return connectorPollJob(jobId,(s)=>renderJobStatus('recetasJobStatus','run',`⏳ Ejecutando: ${s.status||'en curso'}`));
+    })
+    .then(()=>{toast('Recetas completadas'); renderJobStatus('recetasJobStatus','ok','✅ Automatización completada');})
+    .catch(err=>{
+      const msg=String(err?.message||'Error de ejecución');
+      toast(msg);
+      renderJobStatus('recetasJobStatus',/no detectado/i.test(msg)?'off':'err',`❌ ${msg}`);
+    });
 }
 function generarPythonRecetas(cfg){
   const pairs=[[cfg.meds[0],cfg.meds[1]],[cfg.meds[2],cfg.meds[3]],[cfg.meds[4],cfg.meds[5]]]
@@ -1815,6 +1909,7 @@ function abrirLentessModal(){
   const body=document.getElementById('lentessBody');
   if(!body) return;
   body.innerHTML=`
+    <div id="lentessJobStatus" style="font-size:12px;color:#64748b;margin-bottom:8px">Listo para ejecutar en conector local.</div>
     <p style="font-size:12px;color:#6b7280;margin-bottom:8px">Filtradas: <b>${sourceRows.length}</b> · Válidas Lentess: <b>${validRows.length}</b></p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0 0 10px">
       <label style="font-size:12px">Usuario PAMI
@@ -1858,9 +1953,21 @@ function descargarScriptLentess(){
   const rows=LENTESS_CTX.validRows||[];
   if(!rows.length){toast('Sin pacientes válidos para Lentess');return;}
   const cfg=lentessGuardarCreds();
-  const py=generarPythonLentess(rows,cfg);
-  downloadTextFile(`lentess_filtrados_${nowTag()}.py`,py,'text/x-python;charset=utf-8');
-  toast('Script Lentess descargado (ejecútelo localmente con Python)');
+  if(!cfg.user||!cfg.pass){toast('Completar usuario y contraseña PAMI');return;}
+  const payload={credenciales:{user:cfg.user,pass:cfg.pass}, pacientes:rows.map(r=>({afiliado:r.afiliado,ojo:r.ojo,lio:r.lio}))};
+  renderJobStatus('lentessJobStatus','run','⏳ Iniciando automatización Lentess...');
+  connectorStartJob('lentess',payload)
+    .then(jobId=>{
+      toast('Lentess: ejecución iniciada');
+      renderJobStatus('lentessJobStatus','run',`⏳ Ejecutando (job ${jobId})`);
+      return connectorPollJob(jobId,(s)=>renderJobStatus('lentessJobStatus','run',`⏳ Ejecutando: ${s.status||'en curso'}`));
+    })
+    .then(()=>{toast('Lentess completado'); renderJobStatus('lentessJobStatus','ok','✅ Automatización completada');})
+    .catch(err=>{
+      const msg=String(err?.message||'Error de ejecución');
+      toast(msg);
+      renderJobStatus('lentessJobStatus',/no detectado/i.test(msg)?'off':'err',`❌ ${msg}`);
+    });
 }
 function generarPythonLentess(rows,cfg={}){
   const payload=JSON.stringify(rows.map(p=>({afiliado:p.afiliado,ojo:p.ojo,lio:p.lio})),null,2);
@@ -2284,6 +2391,9 @@ function initUX(){
   q.oninput=()=>{clearTimeout(t); t=setTimeout(()=>{render();},180)};
   ['fCli','fEst','fOS','showSilenced'].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('change',()=>{localStorage.setItem('cirugias_saved_filters', JSON.stringify({fCli:document.getElementById('fCli').value,fEst:document.getElementById('fEst').value,fOS:document.getElementById('fOS').value,showSilenced:document.getElementById('showSilenced').checked}));});});
   document.querySelectorAll('button').forEach(b=>{if(!b.getAttribute('aria-label')) b.setAttribute('aria-label',(b.textContent||'Acción').trim());});
+  connectorHealthCheck();
+  if(CONNECTOR_HEALTH_TIMER) clearInterval(CONNECTOR_HEALTH_TIMER);
+  CONNECTOR_HEALTH_TIMER=setInterval(()=>{ if(CONNECTOR_STATUS!=='run') connectorHealthCheck(); },30000);
   updateStickyMetrics();
   window.addEventListener('resize', updateStickyMetrics);
 }
