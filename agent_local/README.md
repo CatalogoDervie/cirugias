@@ -23,7 +23,9 @@ Cada job genera un log local en:
 2. Crear y activar virtualenv.
 3. Instalar dependencias:
    - `pip install -r agent_local/requirements.txt`
-4. Ejecutar:
+4. Instalar navegadores Playwright (una sola vez):
+   - `python -m playwright install chrome`
+5. Ejecutar:
    - `uvicorn agent_local.app.main:app --host 127.0.0.1 --port 8765`
 
 ## Integración con frontend existente
@@ -47,3 +49,7 @@ Se incluye script base:
 - `scripts/windows/run_connector.bat`
 
 Siguiente paso recomendado: empaquetar con PyInstaller o NSSM/Task Scheduler para inicio automático.
+
+## Verificación de ejecución real
+Si un job marca `success`, en el log debe verse secuencia real (login, paciente, guardado).
+Si Playwright/login/OTP falla, el estado del job será `error` (sin success falso).

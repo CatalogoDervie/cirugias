@@ -8,4 +8,5 @@ if not exist .venv (
 
 call .venv\Scripts\activate
 pip install -r requirements.txt
+python -m playwright install chrome
 uvicorn app.main:app --host 127.0.0.1 --port 8765
