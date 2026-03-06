@@ -179,6 +179,21 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 .wa-table th{background:#f0f6ff}
 .wa-table input[type='text'],.wa-table input[type='time']{width:100%;padding:5px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px}
 .wa-table button:disabled{opacity:.45;cursor:not-allowed}
+.wa-wrap.whatsapp-confirmar{border:1px solid #d9e4f5;border-radius:16px;padding:18px;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);box-shadow:0 12px 30px #0f172a12}
+.wa-topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.wa-title{margin:0;font-size:20px;color:#0f4ab8}
+.wa-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px;align-items:end}
+.wa-card{background:#fff;border:1px solid #dbe5f4;border-radius:12px;padding:12px}
+.wa-card h4{margin:0 0 8px;font-size:12px;color:#334155;text-transform:uppercase;letter-spacing:.03em}
+.wa-grid .span-2{grid-column:span 2}.wa-grid .span-3{grid-column:span 3}.wa-grid .span-4{grid-column:span 4}.wa-grid .span-6{grid-column:span 6}.wa-grid .span-12{grid-column:span 12}
+.wa-actions-main .btn{min-height:36px}
+.wa-actions-main .btn.primary{background:#1a56db;border-color:#1a56db;color:#fff}
+.wa-actions-secondary{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.wa-actions-secondary .btn{background:#fff}
+.wa-meta{margin:10px 0 8px;color:#475569;font-size:12px}
+.wa-table-wrap{margin-top:8px;border:1px solid #dbe5f4;border-radius:12px;overflow:auto;background:#fff}
+@media(max-width:1100px){.wa-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.wa-grid .span-4,.wa-grid .span-6{grid-column:span 6}.wa-grid .span-3{grid-column:span 3}.wa-grid .span-2{grid-column:span 3}}
+@media(max-width:720px){.wa-wrap.whatsapp-confirmar{padding:12px}.wa-grid{grid-template-columns:1fr}.wa-grid .span-2,.wa-grid .span-3,.wa-grid .span-4,.wa-grid .span-6,.wa-grid .span-12{grid-column:span 1}.wa-actions-secondary{justify-content:flex-start}}
 .wa-estado.ok{color:#059669;font-weight:600}
 .wa-estado.err{color:#dc2626;font-weight:600}
 .wa-estado.pend{color:#6b7280;font-weight:600}
@@ -1380,17 +1395,6 @@ function waCounter(){const c=document.getElementById('waContador'); if(c) c.inne
 function waResetCounters(){WA_ENVIADOS=0; WA_ERRORES=0; waCounter();}
 function waBuildUrl(phone,msg){return WA_PREF.channel==='web' ? `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}` : `whatsapp://send?phone=${phone}&text=${encodeURIComponent(msg)}`;}
 function waDoOpen(phone,msg){window.location.href=waBuildUrl(phone,msg);}
-function waAbrirDocumentos(){
-  const links=[WA_DOCS_PREP_URL,WA_DOCS_CONSENT_URL];
-  let opened=0;
-  links.forEach(url=>{
-    const w=window.open(url,'_blank','noopener');
-    if(w) opened++;
-  });
-  if(opened===0){
-    alert('El navegador bloqueó la apertura automática de PDFs. Abra los links que van dentro del mensaje de WhatsApp.');
-  }
-}
 function waOjoTexto(ojo){
   const o=String(ojo||'').toUpperCase();
   if(o.includes('OD')) return 'Derecho';
@@ -1490,7 +1494,6 @@ function waEnviarDocs(i){
   if(!hora || !/^\d{2}:\d{2}$/.test(hora)){WA_ERRORES++; waSetStatus(r,'❌ Falta hora del paciente'); waRender(); return false;}
   const phone=normalizePhone(waGetRowPhone(r));
   if(!isValidPhone(phone)){WA_ERRORES++; waSetStatus(r,'❌ Teléfono inválido'); waRender(); return false;}
-  waAbrirDocumentos();
   const iso=new Date().toISOString();
   waMarkDocs(r,iso);
   waSetStatus(r,'✅ Docs enviados');
@@ -1527,22 +1530,36 @@ function renderWhatsApp(){
   const el=document.getElementById('waView');
   if(!el) return;
   el.innerHTML=`<div class='wa-wrap whatsapp-confirmar'>
-    <h3 style='margin-bottom:10px'>Confirmar cirugía - Centro de Ojos Esteves</h3>
-    <div class='wa-tools'>
-      <label style='font-size:12px'>Fecha de cirugía * <input id='waGlobalDate' type='date' value='${WA_GLOBAL_DATE}'></label>
-      <label style='font-size:12px'>Demora (seg): <input id='waDelay' type='number' min='1' step='1' value='${Math.round((WA_PREF.delay||4000)/1000)}' style='width:70px'></label>
-      <button id='waStartTurnos' class='btn'>Enviar turnos (filtrados)</button>
-      <button id='waStartDocs' class='btn'>Enviar docs (confirmados)</button>
-      <button id='waStop' class='btn'>Detener</button>
-      <label style='font-size:12px'><input type='checkbox' id='waOnlyLlego' ${WA_PREF.onlyLlego?'checked':''}> Solo estado: Llegó lente</label>
-      <label style='font-size:12px'><input type='radio' name='waCh' value='desktop' ${WA_PREF.channel==='desktop'?'checked':''}> WhatsApp Desktop</label>
-      <label style='font-size:12px'><input type='radio' name='waCh' value='web' ${WA_PREF.channel==='web'?'checked':''}> WhatsApp Web</label>
-      <button id='waReset' class='btn'>Reset tracking</button>
+    <div class='wa-topline'>
+      <h3 class='wa-title'>Confirmar cirugía - Centro de Ojos Esteves</h3>
       <button id='waBackMain' class='btn'>← Volver a página principal</button>
     </div>
+    <div class='wa-grid'>
+      <div class='wa-card span-6'>
+        <h4>Configuración de envío</h4>
+        <div class='wa-tools' style='margin:0'>
+          <label style='font-size:12px'>Fecha de cirugía * <input id='waGlobalDate' type='date' value='${WA_GLOBAL_DATE}'></label>
+          <label style='font-size:12px'>Demora (seg): <input id='waDelay' type='number' min='1' step='1' value='${Math.round((WA_PREF.delay||4000)/1000)}' style='width:70px'></label>
+          <label style='font-size:12px'><input type='checkbox' id='waOnlyLlego' ${WA_PREF.onlyLlego?'checked':''}> Solo estado: Llegó lente</label>
+          <label style='font-size:12px'><input type='radio' name='waCh' value='desktop' ${WA_PREF.channel==='desktop'?'checked':''}> WhatsApp Desktop</label>
+          <label style='font-size:12px'><input type='radio' name='waCh' value='web' ${WA_PREF.channel==='web'?'checked':''}> WhatsApp Web</label>
+        </div>
+      </div>
+      <div class='wa-card span-6'>
+        <h4>Acciones masivas</h4>
+        <div class='wa-actions-main' style='display:flex;gap:8px;flex-wrap:wrap'>
+          <button id='waStartTurnos' class='btn primary'>📩 Enviar turnos (filtrados)</button>
+          <button id='waStartDocs' class='btn primary'>📎 Enviar docs (confirmados)</button>
+        </div>
+        <div class='wa-actions-secondary' style='margin-top:8px'>
+          <button id='waStop' class='btn'>Detener</button>
+          <button id='waReset' class='btn'>Reset tracking</button>
+        </div>
+      </div>
+    </div>
     <div id='waContador' style='margin:6px 0 10px;font-weight:700'>Enviados: ${WA_ENVIADOS} | Errores: ${WA_ERRORES}</div>
-    <div style='margin:0 0 8px;color:#475569;font-size:12px'>Dominio público del sistema: <a href='${WA_APP_PUBLIC_URL}' target='_blank' rel='noopener'>${WA_APP_PUBLIC_URL}</a></div>
-    <table class='wa-table'><thead><tr><th>#</th><th>Paciente</th><th>Clínica</th><th>Teléfono</th><th>Ojo</th><th>Hora</th><th>Estado</th><th>Confirmó</th><th>Tracking</th><th>Acciones</th><th>Estado envío</th></tr></thead><tbody id='waTbody'></tbody></table>
+    <div class='wa-meta'>Dominio público del sistema: <a href='${WA_APP_PUBLIC_URL}'>${WA_APP_PUBLIC_URL}</a></div>
+    <div class='wa-table-wrap'><table class='wa-table'><thead><tr><th>#</th><th>Paciente</th><th>Clínica</th><th>Teléfono</th><th>Ojo</th><th>Hora</th><th>Estado</th><th>Confirmó</th><th>Tracking</th><th>Acciones</th><th>Estado envío</th></tr></thead><tbody id='waTbody'></tbody></table></div>
   </div>`;
   document.getElementById('waGlobalDate').onchange=(e)=>{WA_GLOBAL_DATE=e.target.value||''; saveWaPrefs();};
   document.getElementById('waDelay').onchange=(e)=>{WA_PREF.delay=Math.max(1000,(parseInt(e.target.value||'4',10)||4)*1000); saveWaPrefs();};
