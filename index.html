@@ -724,6 +724,7 @@ function alertas(p,opts={}){
   const st=estado(p);
   const dni=String(p.dni||'').trim();
   const ojo=String(p.ojo||'').toUpperCase()||'NA';
+  const sevBySteps=(d,yellowFrom,redFrom)=> d>redFrom?'red':(d>yellowFrom?'yellow':'neutral');
 
   if(p.recepLente==='Devolver' || st==='DEVOLVER LENTE'){
     const a={type:'devolver',days:SETTINGS.CRIT_DAYS,key:`devolver|${p.id}|${p.recepLente||'DEVOLVER'}`,severity:'red',msg:'⚠ DEVOLVER LENTE'};
@@ -746,20 +747,22 @@ function alertas(p,opts={}){
     }
   }
 
-  // B) DEMORA EN LLEGADA DE LENTE (+X días) >= 15
+  // B) LENTE SOLICITADA PERO NO LLEGÓ
+  // >10 días amarillo / >15 días rojo
   if(p.fechaSolLente && !p.fechaLlegaLente){
     const d=diffDays(today,p.fechaSolLente);
-    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.lens_delay_days)){
-      res.push({type:'lens_delayed',days:d,key:`lens_delayed:${dni}:${ojo}`,severity:severityByDays(d),msg:`DEMORA EN LLEGADA DE LENTE (+${d} días)`});
+    if(d!==null && d>10){
+      res.push({type:'lens_delayed',days:d,key:`lens_delayed:${dni}:${ojo}`,severity:sevBySteps(d,10,15),msg:`DEMORA EN LLEGADA DE LENTE (+${d} días)`});
     }
   }
 
-  // C) LENTE LLEGÓ Y NO PROGRAMADA (+X días)
+  // C) DEMORA EN PROGRAMACIÓN DE CIRUGÍA
   // Se anula automáticamente cuando se carga Fecha.Cir
+  // >15 días amarillo / >30 días rojo
   if(p.fechaLlegaLente && !p.fechaCir){
     const d=diffDays(today,p.fechaLlegaLente);
-    if(d!==null && d>=Math.max(SETTINGS.WARN_DAYS, SETTINGS.lens_arrived_not_scheduled_days)){
-      res.push({type:'no_schedule_after_arrival',days:d,key:`no_schedule_after_arrival:${dni}:${ojo}`,severity:severityByDays(d),msg:`DEMORA EN PROGRAMACIÓN DE CIRUGÍA (+${d} días)`});
+    if(d!==null && d>15){
+      res.push({type:'no_schedule_after_arrival',days:d,key:`no_schedule_after_arrival:${dni}:${ojo}`,severity:sevBySteps(d,15,30),msg:`DEMORA EN PROGRAMACIÓN DE CIRUGÍA (+${d} días)`});
     }
   }
 
