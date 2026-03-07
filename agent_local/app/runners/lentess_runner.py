@@ -20,6 +20,7 @@ MEDICO_NOMBRE       = "JOAQUIN ESTEVES"
 
 WAIT_FORM_STABLE_MS = 2000
 WAIT_PRE_CAL_MS     = 1500
+CAPTCHA_TIMEOUT_S   = 300
 
 
 # ------------------------------------------------------------------
@@ -31,7 +32,6 @@ def _only_digits(s: str) -> str:
 
 
 def _split_beneficio_parentesco(afiliado_full: str) -> Tuple[str, str]:
-    """Últimos 2 dígitos = parentesco. Ej: 15074409960701 → ('150744099607', '01')"""
     d = _only_digits(str(afiliado_full))
     return (d[:-2], d[-2:]) if len(d) >= 3 else (d, "")
 
@@ -64,77 +64,55 @@ def _profile_dir(log_path: Path) -> Path:
 
 
 def _launch_args() -> list:
-    """Chrome visible pero arrancando minimizado.
-    Queda accesible desde la barra de tareas para restaurarlo o cerrarlo si hace falta."""
+    """Chrome real, arranca MINIMIZADO en la barra de tareas.
+    El operador puede maximizarlo/cerrarlo en cualquier momento."""
     return [
-        "--start-minimized",
+        "--start-minimized",                            # <-- minimizado, no oculto
         "--window-size=1280,900",
-        "--start-maximized",
         "--no-first-run",
         "--no-default-browser-check",
         "--disable-notifications",
         "--disable-infobars",
+        "--disable-blink-features=AutomationControlled",
     ]
 
 
-def _has_manual_challenge(page) -> bool:
-    patterns = [
-        "captcha",
-        "no soy un robot",
-        "verificacion",
-        "verificación",
-        "robot",
-        "challenge",
-        "otp",
-        "codigo",
-        "código",
-    ]
+# ------------------------------------------------------------------
+# CAPTCHA
+# ------------------------------------------------------------------
+
+def _has_captcha(page) -> bool:
     try:
-        html = (page.content() or "").lower()
-    except Exception:
-        html = ""
-    url = (page.url or "").lower()
-    blob = f"{url}\n{html}"
-    return any(p in blob for p in patterns)
-
-
-def _target_ready(page) -> bool:
-    for sel in ["#c_caracter", "#f_probable_cirugia", "a[onclick*='mostrar_seleccionable_beneficiario']"]:
-        try:
+        for sel in [
+            "iframe[src*='recaptcha']",
+            "iframe[src*='hcaptcha']",
+            "iframe[title*='captcha' i]",
+            "div.g-recaptcha",
+            "div[data-sitekey]",
+            "#captcha",
+            "div[class*='captcha' i]",
+        ]:
             if page.locator(sel).count() > 0:
                 return True
-        except Exception:
-            pass
-    return False
+        return False
+    except Exception:
+        return False
 
 
-def _save_debug_screenshot(page, log_path: Path, suffix: str) -> None:
-    try:
-        shot = log_path.with_name(f"{log_path.stem}_{suffix}.png")
-        page.screenshot(path=str(shot), full_page=True)
-        append_log(log_path, f"LENTESS: screenshot guardado → {shot.name}")
-    except Exception as exc:
-        append_log(log_path, f"LENTESS: no pude guardar screenshot ({suffix}): {exc}")
-
-
-def _wait_manual_gate_resolution(page, log_path: Path, timeout_s: int = 180) -> None:
-    if _target_ready(page):
+def _wait_for_captcha(page, log_path: Path, ctx: str = "LENTESS") -> None:
+    if not _has_captcha(page):
         return
-    if _looks_like_login(page) or _has_manual_challenge(page):
-        append_log(log_path, f"LENTESS: login/captcha/OTP detectado — esperando resolución manual (máx {timeout_s}s)")
-        try:
-            page.bring_to_front()
-        except Exception:
-            pass
-        _save_debug_screenshot(page, log_path, "manual_gate")
-    start = time.time()
-    while time.time() - start < timeout_s:
-        if _target_ready(page) and not _looks_like_login(page):
-            append_log(log_path, "LENTESS: acceso confirmado tras validación manual")
+    append_log(log_path, f"{ctx}: ⚠️  CAPTCHA detectado en la página")
+    append_log(log_path, f"{ctx}: → Chrome está minimizado en la barra de tareas")
+    append_log(log_path, f"{ctx}: → Maximizalo, resolvé el captcha, y el proceso continúa solo")
+    append_log(log_path, f"{ctx}: → Esperando hasta {CAPTCHA_TIMEOUT_S}s...")
+    for elapsed in range(CAPTCHA_TIMEOUT_S):
+        if not _has_captcha(page):
+            append_log(log_path, f"{ctx}: ✓ Captcha resuelto ({elapsed}s)")
+            page.wait_for_timeout(800)
             return
         page.wait_for_timeout(1000)
-    _save_debug_screenshot(page, log_path, "manual_gate_timeout")
-    raise RuntimeError("No se pudo superar login/captcha/OTP en Lentess dentro del tiempo esperado.")
+    raise RuntimeError(f"Captcha no resuelto en {CAPTCHA_TIMEOUT_S}s — job cancelado.")
 
 
 # ------------------------------------------------------------------
@@ -142,13 +120,18 @@ def _wait_manual_gate_resolution(page, log_path: Path, timeout_s: int = 180) -> 
 # ------------------------------------------------------------------
 
 def _looks_like_login(page) -> bool:
-    url = (page.url or "").lower()
-    return "login.php" in url or page.locator("input[type='password']").count() > 0
+    try:
+        url = (page.url or "").lower()
+        return "login.php" in url or page.locator("input[type='password']").count() > 0
+    except Exception:
+        return False
 
 
 def _do_login(page, user: str, pw: str, log_path: Path) -> None:
     append_log(log_path, "LENTESS: completando login automático")
     page.goto(LOGIN_URL, wait_until="domcontentloaded")
+
+    _wait_for_captcha(page, log_path)   # captcha antes de rellenar
 
     user_sel = None
     for sel in [
@@ -176,32 +159,42 @@ def _do_login(page, user: str, pw: str, log_path: Path) -> None:
     else:
         pass_sel.press("Enter")
 
-    # Esperar que desaparezca el login hasta 15 s
+    page.wait_for_timeout(1200)
+    _wait_for_captcha(page, log_path)   # captcha post-click
+
     for _ in range(75):
         if not _looks_like_login(page):
-            append_log(log_path, "LENTESS: login completado")
+            append_log(log_path, "LENTESS: login completado ✓")
             return
         page.wait_for_timeout(200)
 
+    append_log(log_path, "LENTESS: advertencia — sigue en pantalla de login")
+
 
 def _ensure_session(page, user: str, pw: str, log_path: Path) -> None:
-    """Navega al formulario garantizando sesión activa.
-    Intenta login automático y, si aparece captcha/OTP, espera resolución manual sin cortar el job."""
     page.goto(FORM_URL, wait_until="domcontentloaded")
-
-    if _target_ready(page) and not _looks_like_login(page):
-        append_log(log_path, "LENTESS: sesión reutilizada")
-        return
+    _wait_for_captcha(page, log_path)
 
     if _looks_like_login(page):
         _do_login(page, user, pw, log_path)
         page.goto(FORM_URL, wait_until="domcontentloaded")
 
-    _wait_manual_gate_resolution(page, log_path, timeout_s=180)
+    # OTP / 2FA
     if _looks_like_login(page):
+        append_log(log_path, "LENTESS: OTP/2FA detectado — esperando (máx 180s)")
+        append_log(log_path, "LENTESS: → Chrome minimizado — maximizalo para ingresar el código")
+        for elapsed in range(180):
+            if not _looks_like_login(page):
+                append_log(log_path, f"LENTESS: OTP resuelto ({elapsed}s) ✓")
+                break
+            page.wait_for_timeout(1000)
+        else:
+            raise RuntimeError("OTP no resuelto en 180s.")
         page.goto(FORM_URL, wait_until="domcontentloaded")
+
+    _wait_for_captcha(page, log_path)   # captcha post-login
     page.wait_for_timeout(WAIT_FORM_STABLE_MS)
-    append_log(log_path, "LENTESS: sesión activa confirmada")
+    append_log(log_path, "LENTESS: sesión activa ✓")
 
 
 # ------------------------------------------------------------------
@@ -267,26 +260,24 @@ def _btn_exact(cal, text_exact: str):
 
 
 def _set_fecha_probable(page, fecha_str: str, log_path: Path) -> None:
-    """Usa el calendario nativo de PAMI para setear la fecha."""
     append_log(log_path, f"LENTESS: fecha probable = {fecha_str}")
     target = _parse_ddmmyyyy(fecha_str)
     if not target:
         raise RuntimeError(f"Fecha inválida: {fecha_str}")
 
-    # Intentar fill directo primero (más rápido y confiable si el campo lo acepta)
+    # Fill directo primero (más rápido)
     inp_direct = page.locator("#f_probable_cirugia, input[name='f_probable_cirugia']").first
     if inp_direct.count() > 0:
         try:
             inp_direct.fill(fecha_str)
             inp_direct.press("Tab")
             page.wait_for_timeout(300)
-            val = (_parse_ddmmyyyy(inp_direct.input_value() or "") )
-            if val == target:
+            if _parse_ddmmyyyy(inp_direct.input_value() or "") == target:
                 return
         except Exception:
             pass
 
-    # Fallback: usar calendario visual
+    # Fallback: calendario visual
     page.wait_for_timeout(WAIT_PRE_CAL_MS)
     btn = page.locator("#b_f_probable_cirugia").first
     btn.scroll_into_view_if_needed()
@@ -304,12 +295,18 @@ def _set_fecha_probable(page, fecha_str: str, log_path: Path) -> None:
         tgt   = target.year * 12 + target.month
         if shown == tgt:
             break
-        nb = _btn_exact(cal, ">") or _btn_exact(cal, "›")
-        pb = _btn_exact(cal, "<") or _btn_exact(cal, "‹")
         if shown < tgt:
-            (nb or (_ for _ in ()).throw(RuntimeError("No encontré botón siguiente del calendario."))).click()
+            nb = _btn_exact(cal, ">") or _btn_exact(cal, "›")
+            if nb:
+                nb.click()
+            else:
+                raise RuntimeError("No encontré botón siguiente del calendario.")
         else:
-            (pb or (_ for _ in ()).throw(RuntimeError("No encontré botón anterior del calendario."))).click()
+            pb = _btn_exact(cal, "<") or _btn_exact(cal, "‹")
+            if pb:
+                pb.click()
+            else:
+                raise RuntimeError("No encontré botón anterior del calendario.")
         page.wait_for_timeout(200)
 
     day  = str(target.day)
@@ -336,8 +333,7 @@ def _safe_select_by_contains(select_locator, text_contains: str) -> bool:
         return False
     try:
         options = select_locator.locator("option")
-        n = options.count()
-        for i in range(n):
+        for i in range(options.count()):
             t = options.nth(i).inner_text().strip()
             if text_contains.lower() in t.lower():
                 val = options.nth(i).get_attribute("value")
@@ -351,9 +347,7 @@ def _safe_select_by_contains(select_locator, text_contains: str) -> bool:
 
 def _completar_campos_fijos(page, log_path: Path) -> None:
     append_log(log_path, "LENTESS: completando campos fijos")
-
     _set_fecha_probable(page, _fecha_probable_hoy_mas_10(), log_path)
-
     page.locator("#c_caracter").select_option(label=CIRUGIA_CARACTER)
 
     bate = page.locator("#c_bate")
@@ -361,7 +355,6 @@ def _completar_campos_fijos(page, log_path: Path) -> None:
         if not _safe_select_by_contains(bate, BATE_CONTIENE):
             raise RuntimeError(f"No encontré Bate que contenga: {BATE_CONTIENE!r}")
 
-    # Horarios de disponibilidad (lun-vie 08:00-14:00)
     for d in ["lun", "mar", "mie", "jue", "vie"]:
         chk = page.locator(f"#chk_{d}")
         if chk.count() > 0:
@@ -418,7 +411,6 @@ def _seleccionar_beneficiario(page, afiliado: str, log_path: Path) -> None:
 
     page.locator("a[onclick*='mostrar_seleccionable_beneficiario']").first.click()
     frame = _abrir_iframe_seleccionable(page)
-
     frame.locator("#bus_n_beneficio").fill(beneficio)
 
     if parentesco:
@@ -436,7 +428,6 @@ def _seleccionar_beneficiario(page, afiliado: str, log_path: Path) -> None:
     n = rows.count()
     chosen = None
 
-    # Intentar hacer coincidir parentesco exacto
     if parentesco and n > 0:
         for i in range(n):
             tds = rows.nth(i).locator("td")
@@ -448,7 +439,6 @@ def _seleccionar_beneficiario(page, afiliado: str, log_path: Path) -> None:
 
     if chosen is None and n > 0:
         chosen = rows.nth(0)
-
     if chosen is None:
         raise RuntimeError("No hay filas al buscar el beneficiario.")
 
@@ -506,7 +496,6 @@ def _guardar(page, log_path: Path) -> None:
     btn.wait_for(state="visible", timeout=9000)
     btn.scroll_into_view_if_needed()
 
-    # Esperar que esté habilitado
     try:
         page.wait_for_function(
             "() => { const b = document.querySelector('#b_guardar'); return b && !b.disabled; }",
@@ -517,9 +506,7 @@ def _guardar(page, log_path: Path) -> None:
 
     btn.click()
 
-    # Esperar navegación al listado o al menos estabilidad
     try:
-        from playwright.sync_api import TimeoutError as PWTimeout
         page.wait_for_url(re.compile(r"insu_prestador_cirugia_listado\.php"), timeout=15000)
     except Exception:
         try:
@@ -528,7 +515,7 @@ def _guardar(page, log_path: Path) -> None:
             pass
 
     page.wait_for_timeout(800)
-    append_log(log_path, "LENTESS: solicitud guardada OK")
+    append_log(log_path, "LENTESS: solicitud guardada ✓")
 
 
 # ------------------------------------------------------------------
@@ -537,13 +524,13 @@ def _guardar(page, log_path: Path) -> None:
 
 def _procesar_paciente(page, afiliado: str, ojo: str, lio: str,
                         user: str, pw: str, log_path: Path) -> None:
-    # Re-login si la sesión venció
     if _looks_like_login(page):
         append_log(log_path, "LENTESS: sesión vencida — relogueando")
         _do_login(page, user, pw, log_path)
         page.goto(FORM_URL, wait_until="domcontentloaded")
         page.wait_for_timeout(WAIT_FORM_STABLE_MS)
 
+    _wait_for_captcha(page, log_path)   # captcha entre pacientes
     _completar_campos_fijos(page, log_path)
     _seleccionar_beneficiario(page, afiliado, log_path)
     _seleccionar_diagnostico(page, log_path)
@@ -567,21 +554,21 @@ def run_lentess(payload: LentessPayload, log_path: Path) -> Dict[str, Any]:
     profile = _profile_dir(log_path)
     profile.mkdir(parents=True, exist_ok=True)
     append_log(log_path, f"LENTESS: perfil Chrome → {profile}")
+    append_log(log_path, "LENTESS: Chrome se abrirá MINIMIZADO en la barra de tareas")
+    append_log(log_path, "LENTESS: podés maximizarlo, mirarlo o cerrarlo en cualquier momento")
 
     ok = 0
     errors = []
 
     with sync_playwright() as p:
-        context = p.chromium.launch_persistent_context(
-            str(profile),
+        browser = p.chromium.launch(
             channel="chrome",
-            headless=False,      # Chrome real — PAMI bloquea headless
-            no_viewport=True,
-            args=_launch_args(), # minimizado pero visible/restaurable
+            headless=False,
+            args=_launch_args(),
         )
+        context = browser.new_context(no_viewport=True)
         page = context.new_page()
         _attach_dialog_handler(page)
-
         _ensure_session(page, payload.credenciales.user, payload.credenciales.password, log_path)
 
         for i, pac in enumerate(payload.pacientes, start=1):
@@ -602,12 +589,12 @@ def run_lentess(payload: LentessPayload, log_path: Path) -> Dict[str, Any]:
                 errors.append({"afiliado": pac.afiliado, "error": str(exc)})
                 append_log(log_path, f"LENTESS: ✗ ERROR afiliado {pac.afiliado}: {exc}")
 
-            # Abrir form limpio para el próximo paciente
             if i < len(payload.pacientes):
                 page.goto(FORM_URL, wait_until="domcontentloaded")
                 page.wait_for_timeout(WAIT_FORM_STABLE_MS)
 
         context.close()
+        browser.close()
 
     if ok == 0:
         raise RuntimeError("No se completó ninguna solicitud Lentess.")

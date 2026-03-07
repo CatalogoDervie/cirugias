@@ -583,9 +583,7 @@ async function connectorPollJob(jobId,onUpdate){
     }
     if(['error','failed','cancelled'].includes(st)){
       setConnectorBadge('err','Conector: error de ejecución');
-      const baseMsg=data.error||data.detail||'La automatización finalizó con error.';
-      const extra=data.log_file?` Revisá el log: ${data.log_file}`:'';
-      throw new Error(`${baseMsg}${extra}`);
+      throw new Error(data.error||data.detail||'La automatización finalizó con error.');
     }
     await new Promise(r=>setTimeout(r,1700));
   }
@@ -1741,7 +1739,7 @@ function generarScriptRecetas(){
     diagnostico:diag,
     medicamentos:[[meds[0],meds[1]],[meds[2],meds[3]],[meds[4],meds[5]]]
   };
-  renderJobStatus('recetasJobStatus','run','⏳ Iniciando automatización de recetas... Chrome se abrirá minimizado si hace falta validar captcha/login.');
+  renderJobStatus('recetasJobStatus','run','⏳ Iniciando automatización de recetas...');
   connectorStartJob('recetas',payload)
     .then(jobId=>{
       toast('Recetas: ejecución iniciada');
@@ -1964,7 +1962,7 @@ function descargarScriptLentess(){
   const cfg=lentessGuardarCreds();
   if(!cfg.user||!cfg.pass){toast('Completar usuario y contraseña PAMI');return;}
   const payload={credenciales:{user:cfg.user,pass:cfg.pass}, pacientes:rows.map(r=>({afiliado:r.afiliado,ojo:r.ojo,lio:r.lio}))};
-  renderJobStatus('lentessJobStatus','run','⏳ Iniciando automatización Lentess... Chrome se abrirá minimizado si hace falta validar captcha/login.');
+  renderJobStatus('lentessJobStatus','run','⏳ Iniciando automatización Lentess...');
   connectorStartJob('lentess',payload)
     .then(jobId=>{
       toast('Lentess: ejecución iniciada');

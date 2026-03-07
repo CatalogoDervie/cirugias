@@ -3,15 +3,12 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
-from fastapi import HTTPException
 
 from .job_manager import JobManager
 from .models import JobCreateResponse, JobStatusResponse, LentessPayload, RecetasPayload
 
-# Cuando corre como .exe, los logs van junto al ejecutable
 if os.environ.get("CIRUGIAS_LOGS_DIR"):
     LOGS_DIR = Path(os.environ["CIRUGIAS_LOGS_DIR"])
 else:
@@ -21,30 +18,25 @@ LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="Cirugias Local Connector", version="0.1.0")
 
-# CORS amplio: acepta cualquier origen incluyendo https -> http (mixed content local)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-    max_age=3600,
-)
+_CORS = {
+    "Access-Control-Allow-Origin":  "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Max-Age":       "86400",
+}
 
 
-# Responder OPTIONS manualmente para garantizar que el preflight siempre pase
-@app.options("/{rest_of_path:path}")
-async def preflight_handler(request: Request, rest_of_path: str):
-    return JSONResponse(
-        content={},
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Max-Age": "3600",
-        },
-    )
+@app.middleware("http")
+async def cors_middleware(request: Request, call_next):
+    """Inyecta headers CORS en TODAS las respuestas.
+    Intercepta OPTIONS antes de llegar a cualquier ruta — soluciona el 400
+    que generaba CORSMiddleware con peticiones mixed-content https→http."""
+    if request.method == "OPTIONS":
+        return JSONResponse(content={}, status_code=200, headers=_CORS)
+    response = await call_next(request)
+    for k, v in _CORS.items():
+        response.headers[k] = v
+    return response
 
 
 manager = JobManager(logs_dir=LOGS_DIR)
