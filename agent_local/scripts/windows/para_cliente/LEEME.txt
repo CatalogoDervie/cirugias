@@ -1,0 +1,56 @@
+=========================================================
+  CONECTOR CIRUGIAS — Centro de Ojos Esteves
+  Instrucciones de instalación
+=========================================================
+
+CONTENIDO DE ESTA CARPETA:
+  - cirugias_connector.exe   → el programa
+  - INSTALAR_CONECTOR.bat    → instalador (solo se corre una vez)
+  - LEEME.txt                → estas instrucciones
+
+---------------------------------------------------------
+INSTALACIÓN (solo una vez):
+---------------------------------------------------------
+
+  1. Doble clic en INSTALAR_CONECTOR.bat
+  2. Esperá que termine (1-3 minutos, necesita internet)
+  3. Al finalizar aparece un ícono "Iniciar Conector"
+     en tu Escritorio
+
+---------------------------------------------------------
+USO DIARIO:
+---------------------------------------------------------
+
+  1. Doble clic en el ícono "Iniciar Conector"
+     del Escritorio
+  2. Aparece una ventana pequeña que dice "Conector activo"
+     → DEJALA ABIERTA mientras trabajás
+  3. Abrí la página web del Centro de Ojos normalmente
+  4. El indicador verde confirma que el conector funciona
+
+---------------------------------------------------------
+PRIMER USO DE RECETAS O LENTESS:
+---------------------------------------------------------
+
+  La primera vez que ejecutes una automatización:
+  - Chrome se abre automáticamente
+  - Hacé login vos en PAMI (usuario, contraseña, OTP)
+  - El sistema detecta el login y continúa solo
+  - La próxima vez ya no necesita login
+
+---------------------------------------------------------
+PROBLEMAS COMUNES:
+---------------------------------------------------------
+
+  ❌ "Conector no detectado" en la web
+     → Abrí el "Iniciar Conector" del Escritorio
+
+  ❌ Chrome no se abre cuando ejecuto Recetas/Lentess
+     → Verificá que la ventana del conector esté abierta
+
+  ❌ Error de afiliado no encontrado
+     → Verificá el número de afiliado en la web
+
+  Para soporte técnico contactar al administrador.
+
+=========================================================
