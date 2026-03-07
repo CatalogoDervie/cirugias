@@ -62,9 +62,9 @@ O directamente usá el botón **"Conector"** en la web — si está en verde, es
 
 ## Primera vez con PAMI (login manual único)
 
-La **primera vez** que ejecutes Recetas PAMI o Lentess, Chrome va a abrirse visible para que puedas:
+La **primera vez** que ejecutes Recetas PAMI o Lentess, Chrome va a abrirse **minimizado pero visible en la barra de tareas** para que puedas restaurarlo si hace falta y:
 1. Hacer login con tu usuario y clave de PAMI
-2. Completar el OTP/código si PAMI lo pide
+2. Completar captcha / OTP / código si PAMI lo pide
 
 Después de ese login, la sesión queda guardada y todo es automático para siempre (hasta que PAMI expire la sesión, típicamente cada varios meses).
 
@@ -95,6 +95,6 @@ Si algo falla, ahí está el detalle completo.
 | Problema | Solución |
 |---|---|
 | El botón de la web dice "Conector: no detectado" | El servicio no está corriendo. Abrí `services.msc`, buscá `CirugiasConector` y dale Start. |
-| Chrome se abre visible | Sesión de PAMI vencida — hacé login manual una vez. |
+| Chrome se abre o se restaura solo | El sistema detectó login/captcha/OTP y te deja intervenir manualmente. Después sigue solo. |
 | Error "Afiliado no encontrado" | Verificar el número de afiliado en el sistema. |
 | Quiero reinstalar | Ejecutá `uninstall_service.bat` y luego `install_service.bat` de nuevo. |

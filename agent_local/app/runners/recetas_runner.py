@@ -12,68 +12,89 @@ PAMI_URL = "https://recetaelectronica.pami.org.ar/controllers/recetaController.p
 QTY_1 = "1"
 QTY_2 = "1"
 
-# Segundos máximos esperando resolución manual del captcha
-CAPTCHA_TIMEOUT_S = 300
-
 
 def _profile_dir(log_path: Path) -> Path:
+    """Perfil Chrome persistente — guarda la sesión de PAMI entre ejecuciones.
+    Primera vez: el usuario hace login manual una sola vez.
+    Después: automático sin tocar nada."""
     return log_path.parent.parent / "chrome_profiles" / "recetas"
 
 
 def _launch_args() -> list:
-    """Chrome real, arranca MINIMIZADO en la barra de tareas.
-    El operador puede maximizarlo / cerrarlo en cualquier momento.
-    PAMI no detecta bot porque es Chrome real con perfil persistente."""
+    """Chrome visible pero arrancando minimizado.
+    Queda accesible desde la barra de tareas para restaurarlo, verlo o cerrarlo."""
     return [
-        "--start-minimized",                            # <-- minimizado, no oculto
+        "--start-minimized",
         "--window-size=1280,900",
         "--no-first-run",
         "--no-default-browser-check",
         "--disable-notifications",
         "--disable-infobars",
-        "--disable-blink-features=AutomationControlled",  # oculta señales de automatización
     ]
 
 
-# ------------------------------------------------------------------
-# CAPTCHA
-# ------------------------------------------------------------------
-
-def _has_captcha(page) -> bool:
+def _is_login_visible(page) -> bool:
     try:
-        for sel in [
-            "iframe[src*='recaptcha']",
-            "iframe[src*='hcaptcha']",
-            "iframe[title*='captcha' i]",
-            "div.g-recaptcha",
-            "div[data-sitekey]",
-            "#captcha",
-            "div[class*='captcha' i]",
-        ]:
-            if page.locator(sel).count() > 0:
-                return True
-        return False
+        return page.locator("input[type='password']").count() > 0
     except Exception:
         return False
 
 
-def _wait_for_captcha(page, log_path: Path, ctx: str = "RECETAS") -> None:
-    """Si hay captcha, registra en log y espera resolución del operador.
-    Chrome está minimizado pero accesible — el operador lo maximiza,
-    resuelve el captcha, y el script continúa automáticamente."""
-    if not _has_captcha(page):
+def _has_manual_challenge(page) -> bool:
+    patterns = [
+        "captcha",
+        "no soy un robot",
+        "verificacion",
+        "verificación",
+        "robot",
+        "challenge",
+        "otp",
+        "codigo",
+        "código",
+    ]
+    try:
+        html = (page.content() or "").lower()
+    except Exception:
+        html = ""
+    url = (page.url or "").lower()
+    blob = f"{url}\n{html}"
+    return any(p in blob for p in patterns)
+
+
+def _target_ready(page) -> bool:
+    try:
+        return page.locator("#t_benef").count() > 0 and page.locator("#t_benef").first.is_visible(timeout=500)
+    except Exception:
+        return False
+
+
+def _save_debug_screenshot(page, log_path: Path, suffix: str) -> None:
+    try:
+        shot = log_path.with_name(f"{log_path.stem}_{suffix}.png")
+        page.screenshot(path=str(shot), full_page=True)
+        append_log(log_path, f"RECETAS: screenshot guardado → {shot.name}")
+    except Exception as exc:
+        append_log(log_path, f"RECETAS: no pude guardar screenshot ({suffix}): {exc}")
+
+
+def _wait_manual_gate_resolution(page, log_path: Path, timeout_s: int = 180) -> None:
+    if _target_ready(page):
         return
-    append_log(log_path, f"{ctx}: ⚠️  CAPTCHA detectado en la página")
-    append_log(log_path, f"{ctx}: → Chrome está minimizado en la barra de tareas")
-    append_log(log_path, f"{ctx}: → Maximizalo, resolvé el captcha, y el proceso continúa solo")
-    append_log(log_path, f"{ctx}: → Esperando hasta {CAPTCHA_TIMEOUT_S}s...")
-    for elapsed in range(CAPTCHA_TIMEOUT_S):
-        if not _has_captcha(page):
-            append_log(log_path, f"{ctx}: ✓ Captcha resuelto ({elapsed}s)")
-            page.wait_for_timeout(800)
+    if _is_login_visible(page) or _has_manual_challenge(page):
+        append_log(log_path, f"RECETAS: login/captcha/OTP detectado — esperando resolución manual (máx {timeout_s}s)")
+        try:
+            page.bring_to_front()
+        except Exception:
+            pass
+        _save_debug_screenshot(page, log_path, "manual_gate")
+    start = time.time()
+    while time.time() - start < timeout_s:
+        if _target_ready(page):
+            append_log(log_path, "RECETAS: acceso confirmado tras validación manual")
             return
         page.wait_for_timeout(1000)
-    raise RuntimeError(f"Captcha no resuelto en {CAPTCHA_TIMEOUT_S}s — job cancelado.")
+    _save_debug_screenshot(page, log_path, "manual_gate_timeout")
+    raise RuntimeError("No se pudo superar login/captcha/OTP en Recetas dentro del tiempo esperado.")
 
 
 # ------------------------------------------------------------------
@@ -87,24 +108,15 @@ def _afiliado_no_encontrado(page) -> bool:
         return False
 
 
-def _on_login_page(page) -> bool:
-    try:
-        return page.locator("input[type='password']").count() > 0
-    except Exception:
-        return False
-
-
 def _do_login(page, user: str, password: str, log_path: Path) -> None:
+    """Rellena usuario + clave y clickea Ingresar."""
     append_log(log_path, "RECETAS: completando login automático")
-
-    _wait_for_captcha(page, log_path)   # captcha antes de rellenar
-
     pass_field = page.locator("input[type='password']").first
     user_field = None
     for sel in [
         "input[name*=usuario i]", "input[id*=usuario i]",
-        "input[name*=user i]",    "input[id*=user i]",
-        "input[type='email']",    "input[type='text']",
+        "input[name*=user i]",   "input[id*=user i]",
+        "input[type='email']",   "input[type='text']",
     ]:
         loc = page.locator(sel)
         if loc.count() > 0 and loc.first.is_visible():
@@ -126,43 +138,33 @@ def _do_login(page, user: str, password: str, log_path: Path) -> None:
         else:
             pass_field.press("Enter")
 
-    page.wait_for_timeout(1200)
-    _wait_for_captcha(page, log_path)   # captcha post-click
-
-    for _ in range(100):
-        if not _on_login_page(page):
-            append_log(log_path, "RECETAS: login completado ✓")
+    # Esperar que desaparezca el campo password (login exitoso) hasta 15 s
+    for _ in range(75):
+        if page.locator("input[type='password']").count() == 0:
+            append_log(log_path, "RECETAS: login completado")
             return
         page.wait_for_timeout(200)
 
-    append_log(log_path, "RECETAS: advertencia — campo password sigue visible tras login")
-
 
 def _ensure_session(page, user: str, password: str, log_path: Path) -> None:
+    """Navega a PAMI y garantiza sesión activa.
+    Intenta login automático y, si aparece captcha/OTP, espera resolución manual sin frenar el job."""
     page.goto(PAMI_URL, wait_until="domcontentloaded")
-    _wait_for_captcha(page, log_path)
 
-    if _on_login_page(page):
+    if _target_ready(page):
+        append_log(log_path, "RECETAS: sesión reutilizada")
+        return
+
+    if _is_login_visible(page):
         _do_login(page, user, password, log_path)
 
-    # OTP / 2FA
-    if _on_login_page(page):
-        append_log(log_path, "RECETAS: OTP/2FA detectado — esperando (máx 180s)")
-        append_log(log_path, "RECETAS: → Chrome minimizado — maximizalo para ingresar el código")
-        for elapsed in range(180):
-            if not _on_login_page(page):
-                append_log(log_path, f"RECETAS: OTP resuelto ({elapsed}s) ✓")
-                break
-            page.wait_for_timeout(1000)
-        else:
-            raise RuntimeError("OTP no resuelto en 180s.")
-
+    _wait_manual_gate_resolution(page, log_path, timeout_s=180)
     page.wait_for_selector("#t_benef", timeout=20000)
-    append_log(log_path, "RECETAS: sesión activa ✓")
+    append_log(log_path, "RECETAS: sesión activa confirmada")
 
 
 # ------------------------------------------------------------------
-# DIALOG HANDLER
+# DIALOG HANDLER (acepta alert/confirm nativos del browser)
 # ------------------------------------------------------------------
 
 def _attach_dialog_handler(page) -> None:
@@ -178,7 +180,7 @@ def _attach_dialog_handler(page) -> None:
 # BUSCADOR DE MEDICAMENTOS
 # ------------------------------------------------------------------
 
-def _get_meds_context(page, timeout_s: float = 30.0):
+def _get_meds_context(page, timeout_s: float = 25.0):
     from playwright.sync_api import TimeoutError as PWTimeout
     try:
         page.wait_for_selector("#accion",     state="visible", timeout=2500)
@@ -240,15 +242,15 @@ def _abrir_buscador_y_elegir(page, idx: int, nombre: str, log_path: Path) -> Non
 # ------------------------------------------------------------------
 
 def _handle_save_confirmations(page) -> None:
-    for _ in range(8):
+    for _ in range(6):
         try:
             yes = page.locator("button:has-text('Sí'), button:has-text('Si'), button.ui-confirm-button")
             if yes.count() > 0 and yes.first.is_visible():
                 yes.first.click()
                 time.sleep(0.2)
-            ok_btn = page.locator("button:has-text('Aceptar'), button:has-text('OK')")
-            if ok_btn.count() > 0 and ok_btn.first.is_visible():
-                ok_btn.first.click()
+            ok = page.locator("button:has-text('Aceptar'), button:has-text('OK')")
+            if ok.count() > 0 and ok.first.is_visible():
+                ok.first.click()
                 time.sleep(0.2)
         except Exception:
             pass
@@ -259,19 +261,14 @@ def _handle_save_confirmations(page) -> None:
 # CARGA DE 1 RECETA (2 medicamentos)
 # ------------------------------------------------------------------
 
-def _cargar_una_receta(page, benef: str, diag: str,
-                        med_a: str, med_b: str,
-                        user: str, password: str,
-                        log_path: Path) -> None:
+def _cargar_una_receta(page, benef: str, diag: str, med_a: str, med_b: str, user: str, password: str, log_path: Path) -> None:
     append_log(log_path, f"RECETAS: cargando receta — meds=({med_a!r} + {med_b!r})")
     page.goto(PAMI_URL, wait_until="domcontentloaded")
 
-    _wait_for_captcha(page, log_path)   # captcha entre recetas (raro pero posible)
-
-    # Re-login si la sesión venció entre recetas
-    if _on_login_page(page):
-        append_log(log_path, "RECETAS: sesión vencida entre recetas — relogueando")
-        _do_login(page, user, password, log_path)
+    # Re-login automático si la sesión venció entre recetas
+    if _is_login_visible(page) or not _target_ready(page):
+        append_log(log_path, "RECETAS: validando sesión antes de continuar")
+        _ensure_session(page, user, password, log_path)
 
     page.wait_for_selector("#t_benef", timeout=25000)
     page.locator("#t_benef").fill(benef)
@@ -281,13 +278,16 @@ def _cargar_una_receta(page, benef: str, diag: str,
     if _afiliado_no_encontrado(page):
         raise RuntimeError(f"Afiliado no encontrado: {benef}")
 
+    # Diagnóstico
     page.locator("#t_diag_cod_1").fill(diag)
     page.click("body")
     page.wait_for_timeout(150)
 
+    # Med 1
     _abrir_buscador_y_elegir(page, 1, med_a, log_path)
     page.locator("#t_cantidad_1").fill(QTY_1)
 
+    # Segundo medicamento
     if page.locator("#otroMedicamento > span").count() > 0:
         page.click("#otroMedicamento > span")
     else:
@@ -297,13 +297,15 @@ def _cargar_una_receta(page, benef: str, diag: str,
     page.click("body")
     page.wait_for_timeout(150)
 
+    # Med 2
     _abrir_buscador_y_elegir(page, 2, med_b, log_path)
     page.locator("#t_cantidad_2").fill(QTY_2)
 
+    # Guardar — sin preguntar nada
     page.click("#btnGuardar")
     page.wait_for_timeout(600)
     _handle_save_confirmations(page)
-    append_log(log_path, f"RECETAS: ✓ receta ({med_a} + {med_b}) guardada")
+    append_log(log_path, f"RECETAS: receta ({med_a} + {med_b}) guardada OK")
 
 
 # ------------------------------------------------------------------
@@ -325,8 +327,6 @@ def run_recetas(payload: RecetasPayload, log_path: Path) -> Dict[str, Any]:
     profile = _profile_dir(log_path)
     profile.mkdir(parents=True, exist_ok=True)
     append_log(log_path, f"RECETAS: perfil Chrome → {profile}")
-    append_log(log_path, "RECETAS: Chrome se abrirá MINIMIZADO en la barra de tareas")
-    append_log(log_path, "RECETAS: podés maximizarlo, mirarlo o cerrarlo en cualquier momento")
 
     ok_count = 0
 
@@ -334,8 +334,8 @@ def run_recetas(payload: RecetasPayload, log_path: Path) -> Dict[str, Any]:
         context = p.chromium.launch_persistent_context(
             str(profile),
             channel="chrome",
-            headless=False,
-            args=_launch_args(),
+            headless=False,      # Chrome real — PAMI bloquea headless
+            args=_launch_args(), # ventana fuera de pantalla
         )
         page = context.new_page()
         _attach_dialog_handler(page)
@@ -343,22 +343,17 @@ def run_recetas(payload: RecetasPayload, log_path: Path) -> Dict[str, Any]:
 
         for idx, pair in enumerate(payload.medicamentos, start=1):
             med_a, med_b = pair[0], pair[1]
-            append_log(log_path, f"RECETAS: receta {idx}/{len(payload.medicamentos)}")
-            _cargar_una_receta(
-                page, payload.afiliado, payload.diagnostico,
-                med_a, med_b,
-                payload.credenciales.user, payload.credenciales.password,
-                log_path,
-            )
+            append_log(log_path, f"RECETAS: receta {idx}/3")
+            _cargar_una_receta(page, payload.afiliado, payload.diagnostico, med_a, med_b, payload.credenciales.user, payload.credenciales.password, log_path)
             ok_count += 1
             page.wait_for_timeout(500)
 
         context.close()
 
-    if ok_count != len(payload.medicamentos):
-        raise RuntimeError(f"Recetas incompletas: {ok_count}/{len(payload.medicamentos)} guardadas")
+    if ok_count != 3:
+        raise RuntimeError(f"Recetas incompletas: {ok_count}/3 guardadas")
 
-    append_log(log_path, f"RECETAS: ✓ {ok_count}/{len(payload.medicamentos)} recetas guardadas")
+    append_log(log_path, "RECETAS: ✓ 3/3 recetas guardadas")
     return {
         "result": {
             "benef":      payload.afiliado,
