@@ -335,10 +335,22 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 <!-- ALERTS PANEL -->
 <div class="alerts-panel" id="alertsPanel">
   <div class="alerts-head"><span id="alertsTitle">Alertas</span><button style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:13px" onclick="toggleAlerts()">✕</button></div>
+  <div class="alerts-filters">
+    <button class="af-btn active" id="af-TODAS" onclick="setAlertFilter('TODAS',this)">Todas</button>
+    <button class="af-btn" id="af-criticas" onclick="setAlertFilter('criticas',this)">🚨 Críticas</button>
+    <button class="af-btn" id="af-lente_delayed" onclick="setAlertFilter('lente_delayed',this)">📦 Lente demorada</button>
+    <button class="af-btn" id="af-not_scheduled" onclick="setAlertFilter('not_scheduled',this)">📅 Sin programar</button>
+    <button class="af-btn" id="af-billing_pending" onclick="setAlertFilter('billing_pending',this)">💰 Sin facturar</button>
+    <button class="af-btn" id="af-second_surgery_missing" onclick="setAlertFilter('second_surgery_missing',this)">👁 Segundo ojo</button>
+  </div>
   <div id="alertsList"></div>
 </div>
 
 <!-- TABLE VIEW -->
+<!-- PANEL TRABAJO DEL DÍA — se muestra solo en tab tabla -->
+<div id="workdayPanel" style="margin:10px 0 0;display:none">
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:12px" id="workdayBlocks"></div>
+</div>
 <div id="tabView">
 <div class="tablewrap">
   <div class="table-scroll">
@@ -1081,11 +1093,113 @@ function renderStats(){
   const btn=document.getElementById('alertsToggle');
   document.getElementById('alertsCount').textContent=nalerts;
   btn.classList.toggle('has-alerts',nalerts>0);
+  const cb=document.getElementById('criticalBanner');
+  const cbt=document.getElementById('criticalBannerText');
+  if(cb && cbt){
+    if(nCrit>0 && !criticalBannerDismissed){cbt.textContent=`⚠️ ${nCrit} alertas críticas activas`; cb.classList.add('show'); cb.classList.remove('warn');}
+    else if(nalerts>0 && !criticalBannerDismissed){cbt.textContent=`⚠️ ${nalerts} alertas activas`; cb.classList.add('show'); cb.classList.add('warn');}
+    else cb.classList.remove('show');
+  }
 }
 
 // ─────────────────────────────────────────────
 // ALERTS PANEL
 // ─────────────────────────────────────────────
+// ── PANEL "TRABAJO DEL DÍA" ──────────────────────────────────────────────────
+function _wdpClick_urgHoy(){
+  document.getElementById('fEst').value='FECHA PROGRAMADA';
+  document.getElementById('q').value='';
+  render();
+}
+function _wdpClick_lenteDem(){
+  // Activar quick filter LENTE PEDIDA
+  const btns=document.querySelectorAll('#quickFilters .qf-btn');
+  btns.forEach(b=>{ if(b.textContent==='LENTE PEDIDA') setQuickFilter('LENTE PEDIDA',b); });
+}
+function _wdpClick_proxSinLente(){
+  const btns=document.querySelectorAll('#quickFilters .qf-btn');
+  btns.forEach(b=>{ if(b.textContent==='PROGRAMADAS') setQuickFilter('PROGRAMADAS',b); });
+}
+function _wdpClick_sinFact(){
+  document.getElementById('fEst').value='CIRUGÍA REALIZADA - FALTA FACTURAR';
+  const btns=document.querySelectorAll('#quickFilters .qf-btn');
+  btns.forEach(b=>{ if(b.textContent==='TODOS') setQuickFilter('TODOS',b); });
+  render();
+}
+function _wdpClick_criticas(){
+  document.getElementById('alertsPanel').classList.add('open');
+  setAlertFilter('criticas', document.getElementById('af-criticas'));
+}
+
+function renderWorkdayPanel(){
+  const hoy = hoyISO();
+  const all = DB.rows;
+
+  const urgHoy = all.filter(p=>p.fechaCir===hoy && estado(p)==='FECHA PROGRAMADA');
+  const lenteDem = all.filter(p=>{
+    if(!p.fechaSolLente || p.fechaLlegaLente) return false;
+    const d = diffDays(toDateOnly(hoy), p.fechaSolLente);
+    return d!==null && d>10;
+  });
+  const proxSinLente = all.filter(p=>{
+    if(!p.fechaCir || p.fechaLlegaLente || estado(p)!=='FECHA PROGRAMADA') return false;
+    const d = diffDays(toDateOnly(p.fechaCir), toDateOnly(hoy));
+    return d!==null && d>=0 && d<=7;
+  });
+  const sinFact = all.filter(p=>estado(p)==='CIRUGÍA REALIZADA - FALTA FACTURAR');
+  const critCount = all.reduce((s,p)=>s+alertas(p,{raw:true}).filter(a=>a.severity==='red').length,0);
+  const sinFacturarCount = sinFact.length;
+
+  const blocks = [
+    {icon:'🗓', label:'Cirugías hoy', n:urgHoy.length, color:'#dc2626', bg:'#fef2f2', onclick:'_wdpClick_urgHoy()'},
+    {icon:'📦', label:'Lentes demoradas', n:lenteDem.length, color:'#ea580c', bg:'#fff7ed', onclick:'_wdpClick_lenteDem()'},
+    {icon:'⚠️', label:'CX próxima sin lente', n:proxSinLente.length, color:'#b45309', bg:'#fefce8', onclick:'_wdpClick_proxSinLente()'},
+    {icon:'💰', label:'Sin facturar', n:sinFacturarCount, color:'#7c3aed', bg:'#f5f3ff', onclick:'_wdpClick_sinFact()'},
+    {icon:'🚨', label:'Alertas críticas', n:critCount, color:'#991b1b', bg:'#fef2f2', onclick:'_wdpClick_criticas()'},
+  ].filter(b=>b.n>0);
+
+  const container = document.getElementById('workdayBlocks');
+  if(!container) return;
+
+  if(!blocks.length){
+    container.innerHTML='<div style="grid-column:1/-1;padding:10px 14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;color:#065f46;font-size:12px;font-weight:600">✅ Todo al día — sin pendientes urgentes</div>';
+  } else {
+    container.innerHTML = blocks.map(b=>`
+      <div class="wdp-block" onclick="${b.onclick}" style="background:${b.bg};border-color:${b.color}44">
+        <div class="wdp-icon">${b.icon}</div>
+        <div>
+          <div class="wdp-n" style="color:${b.color}">${b.n}</div>
+          <div class="wdp-l">${b.label}</div>
+        </div>
+      </div>`).join('');
+  }
+  document.getElementById('workdayPanel').style.display = currentTab==='tabla' ? 'block' : 'none';
+}
+
+// ── Estado del filtro de alertas ─────────────────────────────
+let _alertFilter = 'TODAS';
+function setAlertFilter(f, el){
+  _alertFilter = f;
+  document.querySelectorAll('.af-btn').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderAlerts();
+}
+
+// ── Acción sugerida por tipo de alerta ───────────────────────
+function alertActionText(type){
+  const map={
+    devolver:'↩ Devolver lente al proveedor',
+    not_scheduled:'📅 Programar fecha de cirugía',
+    lens_not_requested:'📋 Pedir lente urgente',
+    lens_delayed:'📞 Llamar al proveedor',
+    no_schedule_after_arrival:'📅 Asignar fecha de cirugía',
+    scheduled_no_lens:'🚨 Gestionar lente urgente',
+    billing_pending:'💰 Ingresar a facturación',
+    second_surgery_missing:'👁 Programar segundo ojo',
+  };
+  return map[type]||'Ver paciente';
+}
+
 function toggleAlerts(){document.getElementById('alertsPanel').classList.toggle('open')}
 function renderAlerts(){
   const showSilenced=!!document.getElementById('showSilenced')?.checked;
@@ -1107,6 +1221,7 @@ function render(){
   refreshEstadoFilterOptions();
   renderStats();
   renderAlerts();
+  renderWorkdayPanel();
   if(currentTab==='tabla') renderTabla();
   else if(currentTab==='kanban') renderKanban();
   else if(currentTab==='calendario') renderCalendario();
@@ -1225,7 +1340,7 @@ function openSide(id){
 
   document.getElementById('sideBody').innerHTML=`
     <div class="estado-calc" style="background:${bcMap[bcl]||'#f1f5f9'};color:${tcMap[bcl]||'#374151'}">${e}</div>
-    ${als.length?`<div class="alertas-box">${als.map(a=>`<div class="alerta-item">${a}</div>`).join('')}</div>`:''}
+    ${als.length?`<div class="alertas-box">${als.map(a=>`<div class="alerta-item" style="cursor:pointer" onclick="silenciarAlerta('${a.key}')">⚠ ${a.msg} <span style='float:right;font-size:10px;color:#9ca3af'>silenciar ✕</span></div>`).join('')}</div>`:''}
 
     <div class="sgroup">
       <div class="sgroup-title">Datos del paciente</div>
@@ -1264,6 +1379,39 @@ function openSide(id){
       <div class="sgroup-title">Notas</div>
       <div class="srow"><textarea rows="2" style="flex:1;padding:6px 8px;border:1.5px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:12px;resize:vertical" onchange="upd(${id},'notas',this.value)">${p.notas||''}</textarea></div>
     </div>`;
+
+  // ── Validaciones visibles ────────────────────────────────────
+  const validaciones = [];
+  // Duplicado mismo DNI + mismo ojo
+  const dupCheck = DB.rows.filter(x=>x.id!==p.id && String(x.dni||'').trim()===String(p.dni||'').trim() && x.ojo===p.ojo);
+  if(dupCheck.length) validaciones.push({level:'error', msg:`⚠ Posible duplicado: ${dupCheck.map(x=>`#${x.id} ${x.nombre||''}`).join(', ')}`});
+  // Fecha cirugía sin lente
+  if(p.fechaCir && !p.fechaLlegaLente) validaciones.push({level:'warning', msg:'📦 Cirugía programada pero lente no llegó aún'});
+  // Facturación sin cirugía realizada
+  if((p.estadoFac||'').toUpperCase()==='FACTURADA' && (p.estadoCir||'').toUpperCase()!=='REALIZADA') validaciones.push({level:'warning', msg:'💰 Marcada como facturada pero la cirugía no está como Realizada'});
+  // Sol. lente posterior a llegada lente
+  if(p.fechaSolLente && p.fechaLlegaLente && p.fechaLlegaLente < p.fechaSolLente) validaciones.push({level:'error', msg:'📅 Fecha de llegada de lente es anterior a la solicitud — revisar'});
+  // Cirugía anterior a llegada lente
+  if(p.fechaCir && p.fechaLlegaLente && p.fechaCir < p.fechaLlegaLente) validaciones.push({level:'warning', msg:'📅 Fecha de cirugía es anterior a la llegada del lente — verificar'});
+
+  const valsHtml = validaciones.map(v=>`<div class="val-${v.level}">${v.msg}</div>`).join('');
+
+  // ── Acciones rápidas contextuales ────────────────────────────
+  const st = estado(p);
+  const fac = (p.estadoFac||'').toUpperCase();
+  let qaHtml = '';
+  if(!p.fechaSolLente && st!=='FINALIZADO - FACTURADA')
+    qaHtml+=`<button class="qa-btn" onclick="marcarSolLenteHoy(${id})">📋 Sol. lente hoy</button>`;
+  if(p.fechaSolLente && !p.fechaLlegaLente)
+    qaHtml+=`<button class="qa-btn green" onclick="marcarLenteLlegoHoy(${id})">📦 Lente llegó hoy</button>`;
+  if(p.fechaLlegaLente && !p.fechaCir)
+    qaHtml+=`<button class="qa-btn" onclick="programarCirugia(${id})">📅 Programar cirugía</button>`;
+  if(p.fechaCir && (p.estadoCir||'').toUpperCase()!=='REALIZADA')
+    qaHtml+=`<button class="qa-btn green" onclick="marcarCirugiaRealizada(${id})">✅ Cirugía realizada</button>`;
+  if((p.estadoCir||'').toUpperCase()==='REALIZADA' && fac!=='FACTURADA')
+    qaHtml+=`<button class="qa-btn orange" onclick="marcarFacturadaHoy(${id})">💰 Facturada hoy</button>`;
+  if(p.ojos==='2 ojos' && secondEyeMissing(p))
+    qaHtml+=`<button class="qa-btn violet" onclick="duplicarPaciente(${id})">⧉ Duplicar → ${secondEyeMissing(p)}</button>`;
 
   document.getElementById('sideFoot').innerHTML=`
     <button class="btn orange" onclick="duplicarPaciente(${id})" title="Crea una copia para el otro ojo">⧉ Duplicar para otro ojo</button>
