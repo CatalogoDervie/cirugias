@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Importar cirugías a Firestore</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f4f6f9;margin:0;padding:20px;color:#1f2937}
+    .card{max-width:820px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px}
+    h1{font-size:20px;margin:0 0 10px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+    button{padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;cursor:pointer;font-weight:700}
+    button.primary{background:#1b4f8a;color:#fff;border-color:#1b4f8a}
+    #log{white-space:pre-wrap;background:#0f172a;color:#e2e8f0;padding:12px;border-radius:8px;min-height:180px;max-height:340px;overflow:auto}
+    .ok{color:#047857}.err{color:#b91c1c}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Importador Firestore (Control de Cirugías)</h1>
+    <div class="row">
+      <input id="file" type="file" accept=".json" />
+      <button id="btnLoad" class="primary">Importar JSON</button>
+      <button id="btnSample">Cargar ejemplo local</button>
+    </div>
+    <div class="row">
+      <strong>Progreso:</strong> <span id="progress">0</span>
+    </div>
+    <div id="log"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
+    import { getFirestore, collection, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyDf49KWGdZp1C3t42LSopS_VuNiaabFZQw',
+      authDomain: 'control-cirugias-c9c71.firebaseapp.com',
+      projectId: 'control-cirugias-c9c71',
+      storageBucket: 'control-cirugias-c9c71.firebasestorage.app',
+      messagingSenderId: '714322418539',
+      appId: '1:714322418539:web:523a8e5ad295d277b20a2e',
+      measurementId: 'G-T7SBGEQ2G9'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const ref = collection(db, 'cirugias');
+
+    const logEl = document.getElementById('log');
+    const progressEl = document.getElementById('progress');
+
+    function log(msg, type=''){
+      const line = document.createElement('div');
+      if(type) line.className = type;
+      line.textContent = msg;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function normalizeRows(data){
+      const arr = Array.isArray(data) ? data : (Array.isArray(data?.rows) ? data.rows : []);
+      return arr.map((row, idx)=>{
+        const r = { ...(row || {}) };
+        const id = String(r.id || r.dni || `row_${Date.now()}_${idx}`);
+        r.id = id;
+        if(!r.createdAt) r.createdAt = new Date().toISOString();
+        r.updatedAt = new Date().toISOString();
+        return r;
+      });
+    }
+
+    async function importRows(rows){
+      if(!rows.length){
+        log('No hay filas para importar', 'err');
+        return;
+      }
+      let ok = 0;
+      let err = 0;
+      for(let i=0;i<rows.length;i++){
+        const row = rows[i];
+        try{
+          await setDoc(doc(ref, String(row.id)), { ...row, updatedAtServer: serverTimestamp() }, { merge:true });
+          ok++;
+          progressEl.textContent = `${i+1}/${rows.length}`;
+          log(`✔ ${row.id}`,'ok');
+        }catch(e){
+          err++;
+          log(`✖ ${row.id}: ${e.message}`,'err');
+        }
+      }
+      log(`Finalizado. OK=${ok} / Error=${err}`);
+    }
+
+    async function readFileJSON(file){
+      const text = await file.text();
+      return JSON.parse(text);
+    }
+
+    document.getElementById('btnLoad').addEventListener('click', async ()=>{
+      logEl.innerHTML = '';
+      progressEl.textContent = '0';
+      const file = document.getElementById('file').files[0];
+      if(!file){ log('Seleccioná un JSON primero','err'); return; }
+      try{
+        const data = await readFileJSON(file);
+        const rows = normalizeRows(data);
+        log(`Importando ${rows.length} filas...`);
+        await importRows(rows);
+      }catch(e){
+        log(`Error leyendo JSON: ${e.message}`,'err');
+      }
+    });
+
+    document.getElementById('btnSample').addEventListener('click', async ()=>{
+      logEl.innerHTML = '';
+      progressEl.textContent = '0';
+      try{
+        const res = await fetch('./cirugias_firestore_import.json');
+        const data = await res.json();
+        const rows = normalizeRows(data);
+        log(`Importando ejemplo local (${rows.length} filas)...`);
+        await importRows(rows);
+      }catch(e){
+        log(`No se pudo cargar ejemplo: ${e.message}`,'err');
+      }
+    });
+  </script>
+</body>
+</html>
