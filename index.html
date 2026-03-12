@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Cirugías — Centro de Ojos Esteves</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & base ─────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#F0F4F9;color:#1a2332;min-height:100vh;font-size:13px;line-height:1.5}
+.shell{max-width:1400px;margin:0 auto;padding:0 16px 24px}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.topbar{background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 2px 12px #0f172a12;position:sticky;top:0;z-index:200}
+.topbar-inner{max-width:1400px;margin:0 auto;padding:10px 16px;display:flex;flex-direction:column;gap:8px}
+.brandrow{display:flex;align-items:center;gap:12px}
+.logo{font-size:19px;font-weight:700;color:#1B4F8A;display:flex;align-items:baseline;gap:8px}
+.logo small{font-size:11px;font-weight:500;color:#64748b}
+.hspacer{flex:1}
+.sync-badge{font-size:11px;font-weight:600;color:#1a56db;display:inline-flex;align-items:center;gap:5px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#2E7D5E;box-shadow:0 0 0 2px #2E7D5E33;flex-shrink:0}
+
+/* ── Botones ─────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:6px;border:1px solid #d1d9e6;background:#fff;color:#334155;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap;min-height:34px}
+.btn:hover{background:#f8fafc;border-color:#94a3b8}
+.btn.primary{background:#1B4F8A;border-color:#1B4F8A;color:#fff}
+.btn.primary:hover{background:#1a4578}
+.btn.green{background:#059669;border-color:#059669;color:#fff}
+.btn.green:hover{background:#047857}
+.btn.orange{background:#ea580c;border-color:#ea580c;color:#fff}
+.btn.orange:hover{background:#c2410c}
+.btn.red{background:#dc2626;border-color:#dc2626;color:#fff}
+.btn.sm{padding:4px 8px;font-size:11px;min-height:28px}
+
+/* ── Action bar ──────────────────────────────────────────────── */
+.actionbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dce6f6;border-radius:10px;padding:8px 10px;box-shadow:0 1px 4px #0f172a0a}
+
+/* ── KPIs ────────────────────────────────────────────────────── */
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:12px 0}
+.kpi-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:.15s}
+.kpi-card:hover{border-color:#94a3b8;box-shadow:0 2px 6px #0f172a14}
+.kpi-n{font-size:22px;font-weight:700;line-height:1.1}
+.kpi-lbl{font-size:11px;color:#64748b;font-weight:500}
+.kpi-card.alert-red{border-color:#fca5a5;background:#fef2f2}.kpi-card.alert-red .kpi-n{color:#dc2626}
+.kpi-card.alert-yellow{border-color:#fde68a;background:#fefce8}.kpi-card.alert-yellow .kpi-n{color:#b45309}
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+.tabs{display:flex;gap:4px;margin:10px 0 0}
+.tablink{background:none;border:none;border-bottom:3px solid transparent;padding:8px 12px;font-family:inherit;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;transition:.15s}
+.tablink:hover{color:#1B4F8A}
+.tablink.active{color:#1B4F8A;border-bottom-color:#1B4F8A}
+
+/* ── Filtros ─────────────────────────────────────────────────── */
+.filterbar{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;margin:10px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filterbar input[type=text],.filterbar select{border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-family:inherit;font-size:12px;color:#374151;background:#fff;min-height:32px}
+.filterbar input[type=text]{min-width:200px}
+.filterbar select{min-width:150px}
+.qf-btns{display:flex;gap:4px;flex-wrap:wrap}
+.qf-btn{padding:5px 10px;border-radius:20px;border:1px solid #d1d5db;background:#fff;font-family:inherit;font-size:11px;font-weight:600;color:#64748b;cursor:pointer;transition:.15s}
+.qf-btn:hover,.qf-btn.active{background:#1B4F8A;border-color:#1B4F8A;color:#fff}
+
+/* ── Alertas banner ──────────────────────────────────────────── */
+.alert-banner{background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 14px;margin:8px 0;font-size:12px;color:#991b1b;display:none}
+.alert-banner.show{display:block}
+.alert-item{padding:3px 0;display:flex;align-items:center;gap:6px}
+.sev-red{color:#dc2626}
+.sev-yellow{color:#b45309}
+
+/* ── Tabla ───────────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto;border-radius:10px;box-shadow:0 1px 4px #0f172a0d;border:1px solid #e2e8f0}
+table{width:100%;border-collapse:collapse;background:#fff}
+thead{background:#1B4F8A;color:#fff;position:sticky;top:0}
+thead th{padding:9px 10px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.3px;white-space:nowrap;cursor:default}
+thead th.sort{cursor:pointer}
+thead th.sort:hover{background:#15407a}
+tbody tr{border-bottom:1px solid #f1f5f9;transition:.1s;cursor:pointer}
+tbody tr:hover{background:#f8fafc}
+tbody tr.selected{background:#eff6ff!important;outline:2px solid #3b82f6;outline-offset:-1px}
+tbody tr.dup-warn{background:#fffbeb}
+td{padding:8px 10px;font-size:12px;vertical-align:middle}
+.td-num{color:#9ca3af;font-size:10px;margin-right:4px}
+.bcl-cdu{background:#dbeafe;color:#1d4ed8;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700}
+.bcl-gua{background:#d1fae5;color:#065f46;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap}
+/* estado badges */
+.b0{background:#fee2e2;color:#991b1b}
+.b1{background:#ffedd5;color:#9a3412}
+.b2{background:#fef9c3;color:#854d0e}
+.b3{background:#dbeafe;color:#1e40af}
+.b4{background:#ede9fe;color:#5b21b6}
+.b5{background:#d1fae5;color:#065f46}
+.b6{background:#dcfce7;color:#14532d}
+.b7{background:#bbf7d0;color:#14532d}
+.b8{background:#fce7f3;color:#9d174d}
+.b9{background:#fef3c7;color:#78350f}
+td.edit{cursor:cell;position:relative}
+td.edit:hover::after{content:'✎';position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:10px;color:#94a3b8}
+td.editing{padding:2px!important}
+td.editing input,td.editing select{width:100%;border:2px solid #3b82f6;border-radius:4px;padding:4px 6px;font-family:inherit;font-size:12px}
+.empty{text-align:center;padding:40px;color:#94a3b8;font-style:italic}
+
+/* ── Panel lateral ───────────────────────────────────────────── */
+.side-overlay{position:fixed;inset:0;background:#0004;z-index:290;display:none}
+.side{position:fixed;top:0;right:0;width:380px;max-width:95vw;height:100vh;background:#fff;box-shadow:-4px 0 24px #0f172a1a;z-index:300;display:flex;flex-direction:column;transform:translateX(110%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+.side.open{transform:translateX(0)}
+.side-head{padding:14px 16px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-shrink:0}
+.side-name{font-size:15px;font-weight:700;color:#1a2332}
+.side-sub{font-size:11px;color:#64748b;margin-top:2px}
+.side-close{background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af;padding:0;line-height:1}
+.side-close:hover{color:#374151}
+.side-body{flex:1;overflow-y:auto;padding:12px 16px}
+.side-foot{padding:10px 16px;border-top:1px solid #e2e8f0;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+.sgroup{margin-bottom:14px}
+.sgroup-title{font-size:11px;font-weight:700;color:#1B4F8A;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #e2e8f0}
+.srow{display:flex;align-items:center;gap:8px;padding:3px 0}
+.srow label{font-size:11px;font-weight:600;color:#64748b;min-width:130px;flex-shrink:0}
+.srow input,.srow select,.srow textarea{flex:1;border:1.5px solid #e2e8f0;border-radius:6px;padding:5px 8px;font-family:inherit;font-size:12px;color:#1a2332;transition:.15s}
+.srow input:focus,.srow select:focus,.srow textarea:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 2px #3b82f620}
+.estado-calc{padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;text-align:center;margin-bottom:8px}
+.alertas-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px;margin-bottom:10px}
+.alerta-item{font-size:11px;color:#991b1b;padding:2px 0;display:flex;justify-content:space-between;align-items:center}
+.val-error{background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:5px 8px;font-size:11px;color:#b91c1c;margin:3px 0}
+.val-warning{background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:5px 8px;font-size:11px;color:#c2410c;margin:3px 0}
+.qa-btns{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.qa-btn{padding:5px 10px;border-radius:5px;border:1px solid #d1d5db;background:#fff;color:#374151;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:.15s}
+.qa-btn:hover{background:#f1f5f9}
+.qa-btn.green{background:#ecfdf5;border-color:#6ee7b7;color:#047857}
+.qa-btn.orange{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+.qa-btn.violet{background:#f5f3ff;border-color:#c4b5fd;color:#5b21b6}
+
+/* ── Modales ─────────────────────────────────────────────────── */
+.modal-bg{display:none;position:fixed;inset:0;background:#0005;z-index:400;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:95%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-sm{max-width:500px}
+.modal-md{max-width:720px}
+.modal-lg{max-width:960px}
+.modal-head{padding:14px 18px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.modal-title{font-size:14px;font-weight:700}
+.modal-body{flex:1;overflow-y:auto;padding:16px 18px}
+.modal-foot{padding:10px 18px;border-top:1px solid #e2e8f0;display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+.x-btn{background:none;border:none;cursor:pointer;font-size:19px;color:#9ca3af}
+.x-btn:hover{color:#374151}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transition:.3s;pointer-events:none;z-index:999;box-shadow:0 4px 16px #0f172a30}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media(max-width:768px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .side{width:100vw}
+  .filterbar{gap:6px}
+  .filterbar input[type=text]{min-width:150px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brandrow">
+      <div class="logo">Centro de Ojos Esteves <small>Control de Cirugías v3</small></div>
+      <div class="hspacer"></div>
+      <div class="sync-badge"><span class="sync-dot" id="syncDot"></span><span id="syncMsg">Conectando...</span></div>
+    </div>
+    <div class="actionbar">
+      <button class="btn primary" onclick="nuevoModal()">+ Nuevo Paciente</button>
+      <button class="btn" onclick="sincronizarAhora()" title="Forzar sincronización con Firestore">↺ Sync</button>
+      <div class="hspacer"></div>
+      <button class="btn" onclick="exportarExcel()" title="Exportar vista filtrada">↓ Excel</button>
+      <button class="btn" onclick="exportarBackupJSON()" title="Backup completo">💾 Backup</button>
+      <button class="btn" onclick="document.getElementById('importInput').click()" title="Importar JSON">📥 Importar</button>
+      <input type="file" id="importInput" accept=".json" style="display:none" onchange="importarBackupJSON(event)">
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tablink active" onclick="setTab('tabla',this)">📋 Tabla</button>
+    <button class="tablink" onclick="setTab('alertas',this)">⚠️ Alertas</button>
+    <button class="tablink" onclick="setTab('stats',this)">📊 Estadísticas</button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis" id="kpisWrap"></div>
+
+  <!-- FILTROS -->
+  <div class="filterbar">
+    <input type="text" id="q" placeholder="🔍 Buscar nombre o DNI..." oninput="debouncedRender()">
+    <select id="fCli" onchange="render()"><option value="">Todas las clínicas</option><option>CDU</option><option>Gualeguaychú</option></select>
+    <select id="fOS" onchange="render()"><option value="">Todas las obras sociales</option><option>PAMI</option><option>OSER</option><option>PARTICULAR</option></select>
+    <select id="fEst" onchange="render()"><option value="">Todos los estados</option></select>
+    <div class="qf-btns">
+      <button class="qf-btn active" onclick="setQF('TODOS',this)">TODOS</button>
+      <button class="qf-btn" onclick="setQF('PENDIENTES',this)">PENDIENTES</button>
+      <button class="qf-btn" onclick="setQF('PROGRAMADAS',this)">PROGRAMADAS</button>
+      <button class="qf-btn" onclick="setQF('REALIZADAS',this)">REALIZADAS</button>
+      <button class="qf-btn" onclick="setQF('FACTURADAS',this)">FACTURADAS</button>
+    </div>
+    <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer">
+      <input type="checkbox" id="showSilenced" onchange="render()"> Mostrar silenciadas
+    </label>
+    <button class="btn sm" onclick="limpiarFiltros()">✕ Limpiar</button>
+  </div>
+
+  <!-- VISTAS -->
+  <div id="vistaTabla">
+    <div class="table-wrap">
+      <table id="mainTable">
+        <colgroup id="mainColgroup"></colgroup>
+        <thead><tr id="mainThead"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="vistaAlertas" style="display:none">
+    <div id="alertasPanelContent"></div>
+  </div>
+
+  <div id="vistaStats" style="display:none">
+    <div id="statsPanelContent"></div>
+  </div>
+</div>
+
+<!-- PANEL LATERAL -->
+<div class="side-overlay" id="sideOverlay" onclick="closeSide()"></div>
+<div class="side" id="sidePanel">
+  <div class="side-head">
+    <div>
+      <div class="side-name" id="sideName">—</div>
+      <div class="side-sub" id="sideSub">—</div>
+    </div>
+    <button class="side-close" onclick="closeSide()">✕</button>
+  </div>
+  <div class="side-body" id="sideBody"></div>
+  <div class="side-foot" id="sideFoot"></div>
+</div>
+
+<!-- MODAL EXPORT -->
+<div class="modal-bg" id="exportModal">
+  <div class="modal modal-md">
+    <div class="modal-head"><div class="modal-title">Exportar listos para pedir lente</div><button class="x-btn" onclick="closeModal('exportModal')">✕</button></div>
+    <div class="modal-body" id="exportBody"></div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('exportModal')">Cerrar</button>
+      <button class="btn green" onclick="downloadExcelListos()">↓ Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script type="module" src="./firebase.js"></script>
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ═══════════════════════════════════════════════════════════════════
+let DB = { rows: [], nid: 1 };
+let selId = null;
+let sortCol = 'nombre', sortDir = 1;
+let currentTab = 'tabla';
+let quickFilter = 'TODOS';
+let FIRESTORE_UNSUB = null;
+let _renderTimer = null;
+
+let SETTINGS = Object.assign({
+  WARN_DAYS: 15,
+  CRIT_DAYS: 50,
+  lens_delay_warn: 10,
+  lens_delay_crit: 15,
+  no_schedule_warn: 15,
+  no_schedule_crit: 30,
+  billing_warn: 20,
+  second_eye_warn: 90
+}, JSON.parse(localStorage.getItem('cx_settings')||'{}'));
+
+let ALERT_SILENCES = JSON.parse(localStorage.getItem('cx_silences')||'{}');
+
+// ── Helpers de ID (toleran string vs número) ────────────────────
+function findById(id)    { const s=String(id); return DB.rows.find(x=>String(x.id)===s); }
+function filterOutId(id) { const s=String(id); return DB.rows.filter(x=>String(x.id)!==s); }
+function sameId(a,b)     { return String(a)===String(b); }
+
+// ── IndexedDB caché ─────────────────────────────────────────────
+async function idbGet(key) {
+  return new Promise(res => {
+    try {
+      const req = indexedDB.open('cx_db',1);
+      req.onupgradeneeded = () => req.result.createObjectStore('kv');
+      req.onsuccess = () => {
+        const q = req.result.transaction('kv','readonly').objectStore('kv').get(key);
+        q.onsuccess = () => res(q.result||null);
+        q.onerror  = () => res(null);
+      };
+      req.onerror = () => res(null);
+    } catch(e) { res(null); }
+  });
+}
+async function idbSet(key, val) {
+  return new Promise(res => {
+    try {
+      const req = indexedDB.open('cx_db',1);
+      req.onupgradeneeded = () => req.result.createObjectStore('kv');
+      req.onsuccess = () => {
+        const tx = req.result.transaction('kv','readwrite');
+        tx.objectStore('kv').put(val, key);
+        tx.oncomplete = () => res();
+        tx.onerror    = () => res();
+      };
+      req.onerror = () => res();
+    } catch(e) { res(); }
+  });
+}
+
+// ── Toast ────────────────────────────────────────────────────────
+let _toastTimer;
+function toast(msg, ms=2400) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+// ── Sync badge ───────────────────────────────────────────────────
+function setSyncBadge(msg, color='blue') {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncMsg');
+  if (txt) txt.textContent = msg;
+  const cols = { green:'#2E7D5E', blue:'#1a56db', orange:'#d97706', red:'#dc2626' };
+  if (dot) { dot.style.background = cols[color]||cols.blue; dot.style.boxShadow = `0 0 0 2px ${cols[color]||cols.blue}33`; }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FIRESTORE / CARGA
+// ═══════════════════════════════════════════════════════════════════
+async function startFirestoreRT() {
+  if (!window.firestoreConnector) throw new Error('Firebase no cargado');
+  if (FIRESTORE_UNSUB) { try { FIRESTORE_UNSUB(); } catch(e){} FIRESTORE_UNSUB = null; }
+
+  FIRESTORE_UNSUB = window.firestoreConnector.listenRows(rows => {
+    DB.rows = Array.isArray(rows) ? rows : [];
+    // Normalizar IDs a string (fix crítico: Firestore devuelve strings, JS crea números)
+    DB.rows.forEach(r => { r.id = String(r.id); });
+    const nums = DB.rows.map(r => parseInt(r.id)||0).filter(Boolean);
+    DB.nid = (nums.length ? Math.max(...nums) : 0) + 1;
+    normalizarData();
+    persistCache();
+    setSyncBadge('✓ Firestore en línea', 'green');
+    // Preservar panel abierto si había uno
+    const prev = selId;
+    render();
+    if (prev && findById(prev) && document.getElementById('sidePanel')?.classList.contains('open')) {
+      openSide(prev);
+    }
+  }, err => {
+    console.error('[Firestore]', err);
+    setSyncBadge('⚠ Sin conexión Firestore', 'orange');
+  });
+}
+
+async function loadFromServer() {
+  const cached = localStorage.getItem('cx_cache') || await idbGet('cx_cache');
+  if (cached) DB = typeof cached==='string' ? JSON.parse(cached) : cached;
+  else DB = { rows: [], nid: 1 };
+  setSyncBadge('⟳ Conectando...', 'blue');
+  try {
+    if (window.firestoreConnector?.ready) await window.firestoreConnector.ready;
+    await startFirestoreRT();
+  } catch(e) {
+    console.error(e);
+    setSyncBadge('⚠ Offline (caché local)', 'orange');
+  }
+}
+
+function persistCache() {
+  localStorage.setItem('cx_cache', JSON.stringify(DB));
+  idbSet('cx_cache', DB);
+}
+
+async function save(changedRow) {
+  persistCache();
+  if (!window.firestoreConnector) return;
+  try {
+    setSyncBadge('⟳ Guardando...', 'blue');
+    if (changedRow) await window.firestoreConnector.upsertRow(changedRow);
+    else            await window.firestoreConnector.replaceAllRows(DB.rows||[]);
+    setSyncBadge('✓ Guardado', 'green');
+  } catch(e) {
+    console.error(e);
+    setSyncBadge('⚠ Error al guardar', 'red');
+    toast('⚠ Error al guardar en Firestore');
+  }
+}
+
+async function deleteFromServer(id) {
+  persistCache();
+  if (!window.firestoreConnector) return;
+  try { await window.firestoreConnector.deleteRow(id); }
+  catch(e) { console.error(e); }
+}
+
+async function sincronizarAhora() {
+  await loadFromServer();
+  normalizarData();
+  render();
+  toast('✓ Sincronizado con Firestore');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LÓGICA DE NEGOCIO
+// ═══════════════════════════════════════════════════════════════════
+function hoyISO()  { return new Date().toISOString().slice(0,10); }
+
+function parseDateOnly(d) {
+  if (!d) return null;
+  if (d instanceof Date && !isNaN(d)) { const t=new Date(d); t.setHours(0,0,0,0); return t; }
+  const v = String(d).trim();
+  let dt = null;
+  if (/^\d{4}-\d{2}-\d{2}/.test(v)) {
+    const [y,mo,da] = v.slice(0,10).split('-').map(Number);
+    dt = new Date(y, mo-1, da);
+  } else {
+    const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (m) dt = new Date(+m[3], +m[2]-1, +m[1]);
+  }
+  if (!dt || isNaN(dt)) return null;
+  dt.setHours(0,0,0,0);
+  return dt;
+}
+function toDateOnly(d) { const dt=parseDateOnly(d); return dt?new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()):null; }
+function diffDays(a, b) {
+  const da = parseDateOnly(a), db = parseDateOnly(b);
+  if (!da || !db) return null;
+  return Math.round((da - db) / 86400000);
+}
+function daysSince(d) { return diffDays(hoyISO(), d); }
+
+function getLio(p) { return p.lio || p.dioptria || ''; }
+function clinicaClass(c) { return c==='CDU' ? 'bcl-cdu' : 'bcl-gua'; }
+
+function normalizarData() {
+  DB.rows.forEach(p => {
+    p.id = String(p.id);
+    if (!p.clinica) p.clinica = 'CDU';
+    if (p.clinica==='Clínica 1') p.clinica = 'CDU';
+    if (p.clinica==='Clínica 2'||p.clinica==='Gualeguaychu') p.clinica = 'Gualeguaychú';
+    // Normalizar estado cirugía según fecha
+    const fc = toDateOnly(p.fechaCir);
+    const hoy = toDateOnly(hoyISO());
+    if (fc && (p.estadoCir||'').toUpperCase() !== 'REALIZADA') {
+      p.estadoCir = hoy <= fc ? 'Programada' : 'Realizada';
+    }
+  });
+}
+
+function secondEyeMissing(p) {
+  if (p.ojos !== '2 ojos') return '';
+  const otro = p.ojo==='OD' ? 'OI' : 'OD';
+  const dni = String(p.dni||'').trim();
+  const has = DB.rows.some(x => !sameId(x.id,p.id) && String(x.dni||'').trim()===dni && x.ojo===otro);
+  return has ? '' : otro;
+}
+
+function estado(p) {
+  // Normalizar primero
+  const fc = toDateOnly(p.fechaCir);
+  const hoy = toDateOnly(hoyISO());
+  if (fc && (p.estadoCir||'').toUpperCase() !== 'REALIZADA') {
+    p.estadoCir = hoy <= fc ? 'Programada' : 'Realizada';
+  }
+
+  if (p.recepLente === 'Devolver') return 'DEVOLVER LENTE';
+  const fac = (p.estadoFac||'').toUpperCase();
+  const miss = secondEyeMissing(p);
+  if (fac==='REALIZADA' || fac==='FACTURADA') {
+    if (miss) return `FACTURADA | FALTA ${miss}`;
+    return 'FINALIZADO - FACTURADA';
+  }
+  if ((p.estadoCir||'').toUpperCase()==='REALIZADA') return 'CIRUGÍA REALIZADA - FALTA FACTURAR';
+  if (p.fechaCir) return 'FECHA PROGRAMADA';
+  if (p.fechaLlegaLente) return 'LENTE LLEGÓ';
+  if (p.fechaSolLente) return 'LENTE SOLICITADA';
+  if (!getLio(p)) return 'FALTA LIO/DIOPTRÍA';
+  if (!p.pre || p.pre!=='OK') return 'FALTA PREQUIRÚRGICO';
+  if (!p.autorizacion) return 'FALTA AUTORIZACIÓN';
+  return 'LISTO PARA PEDIR LENTE';
+}
+
+const BCLS = {
+  'FALTA LIO/DIOPTRÍA':'b0','FALTA PREQUIRÚRGICO':'b1','FALTA AUTORIZACIÓN':'b1',
+  'LISTO PARA PEDIR LENTE':'b2','LENTE SOLICITADA':'b3','LENTE LLEGÓ':'b4',
+  'FECHA PROGRAMADA':'b5','CIRUGÍA REALIZADA - FALTA FACTURAR':'b6',
+  'FINALIZADO - FACTURADA':'b7','DEVOLVER LENTE':'b8'
+};
+function bc(e) { if (e?.startsWith('FACTURADA |')) return 'b9'; return BCLS[e]||'b3'; }
+
+function fd(d) {
+  if (!d) return '—';
+  const dt = parseDateOnly(d);
+  if (!dt) return '—';
+  return dt.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+}
+function fdInput(d) { if (!d) return ''; return String(d).slice(0,10); }
+
+// ── Alertas ──────────────────────────────────────────────────────
+function isSilenced(key) { return !!ALERT_SILENCES[key]; }
+function silenciarAlerta(key) {
+  ALERT_SILENCES[key] = { at: new Date().toISOString() };
+  localStorage.setItem('cx_silences', JSON.stringify(ALERT_SILENCES));
+  render();
+  toast('Alerta silenciada');
+}
+function reactivarAlerta(key) {
+  delete ALERT_SILENCES[key];
+  localStorage.setItem('cx_silences', JSON.stringify(ALERT_SILENCES));
+  render();
+}
+
+function alertas(p) {
+  const today = toDateOnly(hoyISO());
+  const showSil = document.getElementById('showSilenced')?.checked;
+  const res = [];
+  const st = estado(p);
+
+  function add(type, key, sev, msg) {
+    if (!showSil && isSilenced(key)) return;
+    res.push({ type, key, severity: sev, msg });
+  }
+
+  // A) Devolver lente
+  if (p.recepLente === 'Devolver') {
+    add('devolver', `devolver:${p.id}`, 'red', '🔴 DEVOLVER LENTE');
+    return res;
+  }
+  // B) Lente pedida pero no llegó
+  if (p.fechaSolLente && !p.fechaLlegaLente) {
+    const d = diffDays(today, p.fechaSolLente);
+    if (d !== null && d > SETTINGS.lens_delay_warn) {
+      const sev = d > SETTINGS.lens_delay_crit ? 'red' : 'yellow';
+      add('lens_delayed', `lens_delayed:${p.id}`, sev, `📦 Lente no llegó (${d} días esperando)`);
+    }
+  }
+  // C) Lente llegó pero sin fecha cirugía
+  if (p.fechaLlegaLente && !p.fechaCir) {
+    const d = diffDays(today, p.fechaLlegaLente);
+    if (d !== null && d > SETTINGS.no_schedule_warn) {
+      const sev = d > SETTINGS.no_schedule_crit ? 'red' : 'yellow';
+      add('no_schedule', `no_schedule:${p.id}`, sev, `📅 Sin fecha de cirugía (${d} días desde llegada)`);
+    }
+  }
+  // D) Cirugía próxima sin lente
+  if (p.fechaCir && st === 'FECHA PROGRAMADA' && !p.fechaLlegaLente) {
+    const d = diffDays(p.fechaCir, today);
+    if (d !== null && d <= 7) {
+      add('cx_sin_lente', `cx_sin_lente:${p.id}`, 'red', `🚨 Cirugía en ${d} días SIN LENTE`);
+    }
+  }
+  // E) Falta autorización
+  if (!p.autorizacion && p.fechaSolLente) {
+    add('sin_autorizacion', `sin_aut:${p.id}`, 'yellow', '⚠ Falta autorización de obra social');
+  }
+  // F) Cirugía realizada, falta facturar
+  if (st === 'CIRUGÍA REALIZADA - FALTA FACTURAR') {
+    const d = diffDays(today, p.fechaCir);
+    if (d !== null && d > SETTINGS.billing_warn) {
+      add('billing', `billing:${p.id}`, 'yellow', `💰 Falta facturar (${d} días post-cirugía)`);
+    }
+  }
+  // G) Segundo ojo pendiente
+  if (p.ojos === '2 ojos' && secondEyeMissing(p)) {
+    const d = p.fechaCir ? diffDays(today, p.fechaCir) : null;
+    if (d !== null && d > SETTINGS.second_eye_warn) {
+      add('second_eye', `second_eye:${p.id}`, 'yellow', `👁 Falta 2° ojo (${d} días post 1° cirugía)`);
+    }
+  }
+  return res;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// COLUMNAS DE TABLA
+// ═══════════════════════════════════════════════════════════════════
+const COLS = [
+  { key:'check',   label:'',               width:'36px',  sort:false },
+  { key:'num',     label:'#',              width:'36px',  sort:false },
+  { key:'nombre',  label:'Nombre',         width:'16%',   sort:true },
+  { key:'dni',     label:'DNI',            width:'8%',    sort:true },
+  { key:'clinica', label:'Clínica',        width:'6%',    sort:false },
+  { key:'osSocial',label:'O. Social',      width:'7%',    sort:false },
+  { key:'ojo',     label:'Ojo',            width:'4%',    sort:false },
+  { key:'lio',     label:'LIO',            width:'5%',    sort:false },
+  { key:'pre',     label:'Prequir.',       width:'6%',    sort:false },
+  { key:'autorizacion', label:'Autorización', width:'7%', sort:false },
+  { key:'solLente',label:'Sol.Lente',      width:'7%',    sort:true,  sortKey:'fechaSolLente' },
+  { key:'llego',   label:'Llegó',          width:'7%',    sort:true,  sortKey:'fechaLlegaLente' },
+  { key:'fechaCir',label:'Fecha Cir.',     width:'7%',    sort:true,  sortKey:'fechaCir' },
+  { key:'estCir',  label:'Est. Cirugía',   width:'7%',    sort:false },
+  { key:'factura', label:'Facturación',    width:'8%',    sort:false },
+  { key:'estado',  label:'Estado actual',  width:'14%',   sort:false },
+];
+
+function renderTableHeader() {
+  const cg = document.getElementById('mainColgroup');
+  const tr = document.getElementById('mainThead');
+  if (!cg||!tr) return;
+  cg.innerHTML = COLS.map(c=>`<col style="width:${c.width}">`).join('');
+  tr.innerHTML  = COLS.map(c => {
+    const lbl = c.sort ? `${c.label} ↕` : c.label;
+    const cls  = c.sort ? ' class="sort"' : '';
+    const oc   = c.sort ? ` onclick="sortBy('${c.sortKey||c.key}')"` : '';
+    return `<th${cls}${oc}>${lbl}</th>`;
+  }).join('');
+  // Checkbox all
+  tr.querySelector('th')?.querySelector && (tr.querySelector('th').innerHTML = '<input type="checkbox" id="chkAll" onchange="toggleAll(this)">');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════
+function debouncedRender() {
+  clearTimeout(_renderTimer);
+  _renderTimer = setTimeout(render, 180);
+}
+
+function render() {
+  renderKpis();
+  if (currentTab === 'tabla')   renderTabla();
+  if (currentTab === 'alertas') renderAlertasPanel();
+  if (currentTab === 'stats')   renderStatsPanel();
+  refreshEstadoOptions();
+}
+
+function refreshEstadoOptions() {
+  const sel = document.getElementById('fEst');
+  if (!sel) return;
+  const cur = sel.value;
+  const seen = new Set();
+  const opts = ['<option value="">Todos los estados</option>'];
+  DB.rows.forEach(r => {
+    const st = estado(r);
+    if (!seen.has(st)) { seen.add(st); opts.push(`<option value="${st}">${st}</option>`); }
+  });
+  sel.innerHTML = opts.join('');
+  if (cur) sel.value = cur;
+}
+
+function filtered() {
+  const q  = (document.getElementById('q')?.value||'').toLowerCase();
+  const fc = document.getElementById('fCli')?.value||'';
+  const fo = document.getElementById('fOS')?.value||'';
+  const fe = document.getElementById('fEst')?.value||'';
+  let rows = [...DB.rows];
+
+  if (q)  rows = rows.filter(p => (p.nombre||'').toLowerCase().includes(q) || String(p.dni||'').includes(q));
+  if (fc) rows = rows.filter(p => p.clinica === fc);
+  if (fo) rows = rows.filter(p => p.obraSocial === fo);
+  if (fe) rows = rows.filter(p => estado(p) === fe);
+
+  if (quickFilter === 'PENDIENTES') rows = rows.filter(p => {
+    const st = estado(p);
+    return !['FINALIZADO - FACTURADA'].includes(st) && !st.startsWith('FACTURADA |');
+  });
+  if (quickFilter === 'PROGRAMADAS') rows = rows.filter(p => estado(p) === 'FECHA PROGRAMADA');
+  if (quickFilter === 'REALIZADAS')  rows = rows.filter(p => (p.estadoCir||'').toUpperCase() === 'REALIZADA');
+  if (quickFilter === 'FACTURADAS')  rows = rows.filter(p => {
+    const fac = (p.estadoFac||'').toUpperCase();
+    return fac==='REALIZADA'||fac==='FACTURADA';
+  });
+
+  const dir = sortDir;
+  rows.sort((a,b) => {
+    let va = a[sortCol]||'', vb = b[sortCol]||'';
+    if (typeof va === 'string') return va.localeCompare(vb,'es') * dir;
+    return (va - vb) * dir;
+  });
+  return rows;
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  render();
+}
+
+function setQF(qf, el) {
+  quickFilter = qf;
+  document.querySelectorAll('.qf-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function limpiarFiltros() {
+  document.getElementById('q').value = '';
+  document.getElementById('fCli').value = '';
+  document.getElementById('fOS').value = '';
+  document.getElementById('fEst').value = '';
+  quickFilter = 'TODOS';
+  document.querySelectorAll('.qf-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  render();
+}
+
+// ── KPIs ─────────────────────────────────────────────────────────
+function renderKpis() {
+  const rows = DB.rows;
+  const total = rows.length;
+  const programadas = rows.filter(p => estado(p) === 'FECHA PROGRAMADA').length;
+  const realizadas  = rows.filter(p => (p.estadoCir||'').toUpperCase() === 'REALIZADA').length;
+  const facturadas  = rows.filter(p => { const f=(p.estadoFac||'').toUpperCase(); return f==='REALIZADA'||f==='FACTURADA'; }).length;
+  const sinFact     = rows.filter(p => estado(p) === 'CIRUGÍA REALIZADA - FALTA FACTURAR').length;
+  const sinLio      = rows.filter(p => estado(p) === 'FALTA LIO/DIOPTRÍA').length;
+  const sinPre      = rows.filter(p => estado(p) === 'FALTA PREQUIRÚRGICO').length;
+  const sinAut      = rows.filter(p => estado(p) === 'FALTA AUTORIZACIÓN').length;
+  const lenteEsp    = rows.filter(p => estado(p) === 'LENTE SOLICITADA').length;
+  const devolver    = rows.filter(p => p.recepLente === 'Devolver').length;
+
+  const hoy = hoyISO();
+  const cxHoy = rows.filter(p => p.fechaCir === hoy).length;
+
+  const kpis = [
+    { n: total,       lbl: 'Total pacientes',    cls: '' },
+    { n: programadas, lbl: 'Programadas',         cls: programadas>0?'alert-yellow':'' },
+    { n: cxHoy,       lbl: 'Cirugías hoy',        cls: cxHoy>0?'alert-red':'' },
+    { n: realizadas,  lbl: 'Realizadas',           cls: '' },
+    { n: facturadas,  lbl: 'Facturadas',           cls: '' },
+    { n: sinFact,     lbl: 'Pend. facturar',       cls: sinFact>0?'alert-yellow':'' },
+    { n: sinLio,      lbl: 'Sin LIO',              cls: sinLio>0?'alert-yellow':'' },
+    { n: sinPre,      lbl: 'Sin prequir.',         cls: sinPre>0?'alert-yellow':'' },
+    { n: sinAut,      lbl: 'Sin autorización',     cls: sinAut>0?'alert-yellow':'' },
+    { n: lenteEsp,    lbl: 'Lente esperando',      cls: lenteEsp>0?'alert-yellow':'' },
+    { n: devolver,    lbl: 'Devolver lente',       cls: devolver>0?'alert-red':'' },
+  ];
+  document.getElementById('kpisWrap').innerHTML = kpis.map(k =>
+    `<div class="kpi-card ${k.cls}"><div class="kpi-n">${k.n}</div><div class="kpi-lbl">${k.lbl}</div></div>`
+  ).join('');
+}
+
+// ── Tabla ─────────────────────────────────────────────────────────
+function renderTabla() {
+  renderTableHeader();
+  const rows = filtered();
+  if (!rows.length) {
+    document.getElementById('tbody').innerHTML = `<tr><td colspan="${COLS.length}"><div class="empty">Sin resultados para estos filtros.</div></td></tr>`;
+    return;
+  }
+
+  // Detectar duplicados (mismo DNI + mismo ojo, más de uno)
+  const dupMap = {};
+  DB.rows.forEach(r => {
+    const k = `${String(r.dni||'').trim()}|${r.ojo||''}`;
+    if (!dupMap[k]) dupMap[k] = [];
+    dupMap[k].push(String(r.id));
+  });
+  const dupIds = new Set();
+  Object.values(dupMap).forEach(arr => { if (arr.length > 1 && arr[0]) arr.forEach(id => dupIds.add(id)); });
+
+  document.getElementById('tbody').innerHTML = rows.map((p, i) => {
+    const e   = estado(p);
+    const sel = sameId(p.id, selId);
+    const dup = dupIds.has(String(p.id));
+    const als = alertas(p);
+    const alBadge = als.length ? `<span style="color:${als.some(a=>a.severity==='red')?'#dc2626':'#b45309'};margin-left:4px" title="${als.map(a=>a.msg).join('\n')}">⚠${als.length}</span>` : '';
+
+    const cells = {
+      check:   `<td><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,'${p.id}')" onclick="event.stopPropagation()"></td>`,
+      num:     `<td><span class="td-num">${i+1}</span></td>`,
+      nombre:  `<td><strong>${esc(p.nombre)||'—'}</strong>${alBadge}</td>`,
+      dni:     `<td style="color:#6b7280">${esc(p.dni)||'—'}</td>`,
+      clinica: `<td><span class="${clinicaClass(p.clinica)}">${p.clinica||'—'}</span></td>`,
+      osSocial:`<td>${esc(p.obraSocial)||'—'}</td>`,
+      ojo:     `<td><strong>${p.ojo||'—'}</strong></td>`,
+      lio:     `<td class="edit" ondblclick="inlineEdit(event,'${p.id}','lio')">${esc(getLio(p))||'—'}</td>`,
+      pre:     `<td class="edit" ondblclick="inlineEditSel(event,'${p.id}','pre',['','OK','Pendiente'])">${p.pre?`<span class="badge" style="background:${p.pre==='OK'?'#d1fae5':'#fef3c7'};color:${p.pre==='OK'?'#065f46':'#78350f'}">${p.pre}</span>`:'—'}</td>`,
+      autorizacion: `<td class="edit" ondblclick="inlineEdit(event,'${p.id}','autorizacion')">${esc(p.autorizacion)||'—'}</td>`,
+      solLente:`<td class="edit" ondblclick="inlineEditDate(event,'${p.id}','fechaSolLente')">${fd(p.fechaSolLente)}</td>`,
+      llego:   `<td class="edit" style="color:${p.fechaLlegaLente?'#059669':'inherit'}" ondblclick="inlineEditDate(event,'${p.id}','fechaLlegaLente')">${fd(p.fechaLlegaLente)}</td>`,
+      fechaCir:`<td class="edit" ondblclick="inlineEditDate(event,'${p.id}','fechaCir')">${fd(p.fechaCir)}</td>`,
+      estCir:  `<td class="edit" ondblclick="inlineEditSel(event,'${p.id}','estadoCir',['','Programada','Realizada'])">${p.estadoCir?`<span class="badge b5">${p.estadoCir}</span>`:'—'}</td>`,
+      factura: `<td class="edit" ondblclick="inlineEditSel(event,'${p.id}','estadoFac',['','Realizada','FACTURADA'])">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</td>`,
+      estado:  `<td><span class="badge ${bc(e)}" title="${e}">${e.length>28?e.slice(0,26)+'…':e}</span></td>`,
+    };
+
+    return `<tr class="${sel?'selected':''} ${dup?'dup-warn':''}" onclick="rowClick(event,'${p.id}')">${COLS.map(c=>cells[c.key]).join('')}</tr>`;
+  }).join('');
+}
+
+// ── Inline editing ────────────────────────────────────────────────
+function inlineEdit(e, id, field) {
+  e.stopPropagation();
+  const td = e.currentTarget;
+  const p  = findById(id);
+  if (!p) return;
+  td.classList.add('editing');
+  td.innerHTML = `<input type="text" value="${esc(p[field]||'')}" autofocus
+    onblur="commitInline(event,'${id}','${field}')"
+    onkeydown="if(event.key==='Enter')event.target.blur();if(event.key==='Escape'){event.target.dataset.cancel='1';event.target.blur()}">`;
+  td.querySelector('input').focus();
+}
+function inlineEditDate(e, id, field) {
+  e.stopPropagation();
+  const td = e.currentTarget;
+  const p  = findById(id);
+  if (!p) return;
+  td.classList.add('editing');
+  td.innerHTML = `<input type="date" value="${fdInput(p[field])}" autofocus
+    onblur="commitInline(event,'${id}','${field}')"
+    onkeydown="if(event.key==='Enter')event.target.blur();if(event.key==='Escape'){event.target.dataset.cancel='1';event.target.blur()}">`;
+  td.querySelector('input').focus();
+}
+function inlineEditSel(e, id, field, opts) {
+  e.stopPropagation();
+  const td = e.currentTarget;
+  const p  = findById(id);
+  if (!p) return;
+  td.classList.add('editing');
+  const html = opts.map(o=>`<option value="${o}" ${p[field]===o?'selected':''}>${o||'—'}</option>`).join('');
+  td.innerHTML = `<select autofocus onblur="commitInline(event,'${id}','${field}')" onchange="this.blur()">${html}</select>`;
+  td.querySelector('select').focus();
+}
+function commitInline(e, id, field) {
+  if (e.target.dataset.cancel) { render(); return; }
+  const p = findById(id);
+  if (!p) { render(); return; }
+  p[field] = e.target.value;
+  save(p);
+  render();
+  toast('✓ Guardado');
+}
+
+// ── Row click ─────────────────────────────────────────────────────
+function rowClick(e, id) {
+  if (e.target.type === 'checkbox') return;
+  if (sameId(selId, id)) { closeSide(); return; }
+  selId = id;
+  render();
+  openSide(id);
+}
+function rowCheck(e, id) {
+  e.stopPropagation();
+  if (e.target.checked) { selId = id; openSide(id); }
+  else { selId = null; closeSide(); }
+  render();
+}
+function toggleAll(chk) {
+  if (!chk.checked) { selId = null; closeSide(); render(); }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PANEL LATERAL — openSide / closeSide
+// ═══════════════════════════════════════════════════════════════════
+function openSide(id) {
+  selId = id;
+  const p = findById(id);
+  if (!p) return;
+
+  document.getElementById('sideName').textContent = p.nombre || '—';
+  document.getElementById('sideSub').textContent  = `DNI ${p.dni||'—'} · ${p.clinica||'—'} · ${p.obraSocial||'—'}`;
+
+  const e   = estado(p);
+  const als = alertas(p);
+  const bcl = bc(e);
+  const bgMap = { b0:'#fee2e2',b1:'#ffedd5',b2:'#fef9c3',b3:'#dbeafe',b4:'#ede9fe',b5:'#d1fae5',b6:'#dcfce7',b7:'#bbf7d0',b8:'#fce7f3',b9:'#fef3c7' };
+  const txMap = { b0:'#991b1b',b1:'#9a3412',b2:'#854d0e',b3:'#1e40af',b4:'#5b21b6',b5:'#065f46',b6:'#14532d',b7:'#14532d',b8:'#9d174d',b9:'#78350f' };
+
+  // Validaciones cruzadas
+  const vals = [];
+  if (p.fechaLlegaLente && p.fechaSolLente && p.fechaLlegaLente < p.fechaSolLente)
+    vals.push({level:'error', msg:'Fecha llegada lente anterior a solicitud — revisar'});
+  if (p.fechaCir && p.fechaLlegaLente && p.fechaCir < p.fechaLlegaLente)
+    vals.push({level:'warning', msg:'Fecha cirugía anterior a llegada del lente — verificar'});
+  if ((p.estadoFac||'').toUpperCase()==='FACTURADA' && (p.estadoCir||'').toUpperCase()!=='REALIZADA')
+    vals.push({level:'warning', msg:'Facturada pero cirugía no está como Realizada'});
+  const dupCheck = DB.rows.filter(x => !sameId(x.id,p.id) && String(x.dni||'').trim()===String(p.dni||'').trim() && x.ojo===p.ojo);
+  if (dupCheck.length) vals.push({level:'error', msg:`Posible duplicado: ${dupCheck.map(x=>x.nombre||x.id).join(', ')}`});
+
+  // Acciones rápidas contextuales
+  const st  = estado(p);
+  const fac = (p.estadoFac||'').toUpperCase();
+  let qa = '';
+  if (!p.fechaSolLente && st!=='FINALIZADO - FACTURADA')
+    qa += `<button class="qa-btn" onclick="marcarSolLenteHoy('${id}')">📋 Sol. lente hoy</button>`;
+  if (p.fechaSolLente && !p.fechaLlegaLente)
+    qa += `<button class="qa-btn green" onclick="marcarLenteLlegoHoy('${id}')">📦 Lente llegó hoy</button>`;
+  if (p.fechaLlegaLente && !p.fechaCir)
+    qa += `<button class="qa-btn" onclick="programarCirugia('${id}')">📅 Programar cirugía</button>`;
+  if (p.fechaCir && (p.estadoCir||'').toUpperCase()!=='REALIZADA')
+    qa += `<button class="qa-btn green" onclick="marcarCirugiaRealizada('${id}')">✅ Cirugía realizada</button>`;
+  if ((p.estadoCir||'').toUpperCase()==='REALIZADA' && fac!=='FACTURADA')
+    qa += `<button class="qa-btn orange" onclick="marcarFacturada('${id}')">💰 Facturada hoy</button>`;
+  if (p.ojos==='2 ojos' && secondEyeMissing(p))
+    qa += `<button class="qa-btn violet" onclick="duplicarPaciente('${id}')">⧉ Duplicar → ${secondEyeMissing(p)}</button>`;
+
+  document.getElementById('sideBody').innerHTML = `
+    <div class="estado-calc" style="background:${bgMap[bcl]||'#f1f5f9'};color:${txMap[bcl]||'#374151'}">${e}</div>
+
+    ${als.length ? `<div class="alertas-box">${als.map(a =>
+      `<div class="alerta-item">
+        <span class="sev-${a.severity}">${a.msg}</span>
+        <button class="btn sm" onclick="silenciarAlerta('${a.key}')">Silenciar</button>
+      </div>`).join('')}</div>` : ''}
+
+    ${vals.map(v=>`<div class="val-${v.level}">⚠ ${v.msg}</div>`).join('')}
+
+    ${qa ? `<div class="qa-btns">${qa}</div>` : ''}
+
+    <div class="sgroup">
+      <div class="sgroup-title">Datos del paciente</div>
+      <div class="srow"><label>Nombre</label><input type="text" value="${esc(p.nombre||'')}" onchange="upd('${id}','nombre',this.value)"></div>
+      <div class="srow"><label>DNI</label><input type="text" value="${esc(p.dni||'')}" onchange="upd('${id}','dni',this.value)"></div>
+      <div class="srow"><label>Fecha Nac.</label><input type="date" value="${fdInput(p.fnac)}" onchange="upd('${id}','fnac',this.value)"></div>
+      <div class="srow"><label>Teléfono</label><input type="text" value="${esc(p.tel||'')}" onchange="upd('${id}','tel',this.value)"></div>
+      <div class="srow"><label>Dirección</label><input type="text" value="${esc(p.dir||'')}" onchange="upd('${id}','dir',this.value)"></div>
+      <div class="srow"><label>Clínica</label>
+        <select onchange="upd('${id}','clinica',this.value)">
+          <option ${p.clinica==='CDU'?'selected':''}>CDU</option>
+          <option ${p.clinica==='Gualeguaychú'?'selected':''}>Gualeguaychú</option>
+        </select></div>
+      <div class="srow"><label>Obra Social</label>
+        <select onchange="upd('${id}','obraSocial',this.value)">
+          <option ${p.obraSocial==='PAMI'?'selected':''}>PAMI</option>
+          <option ${p.obraSocial==='OSER'?'selected':''}>OSER</option>
+          <option ${p.obraSocial==='PARTICULAR'?'selected':''}>PARTICULAR</option>
+        </select></div>
+      <div class="srow"><label>N° Afiliado</label><input type="text" value="${esc(p.afiliado||'')}" onchange="upd('${id}','afiliado',this.value)"></div>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-title">Cirugía</div>
+      <div class="srow"><label>Ojos a operar</label>
+        <select onchange="upd('${id}','ojos',this.value)">
+          <option ${p.ojos==='1 ojo'?'selected':''}>1 ojo</option>
+          <option ${p.ojos==='2 ojos'?'selected':''}>2 ojos</option>
+        </select></div>
+      <div class="srow"><label>Ojo</label>
+        <select onchange="upd('${id}','ojo',this.value)">
+          <option ${p.ojo==='OD'?'selected':''}>OD</option>
+          <option ${p.ojo==='OI'?'selected':''}>OI</option>
+        </select></div>
+      <div class="srow"><label>LIO / Aumento</label><input type="text" value="${esc(getLio(p)||'')}" onchange="upd('${id}','lio',this.value)"></div>
+      <div class="srow"><label>Prequirúrgicos</label>
+        <select onchange="upd('${id}','pre',this.value)">
+          <option value="" ${!p.pre?'selected':''}>—</option>
+          <option ${p.pre==='OK'?'selected':''}>OK</option>
+          <option ${p.pre==='Pendiente'?'selected':''}>Pendiente</option>
+        </select></div>
+      <div class="srow"><label>Autorización</label><input type="text" value="${esc(p.autorizacion||'')}" placeholder="Nro. autorización" onchange="upd('${id}','autorizacion',this.value)"></div>
+      <div class="srow"><label>Mejora de lente</label><input type="text" value="${esc(p.mejoraLente||'')}" onchange="upd('${id}','mejoraLente',this.value)"></div>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-title">Lente y Fechas</div>
+      <div class="srow"><label>📋 Sol. lente</label><input type="date" value="${fdInput(p.fechaSolLente)}" onchange="upd('${id}','fechaSolLente',this.value)"></div>
+      <div class="srow"><label>📦 Llegada lente</label><input type="date" value="${fdInput(p.fechaLlegaLente)}" onchange="upd('${id}','fechaLlegaLente',this.value)"></div>
+      <div class="srow"><label>Estado lente</label>
+        <select onchange="upd('${id}','estadoLente',this.value)">
+          <option value="" ${!p.estadoLente?'selected':''}>—</option>
+          <option ${p.estadoLente==='Llegó'?'selected':''}>Llegó</option>
+          <option ${p.estadoLente==='En camino'?'selected':''}>En camino</option>
+          <option ${p.estadoLente==='No pedida'?'selected':''}>No pedida</option>
+        </select></div>
+      <div class="srow"><label>Recepción lente</label>
+        <select onchange="upd('${id}','recepLente',this.value)">
+          <option value="" ${!p.recepLente?'selected':''}>—</option>
+          <option ${p.recepLente==='Correcta'?'selected':''}>Correcta</option>
+          <option ${p.recepLente==='Devolver'?'selected':''}>Devolver</option>
+        </select></div>
+      <div class="srow"><label>📅 Fecha cirugía</label><input type="date" value="${fdInput(p.fechaCir)}" onchange="upd('${id}','fechaCir',this.value)"></div>
+      <div class="srow"><label>🕒 Hora</label><input type="time" value="${p.hora||''}" onchange="upd('${id}','hora',this.value)"></div>
+      <div class="srow"><label>Estado cirugía</label>
+        <select onchange="upd('${id}','estadoCir',this.value)">
+          <option value="" ${!p.estadoCir?'selected':''}>—</option>
+          <option ${p.estadoCir==='Programada'?'selected':''}>Programada</option>
+          <option ${p.estadoCir==='Realizada'?'selected':''}>Realizada</option>
+        </select></div>
+      <div class="srow"><label>💰 Facturación</label>
+        <select onchange="upd('${id}','estadoFac',this.value)">
+          <option value="" ${!p.estadoFac?'selected':''}>—</option>
+          <option value="Realizada" ${p.estadoFac==='Realizada'?'selected':''}>Realizada</option>
+          <option value="FACTURADA" ${p.estadoFac==='FACTURADA'?'selected':''}>FACTURADA</option>
+        </select></div>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-title">Observaciones</div>
+      <div class="srow"><textarea rows="3" style="flex:1;padding:6px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-family:inherit;font-size:12px;resize:vertical" onchange="upd('${id}','notas',this.value)">${esc(p.notas||'')}</textarea></div>
+    </div>`;
+
+  document.getElementById('sideFoot').innerHTML = `
+    <button class="btn orange sm" onclick="duplicarPaciente('${id}')" title="Crea copia para el otro ojo">⧉ Duplicar ojo</button>
+    <button class="btn sm" onclick="marcarLenteLlegoHoy('${id}')">📦 Lente llegó</button>
+    <button class="btn sm" onclick="marcarFacturada('${id}')">💰 Facturada</button>
+    <button class="btn red sm" onclick="eliminar('${id}')" style="margin-left:auto">🗑 Eliminar</button>`;
+
+  document.getElementById('sidePanel').classList.add('open');
+  document.getElementById('sideOverlay').style.display = 'block';
+}
+
+function closeSide() {
+  document.getElementById('sidePanel').classList.remove('open');
+  document.getElementById('sideOverlay').style.display = 'none';
+  selId = null;
+  render();
+}
+
+// ── upd ──────────────────────────────────────────────────────────
+function upd(id, field, val) {
+  const p = findById(id);
+  if (!p) return;
+  p[field] = val;
+  save(p);
+  renderTabla();
+  renderKpis();
+  // Actualizar estado en panel abierto sin cerrarlo
+  const ec = document.querySelector('.estado-calc');
+  if (ec) {
+    const e   = estado(p);
+    const bcl = bc(e);
+    const bgMap={b0:'#fee2e2',b1:'#ffedd5',b2:'#fef9c3',b3:'#dbeafe',b4:'#ede9fe',b5:'#d1fae5',b6:'#dcfce7',b7:'#bbf7d0',b8:'#fce7f3',b9:'#fef3c7'};
+    const txMap={b0:'#991b1b',b1:'#9a3412',b2:'#854d0e',b3:'#1e40af',b4:'#5b21b6',b5:'#065f46',b6:'#14532d',b7:'#14532d',b8:'#9d174d',b9:'#78350f'};
+    ec.style.background = bgMap[bcl]||'#f1f5f9';
+    ec.style.color      = txMap[bcl]||'#374151';
+    ec.textContent      = e;
+  }
+  toast('✓ Guardado');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ACCIONES RÁPIDAS
+// ═══════════════════════════════════════════════════════════════════
+function marcarSolLenteHoy(id)    { const p=findById(id); if(p){p.fechaSolLente=hoyISO(); upd(id,'fechaSolLente',hoyISO());} }
+function marcarLenteLlegoHoy(id)  { const p=findById(id); if(p){p.fechaLlegaLente=hoyISO(); upd(id,'fechaLlegaLente',hoyISO());} }
+function marcarCirugiaRealizada(id){ const p=findById(id); if(p){p.estadoCir='Realizada'; upd(id,'estadoCir','Realizada');} }
+function marcarFacturada(id)      { const p=findById(id); if(p){p.estadoFac='FACTURADA'; upd(id,'estadoFac','FACTURADA');} }
+function programarCirugia(id) {
+  const d = prompt('Fecha de cirugía (YYYY-MM-DD):', hoyISO());
+  if (d) { const p=findById(id); if(p){p.fechaCir=d; upd(id,'fechaCir',d);} }
+}
+
+function duplicarPaciente(id) {
+  const orig = findById(id);
+  if (!orig) return;
+  const copia = { ...orig };
+  copia.id         = String(DB.nid++);
+  copia.ojo        = orig.ojo==='OD' ? 'OI' : 'OD';
+  copia.ojos       = '2 ojos';
+  copia.fechaSolLente = '';
+  copia.fechaLlegaLente = '';
+  copia.recepLente = '';
+  copia.estadoLente = '';
+  copia.fechaCir   = '';
+  copia.estadoCir  = '';
+  copia.estadoFac  = '';
+  copia.notas      = `Copia de ${orig.nombre} — ${orig.ojo} → ${copia.ojo}`;
+  copia.createdAt  = new Date().toISOString();
+  DB.rows.push(copia);
+  save(copia);
+  render();
+  closeSide();
+  setTimeout(() => openSide(copia.id), 120);
+  toast(`✓ Duplicado → ${copia.ojo}`);
+}
+
+function nuevoModal() {
+  const nid = String(DB.nid++);
+  DB.rows.push({
+    id: nid, clinica:'CDU', nombre:'', dni:'', fnac:'', tel:'', dir:'',
+    obraSocial:'PAMI', afiliado:'', ojos:'1 ojo', ojo:'OD',
+    lio:'', pre:'', autorizacion:'', mejoraLente:'',
+    fechaSolLente:'', fechaLlegaLente:'', estadoLente:'', recepLente:'',
+    fechaCir:'', hora:'', estadoCir:'', estadoFac:'',
+    notas:'', fechaCarga: hoyISO(),
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+  });
+  save();
+  render();
+  openSide(nid);
+  toast('Nuevo paciente — completá los datos');
+}
+
+function eliminar(id) {
+  if (!confirm('¿Eliminar este paciente?')) return;
+  DB.rows = filterOutId(id);
+  deleteFromServer(id);
+  save(null);
+  closeSide();
+  render();
+  toast('Paciente eliminado');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PANEL DE ALERTAS
+// ═══════════════════════════════════════════════════════════════════
+function renderAlertasPanel() {
+  const todas = [];
+  DB.rows.forEach(p => {
+    alertas(p).forEach(a => todas.push({ p, a }));
+  });
+  todas.sort((a,b) => (a.a.severity==='red'?0:1) - (b.a.severity==='red'?0:1));
+
+  if (!todas.length) {
+    document.getElementById('alertasPanelContent').innerHTML = `
+      <div style="text-align:center;padding:60px;color:#059669;font-size:16px;font-weight:700">
+        ✅ Sin alertas activas
+      </div>`;
+    return;
+  }
+
+  document.getElementById('alertasPanelContent').innerHTML = `
+    <div style="margin:8px 0;font-size:13px;font-weight:600;color:#374151">${todas.length} alerta(s) activa(s)</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Paciente</th><th>DNI</th><th>Clínica</th><th>Estado</th><th>Alerta</th><th>Acción</th>
+        </tr></thead>
+        <tbody>
+          ${todas.map(({p,a}) => `
+            <tr onclick="openSide('${p.id}')" style="cursor:pointer">
+              <td><strong>${esc(p.nombre)||'—'}</strong></td>
+              <td style="color:#6b7280">${esc(p.dni)||'—'}</td>
+              <td><span class="${clinicaClass(p.clinica)}">${p.clinica||'—'}</span></td>
+              <td><span class="badge ${bc(estado(p))}">${estado(p)}</span></td>
+              <td class="sev-${a.severity}" style="font-weight:600">${a.msg}</td>
+              <td onclick="event.stopPropagation()">
+                <button class="btn sm" onclick="silenciarAlerta('${a.key}')">Silenciar</button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PANEL DE ESTADÍSTICAS
+// ═══════════════════════════════════════════════════════════════════
+function renderStatsPanel() {
+  const rows = DB.rows;
+  const total = rows.length;
+  if (!total) { document.getElementById('statsPanelContent').innerHTML = '<div class="empty">Sin datos</div>'; return; }
+
+  const byObraSocial = {};
+  const byClinica    = {};
+  const byEstado     = {};
+  const byMes        = {};
+
+  rows.forEach(p => {
+    const os  = p.obraSocial||'—';
+    const cl  = p.clinica||'—';
+    const st  = estado(p);
+    const mes = (p.fechaCir||p.fechaCarga||'').slice(0,7)||'Sin fecha';
+    byObraSocial[os] = (byObraSocial[os]||0) + 1;
+    byClinica[cl]    = (byClinica[cl]||0) + 1;
+    byEstado[st]     = (byEstado[st]||0) + 1;
+    byMes[mes]       = (byMes[mes]||0) + 1;
+  });
+
+  function tabla(obj, titulo) {
+    const entries = Object.entries(obj).sort((a,b)=>b[1]-a[1]);
+    return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;flex:1;min-width:200px">
+      <div style="font-weight:700;font-size:13px;margin-bottom:8px">${titulo}</div>
+      ${entries.map(([k,v])=>`
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9;font-size:12px">
+          <span>${k}</span><strong>${v}</strong>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('statsPanelContent').innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0">
+      ${tabla(byObraSocial,'Por obra social')}
+      ${tabla(byClinica,'Por clínica')}
+      ${tabla(byEstado,'Por estado actual')}
+      ${tabla(byMes,'Por mes (cirugía)')}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════════════
+function setTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tablink').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('vistaTabla').style.display   = tab==='tabla'   ? '' : 'none';
+  document.getElementById('vistaAlertas').style.display = tab==='alertas' ? '' : 'none';
+  document.getElementById('vistaStats').style.display   = tab==='stats'   ? '' : 'none';
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════════════
+function exportarExcel() {
+  const rows = filtered();
+  const hdrs = ['ID','DNI','Nombre','F.Nac','Tel','Dirección','Obra Social','Afiliado','Ojos','Ojo','LIO','Prequir.','Autorización','Sol.Lente','Llegada Lente','F.Cirugía','Est.Cirugía','Facturación','Estado','Notas'];
+  const data = rows.map(p => [p.id,p.dni,p.nombre,p.fnac,p.tel,p.dir,p.obraSocial,p.afiliado,p.ojos,p.ojo,getLio(p),p.pre,p.autorizacion,p.fechaSolLente,p.fechaLlegaLente,p.fechaCir,p.estadoCir,p.estadoFac,estado(p),p.notas]);
+  const html = `<html><head><meta charset="utf-8"></head><body><table><thead><tr>${hdrs.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${data.map(r=>`<tr>${r.map(v=>`<td>${String(v??'')}</td>`).join('')}</tr>`).join('')}</tbody></table></body></html>`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html],{type:'application/vnd.ms-excel'}));
+  a.download = `cirugias_${hoyISO()}.xls`;
+  a.click();
+  toast(`✓ Excel exportado (${rows.length} registros)`);
+}
+
+function downloadExcelListos() {
+  const listos = DB.rows.filter(p => estado(p)==='LISTO PARA PEDIR LENTE');
+  if (!listos.length) { toast('No hay pacientes listos'); return; }
+  const hdrs = ['Clínica','Nombre','DNI','Obra Social','Afiliado','Ojo','LIO'];
+  const data  = listos.map(p => [p.clinica,p.nombre,p.dni,p.obraSocial,p.afiliado,p.ojo,getLio(p)]);
+  const html = `<html><head><meta charset="utf-8"></head><body><table><thead><tr>${hdrs.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${data.map(r=>`<tr>${r.map(v=>`<td>${v??''}</td>`).join('')}</tr>`).join('')}</tbody></table></body></html>`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html],{type:'application/vnd.ms-excel'}));
+  a.download = `listos_lente_${hoyISO()}.xls`;
+  a.click();
+  closeModal('exportModal');
+  toast('✓ Excel descargado');
+}
+
+function exportarBackupJSON() {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `cx_backup_${hoyISO()}.json`;
+  a.click();
+  toast('✓ Backup descargado');
+}
+
+function importarBackupJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      const rows = Array.isArray(data) ? data : (data.rows||[]);
+      if (!rows.length) { toast('JSON vacío o inválido'); return; }
+      if (!confirm(`¿Importar ${rows.length} registros? Esto AGREGA registros al sistema (no borra los existentes).`)) return;
+      for (const r of rows) {
+        r.id = String(r.id || Date.now());
+        if (!DB.rows.some(x => sameId(x.id, r.id))) DB.rows.push(r);
+      }
+      await save(null);
+      render();
+      toast(`✓ ${rows.length} registros importados`);
+    } catch(err) {
+      toast('⚠ Error al leer el archivo JSON');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MODALES
+// ═══════════════════════════════════════════════════════════════════
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════════════════════
+// UTILIDADES
+// ═══════════════════════════════════════════════════════════════════
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+(async function() {
+  // Esperar módulo Firebase (fix condición de carrera)
+  if (!window.firestoreConnector) {
+    await new Promise(res => {
+      const t = setTimeout(() => { console.warn('Firebase timeout → modo offline'); res(); }, 5000);
+      window.addEventListener('firestoreReady', () => { clearTimeout(t); res(); }, { once: true });
+    });
+  }
+  await loadFromServer();
+  normalizarData();
+  render();
+
+  // Restaurar filtros guardados
+  const sf = JSON.parse(localStorage.getItem('cx_filters')||'{}');
+  if (sf.fCli) document.getElementById('fCli').value = sf.fCli;
+  if (sf.fOS)  document.getElementById('fOS').value  = sf.fOS;
+  // Guardar filtros al cambiarlos
+  ['fCli','fOS'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', () => {
+      localStorage.setItem('cx_filters', JSON.stringify({
+        fCli: document.getElementById('fCli').value,
+        fOS:  document.getElementById('fOS').value,
+      }));
+    });
+  });
+})();
+</script>
+</body>
+</html>

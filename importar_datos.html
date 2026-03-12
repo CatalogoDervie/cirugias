@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Importar Datos — Control de Cirugías</title>
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#f4f6f9;color:#1a2332;max-width:900px;margin:40px auto;padding:0 20px}
+h1{color:#1B4F8A;margin-bottom:4px}
+.card{background:#fff;border-radius:12px;padding:24px;margin:16px 0;box-shadow:0 2px 8px #0f172a10;border:1px solid #e2e8f0}
+.btn{padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;margin:4px 0}
+.btn-primary{background:#1B4F8A;color:#fff}.btn-danger{background:#dc2626;color:#fff}.btn-sec{background:#e2e8f0;color:#1a2332}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input[type=file]{display:block;border:2px dashed #d1d5db;padding:18px;border-radius:8px;width:100%;cursor:pointer;margin:8px 0}
+#log{background:#1e293b;color:#86efac;padding:16px;border-radius:8px;font-family:monospace;font-size:12px;height:280px;overflow-y:auto;white-space:pre-wrap}
+progress{width:100%;height:14px;border-radius:7px;margin:8px 0}
+.warn{background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px;color:#c2410c;font-size:13px;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+th{background:#1B4F8A;color:#fff;padding:7px 10px;text-align:left}
+td{padding:7px 10px;border-bottom:1px solid #f1f5f9}
+tr:nth-child(even){background:#f8fafc}
+.step{display:flex;gap:10px;margin:10px 0;align-items:flex-start}
+.step-n{background:#1B4F8A;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:13px}
+</style>
+</head>
+<body>
+<h1>📦 Importar datos a Firestore</h1>
+<p style="color:#64748b">Herramienta de importación masiva. Podés importar desde un JSON exportado de la app o desde el archivo Excel original.</p>
+
+<div class="card">
+  <h3>Opción A — Desde JSON exportado por la app</h3>
+  <div class="step"><div class="step-n">1</div><div>En la app principal, usá el botón <strong>💾 Backup</strong> para descargar el JSON</div></div>
+  <div class="step"><div class="step-n">2</div><div>Cargá el archivo acá abajo</div></div>
+  <input type="file" id="fileJSON" accept=".json">
+  <div id="jsonInfo" style="font-size:13px;color:#64748b;margin:4px 0"></div>
+  <button class="btn btn-primary" id="btnImportJSON" disabled onclick="importarJSON()">📤 Importar JSON a Firestore</button>
+</div>
+
+<div class="card">
+  <h3>Estado de Firestore</h3>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-sec" onclick="contarFirestore()">🔍 Ver cuántos registros hay</button>
+    <button class="btn btn-danger" onclick="limpiarFirestore()">🗑 Limpiar TODO Firestore</button>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Log de operaciones</h3>
+  <progress id="prog" value="0" max="100" style="display:none"></progress>
+  <div id="log">Listo.\n</div>
+</div>
+
+<div class="card">
+  <h3>Vista previa (primeros 5 registros cargados)</h3>
+  <div id="preview" style="overflow-x:auto"><p style="color:#94a3b8">Cargá un archivo para ver la vista previa</p></div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
+import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
+
+const cfg = {
+  apiKey: 'AIzaSyDf49KWGdZp1C3t42LSopS_VuNiaabFZQw',
+  authDomain: 'control-cirugias-c9c71.firebaseapp.com',
+  projectId: 'control-cirugias-c9c71',
+  storageBucket: 'control-cirugias-c9c71.firebasestorage.app',
+  messagingSenderId: '714322418539',
+  appId: '1:714322418539:web:523a8e5ad295d277b20a2e'
+};
+
+const app = initializeApp(cfg);
+const db  = getFirestore(app);
+const col = collection(db, 'cirugias');
+
+let parsedRows = [];
+const logEl = document.getElementById('log');
+const prog  = document.getElementById('prog');
+
+function log(msg) { logEl.textContent += msg + '\n'; logEl.scrollTop = logEl.scrollHeight; }
+
+function sanitize(row) {
+  const out = { ...row };
+  const now = new Date().toISOString();
+  out.id = String(out.id || Date.now());
+  if (!out.createdAt) out.createdAt = now;
+  out.updatedAt = now;
+  for (const k of Object.keys(out)) if (out[k] === undefined) out[k] = null;
+  return out;
+}
+
+document.getElementById('fileJSON').onchange = async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('jsonInfo').textContent = `📄 ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+  const text = await file.text();
+  const data = JSON.parse(text);
+  parsedRows = Array.isArray(data) ? data : (data.rows || []);
+  log(`✓ JSON cargado: ${parsedRows.length} registros`);
+  document.getElementById('btnImportJSON').disabled = parsedRows.length === 0;
+  // Vista previa
+  const sample = parsedRows.slice(0,5);
+  const keys = ['id','nombre','dni','obraSocial','ojo','lio','fechaCir','estadoCir','estadoFac'];
+  document.getElementById('preview').innerHTML = `
+    <table><thead><tr>${keys.map(k=>`<th>${k}</th>`).join('')}</tr></thead>
+    <tbody>${sample.map(r=>`<tr>${keys.map(k=>`<td>${r[k]??'—'}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table><p style="color:#64748b;font-size:12px">Mostrando ${sample.length} de ${parsedRows.length}</p>`;
+};
+
+window.importarJSON = async () => {
+  if (!parsedRows.length) return;
+  if (!confirm(`¿Importar ${parsedRows.length} registros a Firestore?`)) return;
+  prog.style.display = 'block'; prog.value = 0;
+  let ok = 0, err = 0;
+  log(`\n─── Importando ${parsedRows.length} registros ───`);
+  const CHUNK = 20;
+  for (let i = 0; i < parsedRows.length; i += CHUNK) {
+    const batch = parsedRows.slice(i, i+CHUNK);
+    try {
+      await Promise.all(batch.map(row => {
+        const s = sanitize(row);
+        return setDoc(doc(col, s.id), { ...s, _srv: serverTimestamp() }, { merge: true });
+      }));
+      ok += batch.length;
+    } catch(e) {
+      err += batch.length;
+      log(`✗ Error lote ${i}: ${e.message}`);
+    }
+    prog.value = Math.round(((i+CHUNK)/parsedRows.length)*100);
+    log(`  ${Math.min(i+CHUNK, parsedRows.length)} / ${parsedRows.length}`);
+    await new Promise(r => setTimeout(r, 80));
+  }
+  prog.value = 100;
+  log(`\n✅ Listo: ${ok} OK, ${err} errores`);
+};
+
+window.contarFirestore = async () => {
+  log('\n─── Contando registros en Firestore ───');
+  const snap = await getDocs(col);
+  log(`✓ ${snap.docs.length} documentos en la colección 'cirugias'`);
+};
+
+window.limpiarFirestore = async () => {
+  if (!confirm('⚠ ¿Eliminar TODOS los documentos de Firestore? No se puede deshacer.')) return;
+  const snap = await getDocs(col);
+  let n = 0;
+  const CHUNK = 20;
+  const docs = snap.docs;
+  for (let i = 0; i < docs.length; i += CHUNK) {
+    await Promise.all(docs.slice(i,i+CHUNK).map(d => deleteDoc(d.ref)));
+    n += Math.min(CHUNK, docs.length-i);
+    log(`  Eliminados ${n}/${docs.length}...`);
+  }
+  log(`✅ Firestore limpiado (${docs.length} documentos)`);
+};
+
+log('Firebase conectado. Listo para importar.');
+</script>
+</body>
+</html>
