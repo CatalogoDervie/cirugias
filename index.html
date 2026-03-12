@@ -254,51 +254,6 @@ td.editing input,td.editing select{width:100%;height:34px;padding:0 8px;border:n
 
 @media(max-width:960px){.actionbar{padding:8px}.header-sep{display:none}.filterbar{gap:7px;top:var(--header-h)}.filterbar input[type='text']{width:100%}.more-menu-list{left:0;right:auto}}
 @media(max-width:640px){.side{width:100%}.tabrow{gap:6px}.tablink{padding:7px 11px}.tablewrap{margin:8px 0}}
-
-/* ── PANEL TRABAJO DEL DÍA ─────────────────── */
-.wdp-block{cursor:pointer;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;transition:all .15s;box-shadow:0 1px 4px #0f172a0a;border:1.5px solid transparent}
-.wdp-block:hover{transform:translateY(-2px);box-shadow:0 6px 18px #0f172a18}
-.wdp-block .wdp-n{font-size:26px;font-weight:800;line-height:1}
-.wdp-block .wdp-l{font-size:11px;color:#6b7280;font-weight:600;margin-top:2px}
-.wdp-icon{font-size:26px}
-
-/* ── COLUMNA PRÓXIMA ACCIÓN ─────────────────── */
-.pa-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
-
-/* ── ALERTAS PANEL MEJORADO ─────────────────── */
-.alerts-filters{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px;background:#f8fafc;border-bottom:1px solid #e2e8f0}
-.af-btn{padding:3px 10px;font-size:10px;font-weight:700;border-radius:20px;border:1.5px solid #d1d9e6;background:#fff;color:#64748b;cursor:pointer;font-family:inherit;transition:all .12s}
-.af-btn:hover,.af-btn.active{background:#1B4F8A;color:#fff;border-color:#1B4F8A}
-.alert-row{display:grid;grid-template-columns:1fr auto auto 44px;gap:6px;align-items:center;padding:9px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .1s}
-.alert-row:hover{background:#f8fafc}
-.alert-row .ar-sev{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.alert-row .ar-name{font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.alert-row .ar-action{font-size:10px;color:#7c3aed;font-weight:600;background:#f5f3ff;padding:2px 7px;border-radius:10px;white-space:nowrap}
-.alert-row .ar-sil-btn{background:none;border:none;cursor:pointer;font-size:10px;color:#9ca3af;padding:2px 4px;border-radius:4px;font-family:inherit}
-.alert-row .ar-sil-btn:hover{background:#fee2e2;color:#dc2626}
-
-/* ── SIDE PANEL ACCIONES RÁPIDAS ─────────────── */
-.quick-actions-bar{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 14px;background:#f0f7ff;border-bottom:1px solid #dbeafe}
-.qa-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 10px;border-radius:8px;border:1.5px solid #93c5fd;background:#fff;color:#1d4ed8;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .13s}
-.qa-btn:hover{background:#1B4F8A;color:#fff;border-color:#1B4F8A}
-.qa-btn.green{border-color:#a7f3d0;color:#047857}
-.qa-btn.green:hover{background:#047857;color:#fff;border-color:#047857}
-.qa-btn.orange{border-color:#fed7aa;color:#c2410c}
-.qa-btn.orange:hover{background:#c2410c;color:#fff;border-color:#c2410c}
-.qa-btn.red{border-color:#fecaca;color:#dc2626}
-.qa-btn.red:hover{background:#dc2626;color:#fff;border-color:#dc2626}
-.qa-btn.violet{border-color:#ddd6fe;color:#7c3aed}
-.qa-btn.violet:hover{background:#7c3aed;color:#fff;border-color:#7c3aed}
-
-/* ── VALIDACIONES INLINE ─────────────────────── */
-.val-warning{display:flex;align-items:flex-start;gap:6px;background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;font-size:11px;color:#92400e;margin:6px 14px;font-weight:500}
-.val-error{display:flex;align-items:flex-start;gap:6px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 12px;font-size:11px;color:#b91c1c;margin:6px 14px;font-weight:600}
-
-/* ── FILA CON ALERTA CRÍTICA ─────────────────── */
-tr.row-crit td:first-child{border-left:3px solid #dc2626}
-tr.row-warn td:first-child{border-left:3px solid #f59e0b}
-tr.row-ok td:first-child{border-left:3px solid #10b981}
-
 </style>
 </head>
 <body>
@@ -309,7 +264,7 @@ tr.row-ok td:first-child{border-left:3px solid #10b981}
     <header>
       <div class="brandbar">
         <div class="logo">Centro de Ojos Esteves <small>Gestión de Cirugías</small></div>
-        <div class="status-pill"><span class="status-dot"></span> <span>Listo</span> <span id="syncBadge"></span> <span id="connectorBadge" class="connector-badge off" onclick="probarConexion()" title="Clic para probar conexión" style="cursor:pointer">⚫ Conector: no detectado</span></div>
+        <div class="status-pill"><span class="status-dot"></span> <span>Listo</span> <span id="syncBadge"></span> <span id="connectorBadge" class="connector-badge off">Conector: no detectado</span></div>
       </div>
       <div class="actionbar">
         <button class="btn primary" aria-label="Nuevo paciente" onclick="nuevoModal()">+ Nuevo Paciente</button>
@@ -359,11 +314,8 @@ tr.row-ok td:first-child{border-left:3px solid #10b981}
         <button class="qf-btn active" onclick="setQuickFilter('TODOS', this)">TODOS</button>
         <button class="qf-btn" onclick="setQuickFilter('PROGRAMADAS', this)">PROGRAMADAS</button>
         <button class="qf-btn" onclick="setQuickFilter('LENTE PEDIDA', this)">LENTE PEDIDA</button>
-        <button class="qf-btn" onclick="setQuickFilter('LENTE LLEGO', this)">LENTE LLEGÓ</button>
         <button class="qf-btn" onclick="setQuickFilter('REALIZADAS', this)">REALIZADAS</button>
         <button class="qf-btn" onclick="setQuickFilter('FACTURADAS', this)">FACTURADAS</button>
-        <button class="qf-btn" onclick="setQuickFilter('SIN FACTURAR', this)">SIN FACTURAR</button>
-        <button class="qf-btn" onclick="setQuickFilter('CON ALERTAS', this)">⚠ CON ALERTAS</button>
       </div>
       <select id="fOS" onchange="render()">
         <option value="">Todas las obras sociales</option>
@@ -498,23 +450,13 @@ tr.row-ok td:first-child{border-left:3px solid #10b981}
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import {
-  db,
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  serverTimestamp
-} from "./firebase.js";
-
+<script type="module" src="./firebase.js"></script>
+<script>
 // ─────────────────────────────────────────────
 // CONFIG — pegá tu URL de Apps Script aquí
 // ─────────────────────────────────────────────
-let APPS_SCRIPT_URL = '';
-let unsubscribeFirestore = null;
+let APPS_SCRIPT_URL = ''; // Legacy (Apps Script desactivado)
+let FIRESTORE_UNSUB = null;
 
 // ─────────────────────────────────────────────
 // DATA LAYER (online + localStorage cache)
@@ -601,143 +543,90 @@ function getPamiLentessCreds(){
   try{return JSON.parse(localStorage.getItem(LENTESS_CREDS_KEY)||'{}')||{};}catch(e){return {};}
 }
 
-// ─── CONECTOR LOCAL ───────────────────────────────────────────────
 const CONNECTOR_BASE='http://127.0.0.1:8765';
 let CONNECTOR_STATUS='off';
 let CONNECTOR_HEALTH_TIMER=null;
-
-const _BADGE_CFG={
-  ok:  {cls:'ok',  icon:'🟢', label:'Conector: activo'},
-  off: {cls:'off', icon:'⚫', label:'Conector: no detectado'},
-  run: {cls:'run', icon:'🟠', label:'Conector: ejecutando...'},
-  err: {cls:'err', icon:'🔴', label:'Conector: error'},
-};
 function setConnectorBadge(state,msg){
   CONNECTOR_STATUS=state;
   const el=document.getElementById('connectorBadge');
   if(!el) return;
-  const cfg=_BADGE_CFG[state]||_BADGE_CFG.off;
-  el.className=`connector-badge ${cfg.cls}`;
-  el.textContent=`${cfg.icon} ${msg||cfg.label}`;
+  el.className=`connector-badge ${state}`;
+  el.textContent=msg;
 }
-
-// Prueba de conexión manual (botón en el header)
-async function probarConexion(){
-  setConnectorBadge('run','Conector: probando...');
-  const ok=await connectorHealthCheck();
-  if(ok){
-    toast('✅ Conector activo en http://127.0.0.1:8765');
-  } else {
-    toast('❌ Conector no responde — ¿Abriste el Iniciar Conector del Escritorio?');
-    _mostrarAyudaConector();
-  }
-}
-function _mostrarAyudaConector(){
-  const msg=`El conector local NO está corriendo.\n\nPara iniciarlo:\n  1. Buscá el ícono "Iniciar Conector" en tu Escritorio\n  2. Doble clic para abrirlo\n  3. Dejá esa ventana abierta\n  4. Volvé a intentar la automatización`;
-  alert(msg);
-}
-
 async function connectorFetch(path,opts={}){
   const ctrl=new AbortController();
   const tm=setTimeout(()=>ctrl.abort(),opts.timeoutMs||12000);
   try{
-    const res=await fetch(`${CONNECTOR_BASE}${path}`,{
-      ...opts,
-      signal:ctrl.signal,
-      headers:{'Content-Type':'application/json',...(opts.headers||{})},
-    });
+    const res=await fetch(`${CONNECTOR_BASE}${path}`,Object.assign({},opts,{signal:ctrl.signal,headers:Object.assign({'Content-Type':'application/json'},opts.headers||{})}));
     const txt=await res.text();
     let data={};
-    try{ data=txt?JSON.parse(txt):{}; }catch(_){ data={raw:txt||''}; }
+    try{data=txt?JSON.parse(txt):{};}catch(_){data={raw:txt||''};}
     if(!res.ok) throw new Error(data?.detail||data?.error||`HTTP ${res.status}`);
     return data;
-  } catch(e) {
-    // Mejorar mensaje de error para el usuario
-    const msg=String(e?.message||'');
-    if(msg.includes('Failed to fetch')||msg.includes('NetworkError')||msg.includes('abort')){
-      throw new Error('No se pudo conectar con el conector local. ¿Está abierto el Iniciar Conector del Escritorio?');
-    }
-    throw e;
-  } finally {
-    clearTimeout(tm);
-  }
+  }finally{ clearTimeout(tm); }
 }
-
 async function connectorHealthCheck(){
   try{
-    await connectorFetch('/health',{method:'GET',headers:{},timeoutMs:4000});
-    if(CONNECTOR_STATUS!=='run') setConnectorBadge('ok');
+    await connectorFetch('/health',{method:'GET',headers:{},timeoutMs:3500});
+    if(CONNECTOR_STATUS!=='run') setConnectorBadge('ok','Conector: activo');
     return true;
-  } catch(e){
-    if(CONNECTOR_STATUS!=='run') setConnectorBadge('off');
+  }catch(e){
+    if(CONNECTOR_STATUS!=='run') setConnectorBadge('off','Conector: no detectado');
     return false;
   }
 }
-
 async function connectorStartJob(kind,payload){
   const healthy=await connectorHealthCheck();
-  if(!healthy){
-    _mostrarAyudaConector();
-    throw new Error('Conector local no detectado. Abrí el ícono Iniciar Conector del Escritorio e intentá de nuevo.');
-  }
-  setConnectorBadge('run','Conector: iniciando job...');
-  const data=await connectorFetch(`/jobs/${kind}`,{method:'POST',body:JSON.stringify(payload),timeoutMs:15000});
+  if(!healthy) throw new Error('Conector local no detectado. Abrí el conector Windows e intentá nuevamente.');
+  setConnectorBadge('run','Conector: ejecutando automatización');
+  const data=await connectorFetch(`/jobs/${kind}`,{method:'POST',body:JSON.stringify(payload),timeoutMs:12000});
   const jobId=data.job_id||data.id;
-  if(!jobId) throw new Error('El conector no devolvió job_id. Revisá los logs del conector.');
+  if(!jobId) throw new Error('El conector respondió sin job_id.');
   return jobId;
 }
-
 async function connectorPollJob(jobId,onUpdate){
   const started=Date.now();
-  const maxMs=20*60*1000; // 20 min máximo
+  const maxMs=15*60*1000;
   while(Date.now()-started<maxMs){
     const data=await connectorFetch(`/jobs/${encodeURIComponent(jobId)}`,{method:'GET',headers:{},timeoutMs:10000});
     const st=String(data.status||'').toLowerCase();
     if(onUpdate) onUpdate(data);
     if(['completed','ok','done','success'].includes(st)){
-      setConnectorBadge('ok');
+      setConnectorBadge('ok','Conector: activo');
       return data;
     }
     if(['error','failed','cancelled'].includes(st)){
-      setConnectorBadge('err','Conector: terminó con error');
-      const errMsg=data.error||data.detail||'La automatización terminó con error. Revisá los logs.';
-      throw new Error(errMsg);
+      setConnectorBadge('err','Conector: error de ejecución');
+      throw new Error(data.error||data.detail||'La automatización finalizó con error.');
     }
-    // Mostrar estado legible según estado del job
-    const stLabels={queued:'⏳ En cola...',running:'⚙️ Ejecutando (Chrome abierto)...'};
-    if(onUpdate && stLabels[st]){
-      onUpdate({...data, _label: stLabels[st]});
-    }
-    await new Promise(r=>setTimeout(r,2000));
+    await new Promise(r=>setTimeout(r,1700));
   }
-  setConnectorBadge('err','Conector: tiempo agotado');
-  throw new Error('La automatización tardó más de 20 minutos. Revisá Chrome y los logs.');
+  setConnectorBadge('err','Conector: tiempo de espera agotado');
+  throw new Error('Tiempo de espera agotado al consultar el conector.');
 }
-
 function renderJobStatus(containerId,type,msg){
   const el=document.getElementById(containerId); if(!el) return;
-  const colors={ok:'#047857',run:'#c2410c',err:'#b91c1c',off:'#64748b',info:'#1d4ed8',warn:'#b45309'};
+  const colors={ok:'#047857',run:'#c2410c',err:'#b91c1c',off:'#64748b',info:'#1d4ed8'};
   el.style.color=colors[type]||colors.info;
-  el.style.fontWeight='600';
+  el.style.fontWeight='700';
   el.textContent=msg;
 }
 
 const MAIN_TABLE_COLUMNS=[
   {key:'check',label:'',width:'36px',thClass:'th-check',sortable:false},
-  {key:'nombre',label:'#&nbsp; Nombre',width:'14%',sortable:true,sortKey:'nombre'},
-  {key:'dni',label:'DNI',width:'7%',sortable:true,sortKey:'dni'},
-  {key:'clinica',label:'Clínica',width:'5%'},
-  {key:'osocial',label:'O.Social',width:'6%'},
-  {key:'ojo',label:'Ojo',width:'3%'},
-  {key:'dioptria',label:'Dioptría',width:'5%'},
-  {key:'prequirurgicos',label:'Prequirúrgicos',width:'6%'},
-  {key:'solLente',label:'Sol.Lente.',width:'6%',sortable:true,sortKey:'fechaSolLente'},
-  {key:'llego',label:'Llegó.',width:'6%',sortable:true,sortKey:'fechaLlegaLente'},
-  {key:'fechaCir',label:'Fecha.Cir',width:'6%',sortable:true,sortKey:'fechaCir'},
-  {key:'estCir',label:'Est.Cir',width:'6%'},
-  {key:'facturacion',label:'Facturación',width:'7%'},
-  {key:'estadoActual',label:'Estado actual',width:'10%'},
-  {key:'proximaAccion',label:'Próxima acción',width:'auto'},
+  {key:'nombre',label:'#&nbsp; Nombre',width:'16%',sortable:true,sortKey:'nombre'},
+  {key:'dni',label:'DNI',width:'8%',sortable:true,sortKey:'dni'},
+  {key:'clinica',label:'Clínica',width:'7%'},
+  {key:'osocial',label:'O.Social',width:'8%'},
+  {key:'ojo',label:'Ojo',width:'4%'},
+  {key:'dioptria',label:'Dioptría',width:'6%'},
+  {key:'prequirurgicos',label:'Prequirúrgicos',width:'8%'},
+  {key:'solLente',label:'Sol.Lente.',width:'7%',sortable:true,sortKey:'fechaSolLente'},
+  {key:'llego',label:'Llegó.',width:'7%',sortable:true,sortKey:'fechaLlegaLente'},
+  {key:'fechaCir',label:'Fecha.Cir',width:'7%',sortable:true,sortKey:'fechaCir'},
+  {key:'estCir',label:'Est.Cir',width:'7%'},
+  {key:'facturacion',label:'Facturación',width:'10%'},
+  {key:'estadoActual',label:'Estado actual',width:'15%'}
 ];
 
 function renderMainTableHeader(){
@@ -785,105 +674,79 @@ async function idbSet(key,val){const db=await configureIDB(); if(!db) return; aw
 async function idbGet(key){const db=await configureIDB(); if(!db) return null; return await new Promise(r=>{const tx=db.transaction('kv','readonly'); const q=tx.objectStore('kv').get(key); q.onsuccess=()=>r(q.result||null); q.onerror=()=>r(null);});}
 
 
-async function apiCall(action, data = {}) {
+async function apiCall(action, data={}) {
+  // Compatibilidad legacy: Apps Script desactivado
   return null;
+}
+
+async function startFirestoreRealtime(){
+  if(!window.firestoreConnector){
+    throw new Error('Firebase no inicializado. Verificá firebase.js');
+  }
+  if(FIRESTORE_UNSUB){
+    try{FIRESTORE_UNSUB();}catch(e){}
+    FIRESTORE_UNSUB=null;
+  }
+  FIRESTORE_UNSUB = window.firestoreConnector.listenRows((rows)=>{
+    DB.rows = Array.isArray(rows)?rows:[];
+    const ids=DB.rows.map(r=>parseInt(r.id)||0).filter(Boolean);
+    DB.nid=(ids.length?Math.max(...ids):0)+1;
+    normalizarData();
+    localStorage.setItem('cirugias_cache', JSON.stringify(DB));
+    idbSet('cirugias_cache', DB);
+    showSyncBadge('✓ Firestore en línea', 'green');
+    render();
+  }, (err)=>{
+    console.error('Firestore listener error', err);
+    showSyncBadge('⚠ Firestore sin conexión', 'orange');
+  });
 }
 
 async function loadFromServer() {
   const cached = localStorage.getItem('cirugias_cache') || await idbGet('cirugias_cache');
-  if (cached) {
-    DB = typeof cached === 'string' ? JSON.parse(cached) : cached;
-  } else if (!DB.rows || !DB.rows.length) {
-    DB = { rows: seed(), nid: 200 };
+  if (cached) DB = typeof cached==='string'?JSON.parse(cached):cached;
+  else DB = { rows: seed(), nid: 200 };
+
+  showSyncBadge('⟳ Conectando Firestore...');
+  try{
+    if(window.firestoreConnector?.ready) await window.firestoreConnector.ready;
+    await startFirestoreRealtime();
+  }catch(e){
+    console.error(e);
+    showSyncBadge('⚠ Offline (cache local)', 'orange');
   }
-
-  showSyncBadge('⟳ Conectando...');
-
-  if (unsubscribeFirestore) unsubscribeFirestore();
-
-  unsubscribeFirestore = onSnapshot(collection(db, 'cirugias'), async (snapshot) => {
-    const rows = snapshot.docs.map(d => {
-      const data = d.data() || {};
-      return {
-        ...data,
-        docId: d.id,
-        id: parseInt(data.id) || 0
-      };
-    });
-
-    rows.sort((a, b) => (b.id || 0) - (a.id || 0));
-
-    const ids = rows.map(r => r.id).filter(Boolean);
-    const maxId = ids.length ? Math.max(...ids) : 0;
-    DB = { rows, nid: maxId + 1 };
-
-    localStorage.setItem('cirugias_cache', JSON.stringify(DB));
-    await idbSet('cirugias_cache', DB);
-
-    showSyncBadge('✓ En línea', 'green');
-    normalizarData();
-    backupDiario();
-    initUX();
-    render();
-  }, async (error) => {
-    console.error('Firestore sync error:', error);
-    showSyncBadge('⚠ Sin conexión — datos locales', 'orange');
-    const fallback = localStorage.getItem('cirugias_cache') || await idbGet('cirugias_cache');
-    if (fallback) DB = typeof fallback === 'string' ? JSON.parse(fallback) : fallback;
-    normalizarData();
-    initUX();
-    render();
-  });
 }
 
 async function save(changedRow) {
   backupDiario();
   localStorage.setItem('cirugias_cache', JSON.stringify(DB));
-  await idbSet('cirugias_cache', DB);
+  idbSet('cirugias_cache', DB);
 
-  if (!changedRow) return;
-
-  try {
+  if(!window.firestoreConnector) return;
+  try{
     showSyncBadge('⟳ Guardando...');
-
-    const payload = JSON.parse(JSON.stringify(changedRow));
-    const docId = payload.docId;
-    delete payload.docId;
-
-    if (!payload.id || parseInt(payload.id) <= 0) {
-      payload.id = DB.nid || ((Math.max(0, ...DB.rows.map(r => parseInt(r.id) || 0))) + 1);
-      changedRow.id = payload.id;
-      DB.nid = payload.id + 1;
+    if(changedRow){
+      await window.firestoreConnector.upsertRow(changedRow);
+    }else{
+      await window.firestoreConnector.replaceAllRows(DB.rows||[]);
     }
-
-    payload.updatedAt = serverTimestamp();
-
-    if (docId) {
-      await updateDoc(doc(db, 'cirugias', docId), payload);
-    } else {
-      payload.createdAt = serverTimestamp();
-      const ref = await addDoc(collection(db, 'cirugias'), payload);
-      changedRow.docId = ref.id;
-    }
-
     showSyncBadge('✓ Guardado', 'green');
-  } catch (err) {
-    console.error('Firestore save error:', err);
-    showSyncBadge('⚠ Error al guardar', 'red');
+  }catch(e){
+    console.error(e);
+    showSyncBadge('⚠ Error Firestore', 'red');
+    toast('Error guardando en Firestore');
   }
 }
 
 async function deleteFromServer(id) {
   localStorage.setItem('cirugias_cache', JSON.stringify(DB));
-  await idbSet('cirugias_cache', DB);
-
-  try {
-    const row = DB.rows.find(r => String(r.id) === String(id));
-    if (row && row.docId) {
-      await deleteDoc(doc(db, 'cirugias', row.docId));
-    }
-  } catch (err) {
-    console.error('Firestore delete error:', err);
+  idbSet('cirugias_cache', DB);
+  if(!window.firestoreConnector) return;
+  try{
+    await window.firestoreConnector.deleteRow(id);
+  }catch(e){
+    console.error(e);
+    showSyncBadge('⚠ Error al eliminar', 'red');
   }
 }
 
@@ -897,12 +760,16 @@ function showSyncBadge(msg, color='blue') {
 }
 
 async function configurarURL() {
-  alert('Este sistema ahora usa Firebase Firestore en tiempo real. Ya no hace falta configurar una URL manual.');
+  toast('Firestore activo. Configuración de Apps Script deshabilitada.');
 }
 
 async function sincronizarAhora() {
   await loadFromServer();
-  toast('✓ Sincronización activa con Firestore');
+  normalizarData();
+  backupDiario();
+  initUX();
+  render();
+  toast('✓ Firestore sincronizado');
 }
 
 // ─────────────────────────────────────────────
@@ -975,53 +842,6 @@ function estado(p){
   if(!p.pre||p.pre!=='OK') return 'FALTA PREQUIRÚRGICO';
   return 'LISTO PARA PEDIR LENTE';
 }
-// ── PRÓXIMA ACCIÓN — columna calculada para la tabla ─────────────────────────
-// Retorna la acción operativa más urgente para la administrativa
-function proximaAccion(p){
-  const st = estado(p);
-  const fac = (p.estadoFac||'').toUpperCase();
-  const als = alertas(p, {raw:true});
-  const hasCrit = als.some(a=>a.severity==='red');
-
-  // Casos de cierre
-  if(st==='FINALIZADO - FACTURADA' && !secondEyeMissing(p)) return {label:'Sin acción', color:'#9ca3af', bg:'#f1f5f9', icon:'✓'};
-  if(st.startsWith('FACTURADA |')) return {label:'Ver segundo ojo', color:'#7c3aed', bg:'#ede9fe', icon:'👁'};
-
-  // Facturación pendiente
-  if(st==='CIRUGÍA REALIZADA - FALTA FACTURAR') return {label:'Facturar', color:'#dc2626', bg:'#fee2e2', icon:'💰'};
-
-  // Cirugía programada sin lente
-  if(st==='FECHA PROGRAMADA' && !p.fechaLlegaLente){
-    const dias = diffDays(new Date(p.fechaCir), toDateOnly(hoyISO()));
-    if(dias !== null && dias <= 7) return {label:'⚠ Reclamar lente URGENTE', color:'#b91c1c', bg:'#fef2f2', icon:'🚨'};
-    return {label:'Reclamar lente', color:'#ea580c', bg:'#ffedd5', icon:'📦'};
-  }
-
-  // Lente llegó, programar cirugía
-  if(st==='LENTE LLEGÓ') return {label:'Programar cirugía', color:'#065f46', bg:'#d1fae5', icon:'📅'};
-
-  // Lente demorada
-  if(st==='LENTE SOLICITADA'){
-    const d = diffDays(toDateOnly(hoyISO()), p.fechaSolLente);
-    if(d !== null && d > 15) return {label:'Reclamar lente', color:'#dc2626', bg:'#fee2e2', icon:'📞'};
-    return {label:'Esperar lente', color:'#1d4ed8', bg:'#dbeafe', icon:'⏳'};
-  }
-
-  // Fecha programada con todo ok
-  if(st==='FECHA PROGRAMADA') return {label:'Confirmar paciente', color:'#065f46', bg:'#d1fae5', icon:'📞'};
-
-  // Listo para pedir
-  if(st==='LISTO PARA PEDIR LENTE') return {label:'Pedir lente', color:'#7c3aed', bg:'#ede9fe', icon:'📋'};
-
-  // Falta completar datos
-  if(st==='FALTA DIOPTRÍA') return {label:'Cargar dioptría', color:'#dc2626', bg:'#fee2e2', icon:'⚠'};
-  if(st==='FALTA PREQUIRÚRGICO') return {label:'Cargar prequirúrgicos', color:'#ea580c', bg:'#ffedd5', icon:'⚠'};
-
-  if(st==='DEVOLVER LENTE') return {label:'Devolver lente', color:'#9d174d', bg:'#fce7f3', icon:'↩'};
-
-  return {label:'Revisar', color:'#6b7280', bg:'#f1f5f9', icon:'?'};
-}
-
 function estadoLabelNorm(v){
   return String(v||'').trim().replace(/\s+/g,' ').toUpperCase();
 }
@@ -1177,11 +997,8 @@ function filtered(){
   if(fo) rows=rows.filter(p=>p.obraSocial===fo);
   if(quickFilter==='PROGRAMADAS') rows=rows.filter(p=>estado(p)==='FECHA PROGRAMADA');
   if(quickFilter==='LENTE PEDIDA') rows=rows.filter(p=>estado(p)==='LENTE SOLICITADA');
-  if(quickFilter==='LENTE LLEGO') rows=rows.filter(p=>estado(p)==='LENTE LLEGÓ');
   if(quickFilter==='REALIZADAS') rows=rows.filter(p=>(p.estadoCir||'').toUpperCase()==='REALIZADA');
   if(quickFilter==='FACTURADAS') rows=rows.filter(p=>['REALIZADA','FACTURADA'].includes((p.estadoFac||'').toUpperCase()));
-  if(quickFilter==='SIN FACTURAR') rows=rows.filter(p=>estado(p)==='CIRUGÍA REALIZADA - FALTA FACTURAR');
-  if(quickFilter==='CON ALERTAS') rows=rows.filter(p=>alertas(p,{raw:true}).length>0);
   rows.sort((a,b)=>{
     const va=a[sortCol]||'',vb=b[sortCol]||'';
     return va<vb?-sortDir:va>vb?sortDir:0;
@@ -1211,12 +1028,7 @@ function clearTopFilters(){
   setQuickFilter('TODOS',first);
 }
 
-function sortBy(col){
-  // Si ya se estaba ordenando por esta columna, invertir. Si es nueva, ascendente.
-  if(sortCol===col){ sortDir=-sortDir; }
-  else { sortCol=col; sortDir=1; }
-  render();
-}
+function sortBy(col){sortCol=col;sortDir=sortCol===col?-sortDir:1;render()}
 
 function updateStickyMetrics(){
   const h=document.querySelector('header');
@@ -1392,33 +1204,14 @@ function toggleAlerts(){document.getElementById('alertsPanel').classList.toggle(
 function renderAlerts(){
   const showSilenced=!!document.getElementById('showSilenced')?.checked;
   const withAlerts=DB.rows.map(p=>({p,alerts:alertas(p,{raw:true})})).filter(x=>x.alerts.length>0);
-  let flat=withAlerts.flatMap(x=>x.alerts.filter(a=>showSilenced || !isSilenced(a)).map(a=>({p:x.p,a})));
-
-  // Aplicar filtro activo
-  if(_alertFilter==='criticas') flat=flat.filter(({a})=>a.severity==='red');
-  else if(_alertFilter!=='TODAS') flat=flat.filter(({a})=>a.type===_alertFilter);
-
-  // Ordenar: críticas primero
-  flat.sort((x,y)=>{
-    const sev={red:0,orange:1,yellow:2,neutral:3};
-    return (sev[x.a.severity]??3)-(sev[y.a.severity]??3);
-  });
-
-  document.getElementById('alertsTitle').textContent=`⚠ ${flat.length} alertas`;
-
-  const sevColor={red:'#dc2626',orange:'#ea580c',yellow:'#a16207',neutral:'#6b7280'};
-  const sevBg={red:'#fef2f2',orange:'#fff7ed',yellow:'#fefce8',neutral:'#f8fafc'};
-
-  document.getElementById('alertsList').innerHTML = flat.length ? flat.map(({p,a})=>`
-    <div class="alert-row" style="background:${sevBg[a.severity]||'#f8fafc'}" onclick="openSide(${p.id})">
-      <div>
-        <div class="ar-name">${p.nombre||'—'} <span style="font-size:10px;color:#9ca3af;font-weight:400">· ${p.clinica}</span></div>
-        <div style="font-size:11px;color:${sevColor[a.severity]||'#6b7280'};font-weight:700;margin-top:2px">${a.msg}</div>
-        <div class="ar-action">${alertActionText(a.type)}</div>
-      </div>
-      <button class="ar-sil-btn" onclick="event.stopPropagation();${isSilenced(a)?`reactivarAlerta('${a.key}')`:`silenciarAlerta('${a.key}')`}" title="${isSilenced(a)?'Reactivar':'Silenciar'}">${isSilenced(a)?'↺':'✕'}</button>
-    </div>`).join('') :
-    '<div style="padding:16px;text-align:center;color:#9ca3af;font-size:12px">Sin alertas en esta categoría ✓</div>';
+  const flat=withAlerts.flatMap(x=>x.alerts.filter(a=>showSilenced || !isSilenced(a)).map(a=>({p:x.p,a})));
+  document.getElementById('alertsTitle').textContent=`⚠ ${flat.length} alertas ${showSilenced?'(incluye silenciadas)':'activas'}`;
+  document.getElementById('alertsList').innerHTML=flat.map(({p,a})=>`<div class="alert-row" onclick="openSide(${p.id})">
+      <div class="ar-name">${p.nombre||'—'}</div>
+      <div class="ar-msg" style="color:${a.severity==='red'?'#dc2626':a.severity==='orange'?'#ea580c':a.severity==='yellow'?'#a16207':'#6b7280'}">${a.msg}</div>
+      <button class="btn" style="padding:3px 7px;font-size:10px" onclick="event.stopPropagation();${isSilenced(a)?`reactivarAlerta('${a.key}')`:`silenciarAlerta('${a.key}')`}">${isSilenced(a)?'Reactivar':'Silenciar'}</button>
+      <span class="ar-cl ${clinicaClass(p.clinica)}">${p.clinica}</span>
+    </div>`).join('');
 }
 
 // ─────────────────────────────────────────────
@@ -1447,12 +1240,7 @@ function renderTabla(){
     const dup=dupIds.has(p.id);
     const rowCells={
       check:`<td class="th-check" data-label="Selección"><div class="cell" style="justify-content:center"><input type="checkbox" class="cbx" ${sel?'checked':''} onchange="rowCheck(event,${p.id})" onclick="event.stopPropagation()"></div></td>`,
-      nombre:(()=>{
-        const rowA=alertas(p,{raw:true});
-        const topA=rowA.find(a=>a.severity==='red')||rowA.find(a=>a.severity==='orange')||rowA[0];
-        const alertDot=topA?`<span title="${topA.msg}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${topA.severity==='red'?'#dc2626':topA.severity==='orange'?'#f97316':'#f59e0b'};margin-left:5px;flex-shrink:0"></span>`:'';
-        return `<td data-label="Nombre"><div class="cell" title="${p.nombre||'—'}"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}${alertDot}</div></td>`;
-      })(),
+      nombre:`<td data-label="Nombre"><div class="cell" title="${p.nombre||'—'}"><span style="color:#9ca3af;margin-right:6px;font-size:10px">${i+1}</span>${p.nombre||'—'}</div></td>`,
       dni:`<td data-label="DNI"><div class="cell" style="color:#6b7280" title="${p.dni||'—'}">${p.dni||'—'}</div></td>`,
       clinica:`<td data-label="Clínica"><div class="cell" title="${p.clinica||'—'}"><span class="${clinicaClass(p.clinica)}">${p.clinica}</span></div></td>`,
       osocial:`<td data-label="O.Social"><div class="cell" title="${p.obraSocial||'—'}">${p.obraSocial||'—'}</div></td>`,
@@ -1464,15 +1252,10 @@ function renderTabla(){
       fechaCir:`<td class="editable" data-label="Fecha.Cir" ondblclick="inlineEditDate(event,${p.id},'fechaCir')" title="Doble clic para editar"><div class="cell" title="${fd(p.fechaCir)}">${fd(p.fechaCir)}</div></td>`,
       estCir:`<td class="editable" data-label="Est.Cir" ondblclick="inlineEditSel(event,${p.id},'estadoCir',['','Realizada','Programada'])" title="Doble clic para editar"><div class="cell">${p.estadoCir?`<span class="badge b6">${p.estadoCir}</span>`:'—'}</div></td>`,
       facturacion:`<td class="editable" data-label="Facturación" ondblclick="inlineEditSel(event,${p.id},'estadoFac',['','Realizada','FACTURADA'])" title="Doble clic para editar"><div class="cell">${p.estadoFac?`<span class="badge b7">${p.estadoFac}</span>`:'—'}</div></td>`,
-      estadoActual:`<td data-label="Estado actual"><div class="cell" title="${e}"><span class="badge ${bc(e)}">${e.length>28?e.substring(0,26)+'…':e}</span></div></td>`,
-      proximaAccion:(()=>{const pa=proximaAccion(p);return `<td data-label="Próxima acción"><div class="cell"><span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;color:${pa.color};background:${pa.bg};white-space:nowrap">${pa.icon} ${pa.label}</span></div></td>`;})()
+      estadoActual:`<td data-label="Estado actual"><div class="cell" title="${e}"><span class="badge ${bc(e)}">${e.length>28?e.substring(0,26)+'…':e}</span></div></td>`
     };
     const tds=MAIN_TABLE_COLUMNS.map(c=>rowCells[c.key]).join('');
-    const rowAlerts=alertas(p,{raw:true});
-    const hasCritRow=rowAlerts.some(a=>a.severity==='red');
-    const hasWarnRow=rowAlerts.some(a=>a.severity==='orange'||a.severity==='yellow');
-    const rowSevCls=hasCritRow?'row-crit':hasWarnRow?'row-warn':(estado(p)==='FINALIZADO - FACTURADA'?'row-ok':'');
-    return `<tr class="${sel?'selected':''} ${dup?'dup-error':''} ${rowSevCls}" onclick="rowClick(event,${p.id})">${tds}</tr>`;
+    return `<tr class="${sel?'selected':''} ${dup?'dup-error':''}" onclick="rowClick(event,${p.id})">${tds}</tr>`;
   }).join('');
   devWarnTableMismatch();
 }
@@ -1566,7 +1349,7 @@ function openSide(id){
       <div class="srow"><label>Fecha Nac.</label><input type="date" value="${fdInput(p.fnac)}" onchange="upd(${id},'fnac',this.value)"></div>
       <div class="srow"><label>Teléfono</label><input type="text" value="${p.tel||''}" onchange="upd(${id},'tel',this.value)"></div>
       <div class="srow"><label>Dirección</label><input type="text" value="${p.dir||''}" onchange="upd(${id},'dir',this.value)"></div>
-      <div class="srow"><label>Clínica</label><select onchange="upd(${id},'clinica',this.value)"><option ${p.clinica==='CDU'?'selected':''}>CDU</option><option value="Gualeguaychú" ${p.clinica==='Gualeguaychú'?'selected':''}>Gualeguaychú</option></select></div>
+      <div class="srow"><label>Clínica</label><select onchange="upd(${id},'clinica',this.value)"><option ${p.clinica==='CDU'?'selected':''}>CDU</option><option ${p.clinica==='Gualeguaychú'?'selected':''}>Gualeguaychu</option></select></div>
       <div class="srow"><label>Obra Social</label><select onchange="upd(${id},'obraSocial',this.value)"><option ${p.obraSocial==='PAMI'?'selected':''}>PAMI</option><option ${p.obraSocial==='OSER'?'selected':''}>OSER</option><option ${p.obraSocial==='PARTICULAR'?'selected':''}>PARTICULAR</option></select></div>
       <div class="srow"><label>N° Afiliado</label><input type="text" value="${p.afiliado||''}" onchange="upd(${id},'afiliado',this.value)"></div>
     </div>
@@ -1631,13 +1414,11 @@ function openSide(id){
     qaHtml+=`<button class="qa-btn violet" onclick="duplicarPaciente(${id})">⧉ Duplicar → ${secondEyeMissing(p)}</button>`;
 
   document.getElementById('sideFoot').innerHTML=`
-    ${valsHtml}
-    ${qaHtml ? `<div class="quick-actions-bar">${qaHtml}</div>` : ''}
-    <div style="padding:10px 12px;display:flex;gap:6px;flex-wrap:wrap">
-      <button class="btn" onclick="usarLente(${id})">📦 Usar lente stock</button>
-      <button class="btn orange" onclick="duplicarPaciente(${id})" title="Crea una copia para el otro ojo">⧉ Duplicar ojo</button>
-      <button class="btn" onclick="eliminar(${id})" style="margin-left:auto;border-color:#fca5a5;color:#dc2626">🗑 Eliminar</button>
-    </div>`;
+    <button class="btn orange" onclick="duplicarPaciente(${id})" title="Crea una copia para el otro ojo">⧉ Duplicar para otro ojo</button>
+    <button class="btn" onclick="usarLente(${id})">📦 Usar lente (stock)</button>
+    <button class="btn" onclick="marcarLenteLlegoHoy(${id})">📦 Lente llegó hoy</button>
+    <button class="btn" onclick="marcarFacturadaHoy(${id})">💰 Facturada hoy</button>
+    <button class="btn" onclick="eliminar(${id})" style="margin-left:auto;border-color:#fca5a5;color:#dc2626">🗑 Eliminar</button>`;
 
   document.getElementById('sidePanel').classList.add('open');
   document.getElementById('sideOverlay').style.display='block';
@@ -1673,7 +1454,7 @@ function upd(id,field,val){
   const ec=document.querySelector('.estado-calc');
   if(ec){ec.style.background=bcMap[bcl]||'#f1f5f9';ec.style.color=tcMap[bcl]||'#374151';ec.textContent=e}
   const ab=document.querySelector('.alertas-box');
-  if(ab) ab.innerHTML=als.map(a=>`<div class="alerta-item" style="cursor:pointer" onclick="silenciarAlerta('${a.key}')">⚠ ${a.msg} <span style='float:right;font-size:10px;color:#9ca3af'>silenciar ✕</span></div>`).join('');
+  if(ab) ab.innerHTML=als.map(a=>`<div class="alerta-item">${a.msg}</div>`).join('');
   toast('✓ Guardado');
 }
 
@@ -1745,7 +1526,7 @@ function renderKanban(){
         return `<div class="kancard" onclick="openSide(${p.id})">
           <div class="kancard-name">${p.nombre||'—'}</div>
           <div class="kancard-meta"><span>${p.ojo||''}</span><span>Dioptría ${getDioptria(p)||'—'}</span><span class="${clinicaClass(p.clinica)}" style="border-radius:4px;padding:1px 5px">${p.clinica}</span></div>
-          ${als.length?`<div class="kancard-alert">⚠ ${als[0].msg||''}</div>`:''}
+          ${als.length?`<div class="kancard-alert">${als[0]}</div>`:''}
         </div>`;
       }).join(''):'<div style="color:#9ca3af;font-size:11px;font-style:italic;padding:4px">Sin pacientes</div>'}</div>
     </div>`;
@@ -1777,486 +1558,52 @@ function getDashboardRows(){
   });
 }
 function setDashFilter(k,v){DASH_FILTERS[k]=v; renderEstadisticas();}
-
-// ── Math helpers ─────────────────────────────────────────────────────────────
-function _mean(a){return a.length?a.reduce((s,x)=>s+x,0)/a.length:null;}
-function _median(a){if(!a.length)return null; const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2;}
-function _std(a){if(a.length<2)return null; const m=_mean(a); return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1));}
-function _pct(a,p){if(!a.length)return null; const s=[...a].sort((x,y)=>x-y),i=(p/100)*(s.length-1),lo=Math.floor(i),hi=Math.ceil(i); return s[lo]+(s[hi]-s[lo])*(i-lo);}
-function _diffDays(a,b){if(!a||!b)return null; const da=new Date(a),db=new Date(b); if(isNaN(da)||isNaN(db))return null; return Math.round((db-da)/86400000);}
-function _edad(fnac){if(!fnac)return null; const d=new Date(fnac); if(isNaN(d))return null; const h=new Date(); let e=h.getFullYear()-d.getFullYear(); if(h.getMonth()<d.getMonth()||(h.getMonth()===d.getMonth()&&h.getDate()<d.getDate()))e--; return e>=0&&e<120?e:null;}
-function _fmt(v,unit='',decimals=1){return v===null||v===undefined?'—':`${typeof v==='number'?v.toFixed(decimals):v}${unit}`;}
-
-// ── Chart.js helper ───────────────────────────────────────────────────────────
-function _mkChart(id,cfg){
-  const el=document.getElementById(id); if(!el)return;
-  if(el._ch){try{el._ch.destroy();}catch(e){}} 
-  el._ch=new Chart(el.getContext('2d'),cfg);
-}
-
-// ── UI helpers ────────────────────────────────────────────────────────────────
-const _C={blue:'#1B4F8A',teal:'#0d9488',purple:'#7c3aed',green:'#059669',orange:'#f59e0b',red:'#ef4444',pink:'#ec4899',slate:'#64748b',indigo:'#4f46e5'};
-
-function _kpi(icon,val,label,sub,color='#1B4F8A',bg='#f8fafc'){
-  return `<div style="background:${bg};border:1px solid #e2e8f0;border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 4px #0f172a0a">
-    <div style="font-size:10px;color:#94a3b8;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:4px">${icon}&nbsp;${label.toUpperCase()}</div>
-    <div style="font-size:30px;font-weight:800;color:${color};line-height:1;letter-spacing:-1px">${val}</div>
-    ${sub?`<div style="font-size:11px;color:#94a3b8">${sub}</div>`:''}
-  </div>`;
-}
-function _sec(t){return `<div style="display:flex;align-items:center;gap:10px;margin:24px 0 12px"><div style="width:4px;height:20px;background:${_C.blue};border-radius:2px"></div><div style="font-size:14px;font-weight:800;color:#1e293b">${t}</div></div>`;}
-function _card(t,body,cols=''){return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;box-shadow:0 1px 4px #0f172a0a;${cols}"><div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:12px">${t}</div>${body}</div>`;}
-function _chartCard(t,id,h=220){return _card(t,`<canvas id="${id}" height="${h}"></canvas>`);}
-function _srow(label,val,color='#1e293b'){return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px"><span style="color:#64748b">${label}</span><span style="font-weight:700;color:${color}">${val}</span></div>`;}
-function _hbar(label,val,max,color,pct){
-  const w=max?Math.round((val/max)*100):0;
-  return `<div style="display:flex;align-items:center;gap:8px;margin:4px 0">
-    <div style="font-size:11px;width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#374151">${label}</div>
-    <div style="flex:1;background:#f1f5f9;border-radius:6px;height:14px;overflow:hidden">
-      <div style="width:${w}%;height:100%;background:${color};border-radius:6px;transition:width .4s"></div>
-    </div>
-    <div style="font-size:11px;font-weight:700;width:${pct?'52px':'28px'};text-align:right;color:#374151">${val}${pct?` <span style="color:#94a3b8;font-weight:400">(${Math.round(val/max*100)}%)</span>`:''}</div>
-  </div>`;
-}
-function _badge(txt,color,bg){return `<span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;color:${color};background:${bg}">${txt}</span>`;}
-function _trend(val,ref,unit='d',lowGood=true){
-  if(val===null||ref===null)return '';
-  const diff=val-ref, good=lowGood?diff<=0:diff>=0;
-  return `<span style="font-size:10px;color:${good?_C.green:_C.red};margin-left:4px">${good?'▼':'▲'} ${Math.abs(diff).toFixed(1)}${unit}</span>`;
-}
-
+function tinyBar(label,val,max,color){return `<div style='display:flex;align-items:center;gap:8px;margin:4px 0'><div style='width:170px;font-size:11px'>${label}</div><div style='flex:1;background:#eef2f7;border-radius:4px;height:12px;position:relative'><div style='position:absolute;inset:0 auto 0 0;width:${max?Math.round((val/max)*100):0}%;background:${color};border-radius:4px'></div></div><div style='width:36px;font-size:11px;text-align:right'>${val}</div></div>`}
 function renderEstadisticas(){
-  // ── Load Chart.js on demand ─────────────────────────────────────────────────
-  if(!window.Chart){
-    const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
-    s.onload=()=>renderEstadisticas();
-    document.head.appendChild(s);
-    document.getElementById('statsView').innerHTML=`<div style="text-align:center;padding:80px;color:#64748b;font-size:14px">⏳ Cargando dashboard…</div>`;
-    return;
-  }
-
   const rows=getDashboardRows();
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 1. PACIENTES ÚNICOS
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const byDni={};
-  rows.forEach(p=>{
-    const d=String(p.dni||'').trim(); if(!d)return;
-    if(!byDni[d])byDni[d]={rows:[],fnac:p.fnac,nombre:p.nombre};
-    byDni[d].rows.push(p);
-  });
-  const pacs=Object.values(byDni);
-  const nPacs=pacs.length;
-  const pac1=pacs.filter(x=>x.rows.length===1).length;
-  const pac2=pacs.filter(x=>x.rows.length===2).length;
-  const pac3p=pacs.filter(x=>x.rows.length>=3).length;
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 2. ESTADOS
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const nProg   = rows.filter(p=>estado(p)==='FECHA PROGRAMADA').length;
-  const nReal   = rows.filter(p=>['CIRUGÍA REALIZADA - FALTA FACTURAR','FINALIZADO - FACTURADA'].includes(estado(p))).length;
-  const nFact   = rows.filter(p=>(p.estadoFac||'').toUpperCase()==='FACTURADA').length;
-  const nPendF  = rows.filter(p=>estado(p)==='CIRUGÍA REALIZADA - FALTA FACTURAR').length;
-  const nSolL   = rows.filter(p=>estado(p)==='LENTE SOLICITADA').length;
-  const nLlegL  = rows.filter(p=>estado(p)==='LENTE LLEGÓ').length;
-  const nAlerts = rows.reduce((s,p)=>s+alertas(p).length,0);
-  const nCrit   = rows.reduce((s,p)=>s+alertas(p).filter(a=>a.severity==='red').length,0);
-  const tasaComplecion = rows.length ? Math.round(nReal/rows.length*100) : 0;
-  const tasaFacturacion = nReal ? Math.round(nFact/nReal*100) : 0;
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 3. DEMOGRAFÍA
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const edades=pacs.map(x=>_edad(x.fnac)).filter(e=>e!==null);
-  const eMean=_mean(edades), eMedian=_median(edades), eStd=_std(edades);
-  const eP25=_pct(edades,25), eP75=_pct(edades,75), eP90=_pct(edades,90);
-
-  // Histograma por década
-  const edadBuckets={};
-  edades.forEach(e=>{
-    const b=Math.floor(e/10)*10;
-    const k=`${b}s`; // "50s", "60s"
-    edadBuckets[k]=(edadBuckets[k]||0)+1;
-  });
-  const eLabels=Object.keys(edadBuckets).sort((a,b)=>parseInt(a)-parseInt(b));
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 4. DEMORAS
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const demSL=rows.map(p=>_diffDays(p.fechaSolLente,p.fechaLlegaLente)).filter(d=>d!==null&&d>=0&&d<365);
-  const demLC=rows.map(p=>_diffDays(p.fechaLlegaLente,p.fechaCir)).filter(d=>d!==null&&d>=0&&d<365);
-  const demSC=rows.map(p=>_diffDays(p.fechaSolLente,p.fechaCir)).filter(d=>d!==null&&d>=0&&d<365);
-
-  // Outliers: P90
-  const slP25=_pct(demSL,25),slP50=_median(demSL),slP75=_pct(demSL,75),slP90=_pct(demSL,90),slMean=_mean(demSL);
-  const lcP25=_pct(demLC,25),lcP50=_median(demLC),lcP75=_pct(demLC,75),lcP90=_pct(demLC,90),lcMean=_mean(demLC);
-  const scP50=_median(demSC),scMean=_mean(demSC),scP90=_pct(demSC,90);
-
-  // Histograma demora sol→llegada (buckets: 0-3, 4-7, 8-14, 15-21, 22-30, >30)
-  const demBkts=[{l:'0-3d',mn:0,mx:3},{l:'4-7d',mn:4,mx:7},{l:'8-14d',mn:8,mx:14},{l:'15-21d',mn:15,mx:21},{l:'22-30d',mn:22,mx:30},{l:'>30d',mn:31,mx:9999}];
-  const demDistSL=demBkts.map(b=>({label:b.l,n:demSL.filter(d=>d>=b.mn&&d<=b.mx).length}));
-  const demDistLC=demBkts.map(b=>({label:b.l,n:demLC.filter(d=>d>=b.mn&&d<=b.mx).length}));
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 5. SERIE TEMPORAL
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const porMes={};
-  rows.filter(p=>p.fechaCir).forEach(p=>{
-    const d=new Date(p.fechaCir); if(isNaN(d))return;
-    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    if(!porMes[k])porMes[k]={prog:0,real:0,fact:0};
-    if(estado(p)==='FECHA PROGRAMADA') porMes[k].prog++; else porMes[k].real++;
-    if((p.estadoFac||'').toUpperCase()==='FACTURADA') porMes[k].fact++;
-  });
-  const mKeys=Object.keys(porMes).sort();
-  const mLabels=mKeys.map(k=>{const[y,m]=k.split('-'); return new Intl.DateTimeFormat('es-AR',{month:'short',year:'2-digit'}).format(new Date(+y,+m-1,1));});
-  const mTotal=mKeys.map(k=>porMes[k].real+porMes[k].prog);
-  const maxMesIdx=mTotal.indexOf(Math.max(...(mTotal.length?mTotal:[0])));
-  const maxMesLabel=mLabels[maxMesIdx]||'—';
-
-  // Rolling 3-month average (tendencia)
-  const rolling3=mTotal.map((_,i)=>i>=2?Math.round((mTotal[i]+mTotal[i-1]+mTotal[i-2])/3):null);
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 6. SEGMENTACIONES
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Por obra social
-  const byOS={};
-  rows.forEach(p=>{const o=(p.obraSocial||'Sin OS').trim(); byOS[o]=(byOS[o]||0)+1;});
-  const osKeys=Object.keys(byOS).sort((a,b)=>byOS[b]-byOS[a]).slice(0,6);
-
-  // Por ojo
-  const byOjo={};
-  rows.forEach(p=>{const o=(p.ojo||'?').trim().toUpperCase(); byOjo[o]=(byOjo[o]||0)+1;});
-
-  // Por clínica
-  const byCli={CDU:0,Gualeguaychú:0,Otro:0};
-  rows.forEach(p=>{const c=p.clinica||''; if(c==='CDU')byCli.CDU++; else if(c==='Gualeguaychú')byCli['Gualeguaychú']++; else byCli.Otro++;});
-
-  // Por día de semana
-  const byDow={Lun:0,Mar:0,Mié:0,Jue:0,Vie:0,Sáb:0,Dom:0};
-  const dowNames=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  rows.filter(p=>p.fechaCir).forEach(p=>{const d=new Date(p.fechaCir); if(!isNaN(d))byDow[dowNames[d.getDay()]]++;});
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 7. DIOPTRÍA (distribución)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const diopVals=rows.map(p=>parseFloat(p.dioptria||p.lio||'')).filter(v=>!isNaN(v)&&v>0&&v<40);
-  const diopBuckets={};
-  diopVals.forEach(v=>{const b=Math.floor(v/2)*2; const k=`${b}-${b+2}`; diopBuckets[k]=(diopBuckets[k]||0)+1;});
-  const diopLabels=Object.keys(diopBuckets).sort((a,b)=>parseFloat(a)-parseFloat(b));
-  const diopMean=_mean(diopVals), diopMedian=_median(diopVals);
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 8. COMPLETITUD DE DATOS
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const camposClave=[
-    {k:'nombre',l:'Nombre'},
-    {k:'dni',l:'DNI'},
-    {k:'fnac',l:'Fecha nacimiento'},
-    {k:'tel',l:'Teléfono'},
-    {k:'obraSocial',l:'Obra social'},
-    {k:'fechaSolLente',l:'Sol. lente'},
-    {k:'fechaLlegaLente',l:'Llegada lente'},
-    {k:'fechaCir',l:'Fecha cirugía'},
-  ];
-  const completitud=camposClave.map(c=>({
-    l:c.l, pct:rows.length?Math.round(rows.filter(r=>r[c.k]&&String(r[c.k]).trim()).length/rows.length*100):0
-  }));
-  const completitudGlobal=Math.round(completitud.reduce((s,c)=>s+c.pct,0)/completitud.length);
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 9. FUNNEL DE CONVERSIÓN
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const funnelSteps=[
-    {l:'Lente solicitada', n:rows.filter(p=>p.fechaSolLente).length},
-    {l:'Lente llegó',      n:rows.filter(p=>p.fechaLlegaLente).length},
-    {l:'Cirugía realizada',n:nReal},
-    {l:'Facturada',        n:nFact},
-  ];
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 10. TOP PACIENTES POR ALERTAS
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const topCrit=rows
-    .map(p=>({p,a:alertas(p).sort((x,y)=>y.days-x.days)}))
-    .filter(x=>x.a.length)
-    .sort((x,y)=>y.a[0].days-x.a[0].days)
-    .slice(0,15);
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // BUILD HTML
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  const html=`
-  <!-- FILTROS -->
-  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 18px;margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:end;box-shadow:0 1px 4px #0f172a0a">
-    <div><div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:4px">DESDE</div><input type="date" value="${DASH_FILTERS.from}" onchange="setDashFilter('from',this.value)" style="padding:7px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:12px;outline:none"></div>
-    <div><div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:4px">HASTA</div><input type="date" value="${DASH_FILTERS.to}" onchange="setDashFilter('to',this.value)" style="padding:7px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:12px;outline:none"></div>
-    <div><div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:4px">CLÍNICA</div><select onchange="setDashFilter('clinic',this.value)" style="padding:7px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:12px;outline:none"><option ${DASH_FILTERS.clinic==='AMBAS'?'selected':''}>AMBAS</option><option ${DASH_FILTERS.clinic==='CDU'?'selected':''}>CDU</option><option ${DASH_FILTERS.clinic==='Gualeguaychú'?'selected':''}>Gualeguaychú</option></select></div>
-    <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" ${DASH_FILTERS.onlyActive?'checked':''} onchange="setDashFilter('onlyActive',this.checked)"> Solo activos</label>
-    <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" ${DASH_FILTERS.onlyAlerts?'checked':''} onchange="setDashFilter('onlyAlerts',this.checked)"> Con alertas</label>
-    <div style="flex:1;padding:8px 14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;font-size:11px;color:#64748b;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
-      <span>📋 <strong>${rows.length}</strong> cirugías</span>
-      <span>👥 <strong>${nPacs}</strong> pacientes únicos</span>
-      <span>✅ Completitud datos: ${_badge(completitudGlobal+'%',completitudGlobal>=85?'#065f46':completitudGlobal>=65?'#78350f':'#991b1b',completitudGlobal>=85?'#d1fae5':completitudGlobal>=65?'#fef3c7':'#fee2e2')}</span>
+  const byDni={}; rows.forEach(p=>{const dni=String(p.dni||'').trim(); if(!dni) return; byDni[dni]=(byDni[dni]||0)+1;});
+  const dosOjos=Object.values(byDni).filter(n=>n>=2).length;
+  const unOjo=Object.values(byDni).filter(n=>n===1).length;
+  const prog=rows.filter(p=>estado(p)==='FECHA PROGRAMADA').length;
+  const real=rows.filter(p=>estado(p)==='CIRUGÍA REALIZADA - FALTA FACTURAR' || estado(p)==='FINALIZADO - FACTURADA').length;
+  const fact=rows.filter(p=>(p.estadoFac||'').toUpperCase()==='FACTURADA').length;
+  const pendFact=rows.filter(p=>estado(p)==='CIRUGÍA REALIZADA - FALTA FACTURAR' && (p.estadoFac||'').toUpperCase()!=='FACTURADA').length;
+  const alertRows=rows.map(p=>alertas(p));
+  const allAlerts=alertRows.flat();
+  const crit=allAlerts.filter(a=>a.severity==='red').length;
+  const alertByType={}; allAlerts.forEach(a=>alertByType[a.type]=(alertByType[a.type]||0)+1);
+  const alertByClinic={'CDU':0,'Gualeguaychú':0}; rows.forEach(p=>{const n=alertas(p).length; if((p.clinica||'')==='CDU') alertByClinic['CDU']+=n; else alertByClinic['Gualeguaychú']+=n;});
+  const porMes={}; rows.filter(p=>p.fechaCir).forEach(p=>{const d=parseDateOnly(p.fechaCir); const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; if(!porMes[k]) porMes[k]={prog:0,real:0,fact:0}; if(estado(p)==='FECHA PROGRAMADA') porMes[k].prog++; if(estado(p)!=='FECHA PROGRAMADA') porMes[k].real++; if((p.estadoFac||'').toUpperCase()==='FACTURADA') porMes[k].fact++;});
+  const maxAlertType=Math.max(1,...Object.values(alertByType));
+  const maxClinic=Math.max(1,...Object.values(alertByClinic));
+  const topCrit=rows.map(p=>({p,a:alertas(p).sort((x,y)=>y.days-x.days)[0]})).filter(x=>x.a).sort((x,y)=>y.a.days-x.a.days).slice(0,20);
+  document.getElementById('statsView').innerHTML=`
+    <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:end'>
+      <div><label style='font-size:10px;color:#6b7280'>Desde</label><input type='date' value='${DASH_FILTERS.from}' onchange="setDashFilter('from',this.value)"></div>
+      <div><label style='font-size:10px;color:#6b7280'>Hasta</label><input type='date' value='${DASH_FILTERS.to}' onchange="setDashFilter('to',this.value)"></div>
+      <div><label style='font-size:10px;color:#6b7280'>Clínica</label><select onchange="setDashFilter('clinic',this.value)"><option ${DASH_FILTERS.clinic==='AMBAS'?'selected':''}>AMBAS</option><option ${DASH_FILTERS.clinic==='CDU'?'selected':''}>CDU</option><option ${DASH_FILTERS.clinic==='Gualeguaychú'?'selected':''}>Gualeguaychú</option></select></div>
+      <label style='font-size:11px'><input type='checkbox' ${DASH_FILTERS.onlyActive?'checked':''} onchange="setDashFilter('onlyActive',this.checked)"> Solo activos</label>
+      <label style='font-size:11px'><input type='checkbox' ${DASH_FILTERS.onlyAlerts?'checked':''} onchange="setDashFilter('onlyAlerts',this.checked)"> Solo con alertas</label>
     </div>
-  </div>
-
-  <!-- KPIs -->
-  ${_sec('📌 Resumen General')}
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:4px">
-    ${_kpi('👥',nPacs,'Pacientes únicos',`${rows.length} cirugías totales`,_C.blue)}
-    ${_kpi('👁',pac1,'Solo 1 cirugía',`${nPacs?Math.round(pac1/nPacs*100):0}% del total`,_C.teal)}
-    ${_kpi('👁👁',pac2,'Ambos ojos',`${nPacs?Math.round(pac2/nPacs*100):0}% del total`,_C.purple)}
-    ${_kpi('🔁',pac3p,'3+ cirugías','Pacientes frecuentes',_C.pink)}
-    ${_kpi('✅',`${tasaComplecion}%`,'Tasa realización',`${nReal} de ${rows.length} cirugías`,tasaComplecion>=80?_C.green:tasaComplecion>=50?_C.orange:_C.red)}
-    ${_kpi('💰',`${tasaFacturacion}%`,'Tasa facturación',`${nFact} de ${nReal} realizadas`,tasaFacturacion>=90?_C.green:tasaFacturacion>=70?_C.orange:_C.red)}
-    ${_kpi('⚠',nCrit,'Alertas críticas',`${nAlerts} alertas totales`,nCrit>0?_C.red:_C.green)}
-    ${_kpi('⏱',_fmt(slP50,'d',0),'Mediana espera lente','Sol → Llegada',+slP50>10?_C.red:_C.green)}
-  </div>
-
-  <!-- SERIE TEMPORAL -->
-  ${_sec('📈 Producción Mensual')}
-  <div style="display:grid;grid-template-columns:3fr 1fr;gap:10px">
-    ${_chartCard('Cirugías por Mes — Programadas / Realizadas / Facturadas + tendencia 3 meses','chMes',230)}
-    <div style="display:flex;flex-direction:column;gap:10px">
-      ${_card('🏆 Mes pico',`<div style="font-size:26px;font-weight:800;color:${_C.teal}">${maxMesLabel}</div><div style="font-size:12px;color:#64748b;margin-top:4px">${mTotal[maxMesIdx]||0} cirugías</div>`)}
-      ${_card('Clínicas',Object.entries(byCli).filter(([,v])=>v>0).map(([k,v])=>_hbar(k,v,rows.length,_C.blue,true)).join(''))}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <div class="stat s-blue"><div class="stat-n">${new Set(rows.map(x=>String(x.dni||'').trim()).filter(Boolean)).size}</div><div class="stat-l">Total pacientes</div></div>
+      <div class="stat s-purple"><div class="stat-n">${rows.length}</div><div class="stat-l">Total cirugías</div></div>
+      <div class="stat s-yellow"><div class="stat-n">${prog}</div><div class="stat-l">Programadas</div></div>
+      <div class="stat s-green"><div class="stat-n">${real}</div><div class="stat-l">Realizadas</div></div>
+      <div class="stat s-green"><div class="stat-n">${fact}</div><div class="stat-l">Facturadas</div></div>
+      <div class="stat s-red"><div class="stat-n">${pendFact}</div><div class="stat-l">Pend. facturar</div></div>
+      <div class="stat s-red"><div class="stat-n">${allAlerts.length}</div><div class="stat-l">Alertas activas</div></div>
+      <div class="stat s-red"><div class="stat-n">${crit}</div><div class="stat-l">Alertas críticas</div></div>
+      <div class="stat s-blue"><div class="stat-n">${dosOjos}</div><div class="stat-l">Pacientes con 2 cirugías</div></div>
+      <div class="stat s-purple"><div class="stat-n">${unOjo}</div><div class="stat-l">Pacientes con 1 cirugía</div></div>
     </div>
-  </div>
-
-  <!-- FUNNEL -->
-  ${_sec('🔽 Funnel de Proceso')}
-  ${_card('Conversión de pacientes a lo largo del proceso',`
-    <div style="display:flex;align-items:flex-end;gap:6px;height:140px;padding-top:10px">
-      ${funnelSteps.map((s,i)=>{
-        const pct=funnelSteps[0].n?Math.round(s.n/funnelSteps[0].n*100):0;
-        const h=Math.max(pct,8);
-        const colors=[_C.blue,_C.purple,_C.teal,_C.green];
-        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
-          <div style="font-size:11px;font-weight:700;color:${colors[i]}">${s.n}</div>
-          <div style="width:100%;height:${h}%;background:${colors[i]};border-radius:6px 6px 0 0;min-height:8px;opacity:.85"></div>
-          <div style="font-size:10px;color:#64748b;text-align:center;line-height:1.2">${s.l}</div>
-          <div style="font-size:10px;font-weight:700;color:${colors[i]}">${pct}%</div>
-        </div>`;
-      }).join('<div style="width:20px;display:flex;align-items:center;padding-bottom:40px;font-size:16px;color:#cbd5e1">→</div>')}
-    </div>
-    ${funnelSteps.slice(1).map((s,i)=>{
-      const drop=funnelSteps[0].n?100-Math.round(s.n/funnelSteps[0].n*100):0;
-      const prev=funnelSteps[0].n?100-Math.round(funnelSteps[i].n/funnelSteps[0].n*100):0;
-      const stepDrop=drop-prev;
-      return `<span style="font-size:10px;color:${stepDrop>20?_C.red:_C.slate};margin-right:12px">→ ${s.l}: ${stepDrop>0?'-'+stepDrop+'%':'0%'} caída</span>`;
-    }).join('')}
-  `)}
-
-  <!-- DEMORAS -->
-  ${_sec('⏱ Análisis de Demoras')}
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-
-    ${_card('📦 Solicitud → Llegada Lente',`
-      <div style="font-size:10px;color:#94a3b8;margin-bottom:10px">n=${demSL.length} registros válidos</div>
-      ${_srow('Media',_fmt(slMean,'d'),_C.blue)}
-      ${_srow('Mediana (P50)',_fmt(slP50,'d'),_C.blue)}
-      ${_srow('P25 / P75',`${_fmt(slP25,'d',0)} / ${_fmt(slP75,'d',0)}`)}
-      ${_srow('P90 (casos lentos)',_fmt(slP90,'d',0),_C.orange)}
-      ${_srow('IQR',slP25!==null&&slP75!==null?_fmt(slP75-slP25,'d',0):'—')}
-      <div style="margin-top:12px;padding:8px 12px;border-radius:8px;${+slP50>10?'background:#fef2f2;color:#dc2626':'background:#ecfdf5;color:#059669'};font-size:11px;font-weight:700;text-align:center">
-        ${+slP50>10?'⚠ Demora por encima de umbral (10d)':'✅ Dentro del umbral objetivo'}
-      </div>`)}
-
-    ${_card('🏥 Llegada Lente → Cirugía',`
-      <div style="font-size:10px;color:#94a3b8;margin-bottom:10px">n=${demLC.length} registros válidos</div>
-      ${_srow('Media',_fmt(lcMean,'d'),_C.blue)}
-      ${_srow('Mediana (P50)',_fmt(lcP50,'d'),_C.blue)}
-      ${_srow('P25 / P75',`${_fmt(lcP25,'d',0)} / ${_fmt(lcP75,'d',0)}`)}
-      ${_srow('P90 (casos lentos)',_fmt(lcP90,'d',0),_C.orange)}
-      ${_srow('IQR',lcP25!==null&&lcP75!==null?_fmt(lcP75-lcP25,'d',0):'—')}
-      <div style="margin-top:12px;padding:8px 12px;border-radius:8px;${+lcP50>14?'background:#fef2f2;color:#dc2626':'background:#ecfdf5;color:#059669'};font-size:11px;font-weight:700;text-align:center">
-        ${+lcP50>14?'⚠ Espera quirúrgica elevada':'✅ Tiempo quirúrgico normal'}
-      </div>`)}
-
-    ${_card('📅 Sol. Lente → Cirugía (total)',`
-      <div style="font-size:10px;color:#94a3b8;margin-bottom:10px">n=${demSC.length} registros válidos</div>
-      ${_srow('Media total',_fmt(scMean,'d'),_C.blue)}
-      ${_srow('Mediana total',_fmt(scP50,'d'),_C.blue)}
-      ${_srow('P90',_fmt(scP90,'d',0),_C.orange)}
-      ${_srow('Contrib. espera lente',slMean&&scMean?Math.round(slMean/scMean*100)+'%':'—')}
-      ${_srow('Contrib. espera CX',lcMean&&scMean?Math.round(lcMean/scMean*100)+'%':'—')}
-      <div style="margin-top:12px;padding:8px 12px;border-radius:8px;${+scP50>21?'background:#fef2f2;color:#dc2626':'background:#ecfdf5;color:#059669'};font-size:11px;font-weight:700;text-align:center">
-        ${+scP50>21?'⚠ Proceso total lento':'✅ Proceso total ágil'}
-      </div>`)}
-  </div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-    ${_chartCard('Distribución de demora Sol→Llegada (días)','chDemSL',190)}
-    ${_chartCard('Distribución de demora Llegada→Cirugía (días)','chDemLC',190)}
-  </div>
-
-  <!-- DEMOGRAFÍA -->
-  ${_sec('🧬 Demografía')}
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-
-    ${_card('📊 Estadísticas de Edad',`
-      ${_srow('Media',_fmt(eMean,' años'))}
-      ${_srow('Mediana',_fmt(eMedian,' años'),_C.blue)}
-      ${_srow('Desvío estándar',_fmt(eStd,' años'))}
-      ${_srow('P25 / P75',`${_fmt(eP25,' años',0)} / ${_fmt(eP75,' años',0)}`)}
-      ${_srow('P90',_fmt(eP90,' años',0))}
-      ${_srow('Rango IQR',eP25!==null&&eP75!==null?_fmt(eP75-eP25,' años',0):'—')}
-      ${_srow('Con fecha nac.',`${edades.length} / ${nPacs}`)}
-      <div style="margin-top:10px;padding:8px;background:#eff6ff;border-radius:8px;text-align:center;font-size:11px;color:${_C.blue};font-weight:600">
-        Rango típico: ${_fmt(eP25,' años',0)} – ${_fmt(eP75,' años',0)}
-      </div>`)}
-
-    ${_chartCard('Distribución de Edades (por década)','chEdades',200)}
-
-    <div>
-      ${_card('Obra Social',osKeys.map(os=>_hbar(os,byOS[os],rows.length,_C.blue,true)).join(''))}
-    </div>
-  </div>
-
-  <!-- DISTRIBUCIÓN DIOPTRÍA -->
-  ${_sec('🔬 Distribución de LIO / Dioptría')}
-  <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
-    ${_chartCard('Distribución de potencia de lente implantado (D)','chDiop',190)}
-    ${_card('Resumen LIO',`
-      ${_srow('Media',_fmt(diopMean,' D'),_C.blue)}
-      ${_srow('Mediana',_fmt(diopMedian,' D'),_C.blue)}
-      ${_srow('Mín / Máx',diopVals.length?`${Math.min(...diopVals).toFixed(1)} / ${Math.max(...diopVals).toFixed(1)} D`:'—')}
-      ${_srow('N con dato',`${diopVals.length} cirugías`)}
-      <div style="margin-top:8px;padding:8px;background:#f8fafc;border-radius:8px;font-size:10px;color:#64748b">
-        La distribución LIO refleja la composición de catarata de la población. Mediana cercana a 21D es típica en adultos mayores.
-      </div>`)}
-  </div>
-
-  <!-- OJO + DÍA DE SEMANA -->
-  ${_sec('📆 Distribución Operatoria')}
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-    ${_chartCard('Ojo operado (OD / OI)','chOjo',200)}
-    ${_chartCard('Cirugías por día de la semana','chDow',200)}
-    <div>
-      ${_card('Análisis Bilateral',`
-        ${_srow('Pacientes 1 cirugía',pac1,_C.teal)}
-        ${_srow('Pacientes 2 cirugías',pac2,_C.purple)}
-        ${_srow('% bilateral',`${nPacs?Math.round(pac2/nPacs*100):0}%`,_C.purple)}
-        ${_srow('Pacientes 3+',pac3p,_C.pink)}
-        <div style="margin-top:12px">
-          ${_hbar('1 cx',pac1,nPacs,_C.teal,false)}
-          ${_hbar('2 cx',pac2,nPacs,_C.purple,false)}
-          ${_hbar('3+ cx',pac3p,nPacs,_C.pink,false)}
-        </div>`)}
-    </div>
-  </div>
-
-  <!-- CALIDAD DE DATOS -->
-  ${_sec('🔍 Calidad de Datos')}
-  ${_card('Completitud de campos clave — % de registros con dato cargado',`
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
-      ${completitud.map(c=>`
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-            <span style="color:#64748b">${c.l}</span>
-            <span style="font-weight:700;color:${c.pct>=90?_C.green:c.pct>=70?_C.orange:_C.red}">${c.pct}%</span>
-          </div>
-          <div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden">
-            <div style="height:100%;width:${c.pct}%;background:${c.pct>=90?_C.green:c.pct>=70?_C.orange:_C.red};border-radius:6px;transition:width .5s"></div>
-          </div>
-        </div>`).join('')}
-    </div>`)}
-
-  <!-- TOP ALERTAS -->
-  ${_sec('🚨 Casos Prioritarios (mayor demora con alerta activa)')}
-  ${_card('',`
-    <table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr style="background:#f8fafc">
-        <th style="padding:8px;text-align:left;border-bottom:2px solid #e2e8f0;color:#64748b;font-size:10px;font-weight:700">PACIENTE</th>
-        <th style="padding:8px;text-align:left;border-bottom:2px solid #e2e8f0;color:#64748b;font-size:10px;font-weight:700">CLÍNICA</th>
-        <th style="padding:8px;text-align:left;border-bottom:2px solid #e2e8f0;color:#64748b;font-size:10px;font-weight:700">ESTADO</th>
-        <th style="padding:8px;text-align:left;border-bottom:2px solid #e2e8f0;color:#64748b;font-size:10px;font-weight:700">ALERTA</th>
-        <th style="padding:8px;text-align:center;border-bottom:2px solid #e2e8f0;color:#64748b;font-size:10px;font-weight:700">DÍAS</th>
-      </tr></thead>
-      <tbody>
-        ${topCrit.map(({p,a})=>`<tr onclick="openSide(${p.id})" style="cursor:pointer;border-bottom:1px solid #f1f5f9" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
-          <td style="padding:7px 8px"><strong>${p.nombre||'—'}</strong><div style="font-size:10px;color:#94a3b8">DNI ${p.dni||'—'}</div></td>
-          <td style="padding:7px 8px"><span style="font-size:10px;padding:2px 7px;border-radius:4px;background:#dbeafe;color:#1e40af">${p.clinica||'—'}</span></td>
-          <td style="padding:7px 8px;font-size:11px;color:#374151">${estado(p)}</td>
-          <td style="padding:7px 8px"><span style="font-size:11px;color:${a[0].severity==='red'?_C.red:_C.orange}">${a[0].msg}</span></td>
-          <td style="padding:7px 8px;text-align:center"><span style="font-weight:800;font-size:14px;color:${a[0].days>30?_C.red:a[0].days>15?_C.orange:_C.slate}">${a[0].days}</span></td>
-        </tr>`).join('')||'<tr><td colspan="5" style="padding:20px;text-align:center;color:#94a3b8">Sin alertas activas</td></tr>'}
-      </tbody>
-    </table>`)}
-  `;
-
-  document.getElementById('statsView').innerHTML=html;
-
-  // ── CHARTS ─────────────────────────────────────────────────────────────────
-  Chart.defaults.font.family="'DM Sans',sans-serif";
-  Chart.defaults.font.size=11;
-  Chart.defaults.color='#64748b';
-
-  // Cirugías por mes
-  _mkChart('chMes',{
-    type:'bar',
-    data:{
-      labels:mLabels,
-      datasets:[
-        {label:'Programadas',data:mKeys.map(k=>porMes[k].prog),backgroundColor:'#bfdbfe',borderRadius:4,order:2},
-        {label:'Realizadas', data:mKeys.map(k=>porMes[k].real),backgroundColor:_C.blue,borderRadius:4,order:2},
-        {label:'Facturadas', data:mKeys.map(k=>porMes[k].fact),backgroundColor:_C.green,borderRadius:4,order:2},
-        {label:'Tendencia 3m',data:rolling3,type:'line',borderColor:_C.orange,backgroundColor:'transparent',borderWidth:2.5,pointRadius:3,tension:.4,spanGaps:true,order:1},
-      ]
-    },
-    options:{responsive:true,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#f8fafc'},ticks:{precision:0}}}}
-  });
-
-  // Dist demora Sol→Llegada
-  _mkChart('chDemSL',{
-    type:'bar',
-    data:{labels:demDistSL.map(d=>d.label),datasets:[{label:'Casos',data:demDistSL.map(d=>d.n),backgroundColor:demDistSL.map((_,i)=>i<=1?_C.green:i<=3?_C.orange:_C.red),borderRadius:4}]},
-    options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Verde=rápido  Naranja=normal  Rojo=lento',font:{size:10},color:'#94a3b8'}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f8fafc'}}}}
-  });
-
-  // Dist demora Llegada→CX
-  _mkChart('chDemLC',{
-    type:'bar',
-    data:{labels:demDistLC.map(d=>d.label),datasets:[{label:'Casos',data:demDistLC.map(d=>d.n),backgroundColor:demDistLC.map((_,i)=>i<=1?_C.green:i<=3?_C.orange:_C.red),borderRadius:4}]},
-    options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Verde=rápido  Naranja=normal  Rojo=lento',font:{size:10},color:'#94a3b8'}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f8fafc'}}}}
-  });
-
-  // Edades
-  _mkChart('chEdades',{
-    type:'bar',
-    data:{labels:eLabels,datasets:[{label:'Pacientes',data:eLabels.map(k=>edadBuckets[k]),backgroundColor:_C.purple,borderRadius:4}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f8fafc'}}}}
-  });
-
-  // Dioptría
-  _mkChart('chDiop',{
-    type:'bar',
-    data:{labels:diopLabels,datasets:[{label:'Cirugías',data:diopLabels.map(k=>diopBuckets[k]),backgroundColor:_C.teal,borderRadius:4}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f8fafc'}}}}
-  });
-
-  // Ojo
-  const ojoLbls=Object.keys(byOjo);
-  _mkChart('chOjo',{
-    type:'doughnut',
-    data:{labels:ojoLbls,datasets:[{data:ojoLbls.map(k=>byOjo[k]),backgroundColor:[_C.blue,_C.teal,_C.purple,_C.orange],borderWidth:2,borderColor:'#fff'}]},
-    options:{responsive:true,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}}}
-  });
-
-  // Día de semana
-  const dowOrder=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-  _mkChart('chDow',{
-    type:'bar',
-    data:{labels:dowOrder,datasets:[{label:'Cirugías',data:dowOrder.map(d=>byDow[d]||0),backgroundColor:dowOrder.map(d=>['Sáb','Dom'].includes(d)?'#e2e8f0':_C.indigo),borderRadius:4}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f8fafc'}}}}
-  });
+    <div style='display:grid;grid-template-columns:1fr 1fr;gap:10px'>
+      <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px'><div style='font-weight:700;margin-bottom:8px'>Alertas por tipo</div>${Object.entries(alertByType).map(([k,v])=>tinyBar(k,v,maxAlertType,'#1d4ed8')).join('')||'<div class="empty" style="padding:10px">Sin datos</div>'}</div>
+      <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px'><div style='font-weight:700;margin-bottom:8px'>Alertas por clínica</div>${Object.entries(alertByClinic).map(([k,v])=>tinyBar(k,v,maxClinic,'#059669')).join('')}</div>
+      <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;grid-column:1 / -1'><div style='font-weight:700;margin-bottom:8px'>Serie mensual (Prog/Real/Fact)</div><table style='width:100%;border-collapse:collapse;font-size:12px'><thead><tr><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Mes</th><th style='padding:6px;border-bottom:1px solid #e2e8f0'>Prog</th><th style='padding:6px;border-bottom:1px solid #e2e8f0'>Real</th><th style='padding:6px;border-bottom:1px solid #e2e8f0'>Fact</th></tr></thead><tbody>${Object.keys(porMes).sort().map(m=>`<tr><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${m}</td><td style='padding:6px;text-align:center'>${porMes[m].prog}</td><td style='padding:6px;text-align:center'>${porMes[m].real}</td><td style='padding:6px;text-align:center'>${porMes[m].fact}</td></tr>`).join('')||'<tr><td colspan="4" style="padding:6px">Sin datos</td></tr>'}</tbody></table></div>
+      <div style='background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;grid-column:1 / -1'><div style='font-weight:700;margin-bottom:8px'>Top 20 casos críticos</div><table style='width:100%;border-collapse:collapse;font-size:12px'><thead><tr><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>DNI</th><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Clínica</th><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Estado</th><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Alerta</th><th style='padding:6px;text-align:left;border-bottom:1px solid #e2e8f0'>Días</th></tr></thead><tbody>${topCrit.map(x=>`<tr onclick='openSide(${x.p.id})' style='cursor:pointer'><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${x.p.dni||'—'}</td><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${x.p.clinica||'—'}</td><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${estado(x.p)}</td><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${x.a.msg}</td><td style='padding:6px;border-bottom:1px solid #f1f5f9'>${x.a.days}</td></tr>`).join('')||'<tr><td colspan="5" style="padding:6px">Sin datos</td></tr>'}</tbody></table></div>
+    </div>`;
 }
-
 
 
 function normText(t){return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toLowerCase();}
@@ -2543,27 +1890,18 @@ function generarScriptRecetas(){
     diagnostico:diag,
     medicamentos:[[meds[0],meds[1]],[meds[2],meds[3]],[meds[4],meds[5]]]
   };
-  renderJobStatus('recetasJobStatus','run','⏳ Verificando conector...');
+  renderJobStatus('recetasJobStatus','run','⏳ Iniciando automatización de recetas...');
   connectorStartJob('recetas',payload)
     .then(jobId=>{
-      toast('✅ Recetas: proceso iniciado — Chrome se abrirá en tu PC');
-      renderJobStatus('recetasJobStatus','run',`⚙️ Chrome abierto. Procesando recetas... (job ${jobId.slice(0,8)})`);
-      return connectorPollJob(jobId,(s)=>{
-        const label=s._label||`⚙️ ${s.status||'en curso'}`;
-        renderJobStatus('recetasJobStatus','run',label);
-      });
+      toast('Recetas: ejecución iniciada');
+      renderJobStatus('recetasJobStatus','run',`⏳ Ejecutando (job ${jobId})`);
+      return connectorPollJob(jobId,(s)=>renderJobStatus('recetasJobStatus','run',`⏳ Ejecutando: ${s.status||'en curso'}`));
     })
-    .then(()=>{
-      toast('✅ Recetas PAMI completadas correctamente');
-      renderJobStatus('recetasJobStatus','ok','✅ 3/3 recetas cargadas. Podés cerrar este modal.');
-      setConnectorBadge('ok');
-    })
+    .then(()=>{toast('Recetas completadas'); renderJobStatus('recetasJobStatus','ok','✅ Automatización completada');})
     .catch(err=>{
       const msg=String(err?.message||'Error de ejecución');
-      toast('❌ '+msg);
-      const type=/no detectado|no está corriendo|iniciar/i.test(msg)?'off':'err';
-      renderJobStatus('recetasJobStatus',type,`❌ ${msg}`);
-      setConnectorBadge(type==='off'?'off':'err');
+      toast(msg);
+      renderJobStatus('recetasJobStatus',/no detectado/i.test(msg)?'off':'err',`❌ ${msg}`);
     });
 }
 function generarPythonRecetas(cfg){
@@ -2775,27 +2113,18 @@ function descargarScriptLentess(){
   const cfg=lentessGuardarCreds();
   if(!cfg.user||!cfg.pass){toast('Completar usuario y contraseña PAMI');return;}
   const payload={credenciales:{user:cfg.user,pass:cfg.pass}, pacientes:rows.map(r=>({afiliado:r.afiliado,ojo:r.ojo,lio:r.lio}))};
-  renderJobStatus('lentessJobStatus','run','⏳ Verificando conector...');
+  renderJobStatus('lentessJobStatus','run','⏳ Iniciando automatización Lentess...');
   connectorStartJob('lentess',payload)
     .then(jobId=>{
-      toast('✅ Lentess: proceso iniciado — Chrome se abrirá en tu PC');
-      renderJobStatus('lentessJobStatus','run',`⚙️ Chrome abierto. Procesando solicitudes... (job ${jobId.slice(0,8)})`);
-      return connectorPollJob(jobId,(s)=>{
-        const label=s._label||`⚙️ ${s.status||'en curso'}`;
-        renderJobStatus('lentessJobStatus','run',label);
-      });
+      toast('Lentess: ejecución iniciada');
+      renderJobStatus('lentessJobStatus','run',`⏳ Ejecutando (job ${jobId})`);
+      return connectorPollJob(jobId,(s)=>renderJobStatus('lentessJobStatus','run',`⏳ Ejecutando: ${s.status||'en curso'}`));
     })
-    .then(()=>{
-      toast('✅ Lentess completado correctamente');
-      renderJobStatus('lentessJobStatus','ok','✅ Todas las solicitudes guardadas. Podés cerrar este modal.');
-      setConnectorBadge('ok');
-    })
+    .then(()=>{toast('Lentess completado'); renderJobStatus('lentessJobStatus','ok','✅ Automatización completada');})
     .catch(err=>{
       const msg=String(err?.message||'Error de ejecución');
-      toast('❌ '+msg);
-      const type=/no detectado|no está corriendo|iniciar/i.test(msg)?'off':'err';
-      renderJobStatus('lentessJobStatus',type,`❌ ${msg}`);
-      setConnectorBadge(type==='off'?'off':'err');
+      toast(msg);
+      renderJobStatus('lentessJobStatus',/no detectado/i.test(msg)?'off':'err',`❌ ${msg}`);
     });
 }
 function generarPythonLentess(rows,cfg={}){
@@ -2992,9 +2321,6 @@ function setTab(tab,el){
   document.getElementById('calView').style.display=tab==='calendario'?'':'none';
   document.getElementById('statsView').style.display=tab==='estadisticas'?'':'none';
   document.getElementById('waView').style.display=tab==='whatsapp'?'':'none';
-  // Mostrar workdayPanel solo en tabla
-  const wdp=document.getElementById('workdayPanel');
-  if(wdp) wdp.style.display=tab==='tabla'?'block':'none';
   updateStickyMetrics();
   render();
 }
@@ -3140,37 +2466,8 @@ function validarFila(p){
   if((p.estadoFac||'').toUpperCase()==='FACTURADA' && !p.fechaFacturacion) toast('⚠ Validación: factura sin fecha de facturación');
   if(p.ojos==='2 ojos' && !p.ojo) toast('⚠ Validación: indicar OD/OI para 2 ojos');
 }
-function marcarLenteLlegoHoy(id){
-  upd(id,'fechaLlegaLente',hoyISO());
-  openSide(id);  // Refresh side panel
-  toast('📦 Lente marcada como llegada hoy');
-}
-function marcarSolLenteHoy(id){
-  upd(id,'fechaSolLente',hoyISO());
-  openSide(id);
-  toast('📋 Lente solicitada hoy registrada');
-}
-function marcarCirugiaRealizada(id){
-  const p=DB.rows.find(x=>x.id===id); if(!p) return;
-  p.estadoCir='Realizada';
-  save(p); render(); openSide(id);
-  toast('✅ Cirugía marcada como realizada');
-}
-function programarCirugia(id){
-  const fecha=prompt('Fecha de cirugía (AAAA-MM-DD):', hoyISO());
-  if(!fecha) return;
-  upd(id,'fechaCir',fecha);
-  openSide(id);
-  toast('📅 Cirugía programada para ' + fecha);
-}
-function marcarFacturadaHoy(id){
-  const p=DB.rows.find(x=>x.id===id); if(!p) return;
-  p.estadoFac='FACTURADA';
-  p.fechaFacturacion=hoyISO();
-  save(p); render();
-  openSide(id);
-  toast('💰 Marcada como facturada hoy');
-}
+function marcarLenteLlegoHoy(id){upd(id,'fechaLlegaLente',hoyISO());}
+function marcarFacturadaHoy(id){const p=DB.rows.find(x=>x.id===id); if(!p) return; p.estadoFac='FACTURADA'; p.fechaFacturacion=hoyISO(); save(p); render();}
 function backupDiario(){
   const key='cirugias_backup_'+hoyISO();
   localStorage.setItem(key, JSON.stringify(DB));
