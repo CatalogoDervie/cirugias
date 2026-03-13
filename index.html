@@ -499,11 +499,14 @@ tr.row-ok td:first-child{border-left:3px solid #10b981}
 
 <div class="toast" id="toast"></div>
 
+<script type="module" src="./firebase.js"></script>
 <script>
 // ─────────────────────────────────────────────
 // CONFIG — pegá tu URL de Apps Script aquí
 // ─────────────────────────────────────────────
 let APPS_SCRIPT_URL = localStorage.getItem('apps_script_url') || '';
+let FIRESTORE_ENABLED = false;
+let FIRESTORE_UNSUB = null;
 
 // ─────────────────────────────────────────────
 // DATA LAYER (online + localStorage cache)
@@ -789,6 +792,30 @@ async function apiCall(action, data={}) {
 }
 
 async function loadFromServer() {
+  const fsc = window.firestoreConnector;
+  if (fsc) {
+    try {
+      const ready = await fsc.ready;
+      if (ready) {
+        const rows = await fsc.exportAllRows();
+        const safeRows = Array.isArray(rows) ? rows : [];
+        const ids = safeRows
+          .map(r => parseInt(r.id, 10))
+          .filter(n => Number.isFinite(n));
+        const maxId = ids.length ? Math.max(...ids) : 0;
+        DB = { rows: safeRows, nid: maxId + 1 };
+        localStorage.setItem('cirugias_cache', JSON.stringify(DB));
+        idbSet('cirugias_cache', DB);
+        FIRESTORE_ENABLED = true;
+        showSyncBadge('✓ Firestore en línea', 'green');
+        return;
+      }
+    } catch (e) {
+      console.warn('[Firestore] load fallback to local/APPS_SCRIPT_URL', e);
+      showSyncBadge('⚠ Firestore no disponible', 'orange');
+    }
+  }
+
   if (!APPS_SCRIPT_URL) {
     // Sin URL configurada → usar datos locales/seed
     const cached = localStorage.getItem('cirugias_cache') || await idbGet('cirugias_cache');
@@ -819,6 +846,18 @@ async function save(changedRow) {
   backupDiario();
   localStorage.setItem('cirugias_cache', JSON.stringify(DB));
   idbSet('cirugias_cache', DB);
+  if (FIRESTORE_ENABLED && changedRow && window.firestoreConnector) {
+    try {
+      showSyncBadge('⟳ Guardando en Firestore...');
+      await window.firestoreConnector.upsertRow(changedRow);
+      showSyncBadge('✓ Guardado en Firestore', 'green');
+      return;
+    } catch (e) {
+      console.warn('[Firestore] save failed, fallback to APPS_SCRIPT_URL', e);
+      showSyncBadge('⚠ Error Firestore, usando respaldo', 'orange');
+    }
+  }
+
   if (!APPS_SCRIPT_URL || !changedRow) return;
   showSyncBadge('⟳ Guardando...');
   const result = await apiCall('save', { row: changedRow });
@@ -829,6 +868,17 @@ async function save(changedRow) {
 async function deleteFromServer(id) {
   localStorage.setItem('cirugias_cache', JSON.stringify(DB));
   idbSet('cirugias_cache', DB);
+  if (FIRESTORE_ENABLED && window.firestoreConnector) {
+    try {
+      await window.firestoreConnector.deleteRow(id);
+      showSyncBadge('✓ Eliminado en Firestore', 'green');
+      return;
+    } catch (e) {
+      console.warn('[Firestore] delete failed, fallback to APPS_SCRIPT_URL', e);
+      showSyncBadge('⚠ Error Firestore, usando respaldo', 'orange');
+    }
+  }
+
   if (!APPS_SCRIPT_URL) return;
   await apiCall('delete', { id });
 }
@@ -856,12 +906,54 @@ async function configurarURL() {
 }
 
 async function sincronizarAhora() {
-  await loadFromServer();
+  if (FIRESTORE_ENABLED && window.firestoreConnector) {
+    showSyncBadge('⟳ Sincronizando Firestore...');
+    await loadFromServer();
+  } else {
+    await loadFromServer();
+  }
   normalizarData();
   backupDiario();
   initUX();
   render();
   toast('✓ Datos sincronizados');
+}
+
+function ensureFirestoreRealtimeSync(){
+  if (!FIRESTORE_ENABLED || !window.firestoreConnector || FIRESTORE_UNSUB) return;
+  FIRESTORE_UNSUB = window.firestoreConnector.listenRows((rows) => {
+    const safeRows = Array.isArray(rows) ? rows : [];
+    const ids = safeRows
+      .map(r => parseInt(r.id, 10))
+      .filter(n => Number.isFinite(n));
+    const maxId = ids.length ? Math.max(...ids) : 0;
+    DB.rows = safeRows;
+    DB.nid = maxId + 1;
+    localStorage.setItem('cirugias_cache', JSON.stringify(DB));
+    idbSet('cirugias_cache', DB);
+    if(!isSyncing){
+      normalizarData();
+      render();
+    }
+    showSyncBadge('✓ Firestore en línea', 'green');
+  }, (e) => {
+    console.warn('[Firestore] realtime listener error', e);
+    showSyncBadge('⚠ Listener Firestore interrumpido', 'orange');
+  });
+}
+
+async function activateFirestoreIfReady(){
+  if (FIRESTORE_ENABLED || !window.firestoreConnector) return;
+  try {
+    const ready = await window.firestoreConnector.ready;
+    if (!ready) return;
+    await loadFromServer();
+    normalizarData();
+    render();
+    ensureFirestoreRealtimeSync();
+  } catch (e) {
+    console.warn('[Firestore] activate failed', e);
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -3246,6 +3338,8 @@ function initUX(){
   backupDiario();
   initUX();
   render();
+  ensureFirestoreRealtimeSync();
+  window.addEventListener('firestoreReady', activateFirestoreIfReady);
 })();
 </script>
 </body>
