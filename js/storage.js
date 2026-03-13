@@ -1,6 +1,6 @@
-const PREFIX = 'cirugias.v2.';
+const PREFIX = 'control-cirugias.v3.';
 
-export function safeGet(key, fallback = null) {
+export function safeGetJSON(key, fallback) {
   try {
     const raw = localStorage.getItem(PREFIX + key);
     if (!raw) return fallback;
@@ -11,14 +11,22 @@ export function safeGet(key, fallback = null) {
   }
 }
 
-export function safeSet(key, value) {
+export function safeSetJSON(key, value) {
   try {
     localStorage.setItem(PREFIX + key, JSON.stringify(value));
+    return true;
   } catch (error) {
-    console.error('No se pudo persistir caché local.', error);
+    console.error('Error al guardar en caché local', error);
+    return false;
   }
 }
 
 export function safeRemove(key) {
   localStorage.removeItem(PREFIX + key);
+}
+
+export function clearAllAppCache() {
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith(PREFIX))
+    .forEach((k) => localStorage.removeItem(k));
 }

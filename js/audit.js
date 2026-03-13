@@ -1,25 +1,35 @@
-import { db } from './firebase.js';
-import { collection, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+import { db, appConfig } from './firebase.js';
+import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
-export async function logAudit({ userId, action, docId, changedFields = [], oldValues = {}, newValues = {} }) {
-  await addDoc(collection(db, 'audit_log'), {
-    userId,
-    action,
-    docId,
-    changedFields,
-    oldValues,
-    newValues,
-    timestamp: Timestamp.now()
-  });
-}
+const AUDIT = appConfig.auditCollection;
 
-export function diffFields(oldRecord, newRecord) {
-  const changedFields = Object.keys(newRecord).filter((k) => JSON.stringify(oldRecord?.[k]) !== JSON.stringify(newRecord[k]));
+export function diffChanges(oldObj = {}, newObj = {}) {
+  const changedFields = [];
   const oldValues = {};
   const newValues = {};
-  for (const key of changedFields) {
-    oldValues[key] = oldRecord?.[key] ?? null;
-    newValues[key] = newRecord[key] ?? null;
+
+  const keys = new Set([...Object.keys(oldObj || {}), ...Object.keys(newObj || {})]);
+  for (const key of keys) {
+    const before = oldObj?.[key] ?? null;
+    const after = newObj?.[key] ?? null;
+    if (JSON.stringify(before) !== JSON.stringify(after)) {
+      changedFields.push(key);
+      oldValues[key] = before;
+      newValues[key] = after;
+    }
   }
   return { changedFields, oldValues, newValues };
+}
+
+export async function registerAudit({ userId, username, action, docId, changedFields, oldValues, newValues }) {
+  await addDoc(collection(db, AUDIT), {
+    userId,
+    username,
+    action,
+    docId,
+    timestamp: serverTimestamp(),
+    changedFields: changedFields || [],
+    oldValues: oldValues || {},
+    newValues: newValues || {}
+  });
 }

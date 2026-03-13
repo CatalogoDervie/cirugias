@@ -6,3 +6,10 @@ export const firebaseConfig = {
   messagingSenderId: "REEMPLAZAR",
   appId: "REEMPLAZAR"
 };
+
+export const appConfig = {
+  appName: "CONTROL DE CIRUGÍAS",
+  businessCollection: "cirugias",
+  usersCollection: "users",
+  auditCollection: "audit_log"
+};

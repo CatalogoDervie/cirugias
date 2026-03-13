@@ -1,49 +1,120 @@
-import { db } from './firebase.js';
-import { collection, addDoc, updateDoc, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter, Timestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
-import { safeGet, safeSet } from './storage.js';
+import { db, appConfig } from './firebase.js';
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+import { safeGetJSON, safeSetJSON } from './storage.js';
 
+const COLLECTION = appConfig.businessCollection;
 const PAGE_SIZE = 20;
-let cursor = null;
-let lastQueryMeta = {};
 
-export function getCachedRecords() {
-  return safeGet('records_cache', []);
+let pageCursors = [null];
+let lastFilterHash = '';
+
+export function getPageSize() {
+  return PAGE_SIZE;
 }
 
-export async function fetchRecords({ status = '', eye = '', text = '', reset = true } = {}) {
-  if (reset || JSON.stringify(lastQueryMeta) !== JSON.stringify({ status, eye, text })) {
-    cursor = null;
-    lastQueryMeta = { status, eye, text };
+export function getCachedRows() {
+  return safeGetJSON('rows-cache', []);
+}
+
+function buildFilterHash(filters) {
+  return JSON.stringify(filters || {});
+}
+
+function baseQuery(filters = {}) {
+  const constraints = [];
+  if (filters.status) constraints.push(where('status', '==', filters.status));
+  if (filters.eye) constraints.push(where('eye', '==', filters.eye));
+  constraints.push(orderBy('updatedAt', 'desc'));
+  return query(collection(db, COLLECTION), ...constraints);
+}
+
+export async function fetchPage(filters = {}, page = 1) {
+  const hash = buildFilterHash(filters);
+  if (hash !== lastFilterHash) {
+    lastFilterHash = hash;
+    pageCursors = [null];
   }
 
-  let q = query(collection(db, 'surgeries'), orderBy('updatedAt', 'desc'), limit(PAGE_SIZE));
-  if (status) q = query(collection(db, 'surgeries'), where('status', '==', status), orderBy('updatedAt', 'desc'), limit(PAGE_SIZE));
-  if (eye) q = query(collection(db, 'surgeries'), where('eye', '==', eye), orderBy('updatedAt', 'desc'), limit(PAGE_SIZE));
-  if (cursor) q = query(q, startAfter(cursor));
+  if (!pageCursors[page - 1] && page > 1) {
+    throw new Error('No se puede cargar esta página sin la anterior.');
+  }
+
+  let q = query(baseQuery(filters), limit(PAGE_SIZE));
+  const startCursor = pageCursors[page - 1];
+  if (startCursor) {
+    q = query(baseQuery(filters), startAfter(startCursor), limit(PAGE_SIZE));
+  }
 
   const snap = await getDocs(q);
-  const records = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  const filtered = text
-    ? records.filter((r) => `${r.patientName} ${r.dni} ${r.lens}`.toLowerCase().includes(text.toLowerCase()))
-    : records;
-  cursor = snap.docs.at(-1) || null;
-  safeSet('records_cache', filtered);
-  return { records: filtered, hasMore: Boolean(cursor) };
+  const docs = snap.docs;
+  const rows = docs.map((d) => ({ id: d.id, ...d.data() }));
+
+  const lastVisible = docs.length ? docs[docs.length - 1] : null;
+  pageCursors[page] = lastVisible;
+
+  safeSetJSON('rows-cache', rows);
+  return {
+    rows,
+    hasPrev: page > 1,
+    hasNext: docs.length === PAGE_SIZE
+  };
 }
 
-export async function createRecord(payload) {
-  payload.createdAt = Timestamp.now();
-  payload.updatedAt = Timestamp.now();
-  const ref = await addDoc(collection(db, 'surgeries'), payload);
+export function applyLocalSearch(rows, text) {
+  const q = String(text || '').trim().toLowerCase();
+  if (!q) return rows;
+  return rows.filter((row) => {
+    const source = [
+      row.patientName,
+      row.dni,
+      row.lens,
+      row.administrativo,
+      row.status,
+      row.autorizacion
+    ].join(' ').toLowerCase();
+    return source.includes(q);
+  });
+}
+
+export async function createCirugia(payload) {
+  const now = serverTimestamp();
+  const clean = {
+    ...payload,
+    createdAt: now,
+    updatedAt: now
+  };
+  const ref = await addDoc(collection(db, COLLECTION), clean);
   return ref.id;
 }
 
-export async function patchRecord(id, payload) {
-  payload.updatedAt = Timestamp.now();
-  await updateDoc(doc(db, 'surgeries', id), payload);
+export async function updateCirugia(id, payload) {
+  const clean = {
+    ...payload,
+    updatedAt: serverTimestamp()
+  };
+  await updateDoc(doc(db, COLLECTION, id), clean);
 }
 
-export async function readRecord(id) {
-  const snap = await getDoc(doc(db, 'surgeries', id));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+export async function deleteCirugia(id) {
+  await deleteDoc(doc(db, COLLECTION, id));
+}
+
+export async function getCirugiaById(id) {
+  const snap = await getDoc(doc(db, COLLECTION, id));
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() };
 }

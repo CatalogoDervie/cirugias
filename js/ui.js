@@ -1,68 +1,111 @@
-function esc(v) { return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-
-export function toggleView(isLogged) {
-  document.getElementById('login-view').classList.toggle('hidden', isLogged);
-  document.getElementById('main-view').classList.toggle('hidden', !isLogged);
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (s) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[s]));
 }
 
-export function setUserBadge(profile) {
-  document.getElementById('user-badge').innerHTML = `${esc(profile.displayName || 'Usuario')} <span class="badge">${esc(profile.role || 'readonly')}</span>`;
+export function setMessage(elId, text, type = '') {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.textContent = text || '';
+  el.className = 'message';
+  if (type) el.classList.add(type);
 }
 
-export function renderRecords(records, role) {
-  const tbody = document.getElementById('records-body');
-  tbody.innerHTML = records.map((r) => `
-    <tr data-id="${r.id}">
-      <td>${esc(r.patientName)}</td>
-      <td>${esc(r.dni)}</td>
-      <td>${esc(r.eye)}</td>
-      <td>${esc(r.lens)}</td>
-      <td>${esc(r.status)}</td>
-      <td>${esc(r.surgeryDate || '-')}</td>
-      <td>${esc(r.authorization || '-')}</td>
-      <td>${role === 'readonly' ? '-' : `<button class="edit-btn" data-id="${r.id}">Editar</button>`}</td>
-    </tr>`).join('');
+export function toggleBlock(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('hidden', !show);
 }
 
-export function renderAlerts(alerts) {
-  document.getElementById('alerts').innerHTML = alerts.map((a) => `<div class="alert">${esc(a)}</div>`).join('') || '<div class="alert">Sin alertas críticas.</div>';
+export function setSessionBadge(profile) {
+  const role = esc(profile?.role || 'readonly');
+  const username = esc(profile?.username || 'sin-usuario');
+  const displayName = esc(profile?.displayName || 'Sin nombre');
+  document.getElementById('session-badge').innerHTML = `${displayName} | usuario: ${username} | rol: ${role}`;
 }
 
-export function fillForm(record) {
+export function renderAlerts(alerts = []) {
+  const wrap = document.getElementById('alerts-wrap');
+  if (!alerts.length) {
+    wrap.innerHTML = '<div class="alert-item">Sin alertas administrativas críticas.</div>';
+    return;
+  }
+  wrap.innerHTML = alerts.map((a) => `<div class="alert-item">${esc(a)}</div>`).join('');
+}
+
+export function renderRows(rows = [], role = 'readonly') {
+  const tbody = document.getElementById('records-tbody');
+  const canEdit = role === 'admin' || role === 'operador';
+  const canDelete = role === 'admin';
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9">Sin registros para mostrar.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map((row) => {
+    const editButton = canEdit ? `<button type="button" class="edit-btn" data-id="${esc(row.id)}">Editar</button>` : '';
+    const deleteButton = canDelete ? `<button type="button" class="delete-btn btn-secondary" data-id="${esc(row.id)}">Eliminar</button>` : '';
+    const actions = editButton || deleteButton ? `<div class="row-actions">${editButton}${deleteButton}</div>` : '-';
+
+    return `
+      <tr>
+        <td>${esc(row.patientName)}</td>
+        <td>${esc(row.dni)}</td>
+        <td>${esc(row.eye)}</td>
+        <td>${esc(row.lens)}</td>
+        <td>${esc(row.status)}</td>
+        <td>${esc(row.fechaCirugia || '-')}</td>
+        <td>${esc(row.autorizacion || '-')}</td>
+        <td>${esc(row.administrativo || '-')}</td>
+        <td>${actions}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+export function setPagination(page, hasPrev, hasNext) {
+  document.getElementById('page-indicator').textContent = `Página ${page}`;
+  document.getElementById('prev-btn').disabled = !hasPrev;
+  document.getElementById('next-btn').disabled = !hasNext;
+}
+
+export function openEditor(record = null) {
+  toggleBlock('editor-section', true);
+  document.getElementById('editor-title').textContent = record ? 'Editar registro' : 'Nuevo registro';
   document.getElementById('record-id').value = record?.id || '';
-  document.getElementById('f-patient').value = record?.patientName || '';
+  document.getElementById('f-patientName').value = record?.patientName || '';
   document.getElementById('f-dni').value = record?.dni || '';
   document.getElementById('f-eye').value = record?.eye || 'OD';
   document.getElementById('f-lens').value = record?.lens || '';
-  document.getElementById('f-preop').value = record?.preop || '';
+  document.getElementById('f-prequirurgico').value = record?.prequirurgico || '';
   document.getElementById('f-status').value = record?.status || 'pendiente';
-  document.getElementById('f-surgery-date').value = record?.surgeryDate || '';
-  document.getElementById('f-authorization').value = record?.authorization || 'pendiente';
-  document.getElementById('f-owner').value = record?.owner || '';
-  document.getElementById('f-notes').value = record?.notes || '';
+  document.getElementById('f-fechaCirugia').value = record?.fechaCirugia || '';
+  document.getElementById('f-autorizacion').value = record?.autorizacion || 'pendiente';
+  document.getElementById('f-administrativo').value = record?.administrativo || '';
+  document.getElementById('f-notas').value = record?.notas || '';
 }
 
-export function readForm() {
+export function closeEditor() {
+  toggleBlock('editor-section', false);
+}
+
+export function readRecordForm() {
   return {
-    patientName: document.getElementById('f-patient').value.trim(),
+    patientName: document.getElementById('f-patientName').value.trim(),
     dni: document.getElementById('f-dni').value.trim(),
     eye: document.getElementById('f-eye').value,
     lens: document.getElementById('f-lens').value.trim(),
-    preop: document.getElementById('f-preop').value.trim(),
+    prequirurgico: document.getElementById('f-prequirurgico').value.trim(),
     status: document.getElementById('f-status').value,
-    surgeryDate: document.getElementById('f-surgery-date').value,
-    authorization: document.getElementById('f-authorization').value,
-    owner: document.getElementById('f-owner').value.trim(),
-    notes: document.getElementById('f-notes').value.trim()
+    fechaCirugia: document.getElementById('f-fechaCirugia').value,
+    autorizacion: document.getElementById('f-autorizacion').value,
+    administrativo: document.getElementById('f-administrativo').value.trim(),
+    notas: document.getElementById('f-notas').value.trim()
   };
-}
-
-export function showEditor(show, title = 'Nuevo registro') {
-  document.getElementById('editor').classList.toggle('hidden', !show);
-  document.getElementById('editor-title').textContent = title;
-}
-
-export function setPageIndicator(page, hasMore) {
-  document.getElementById('page-indicator').textContent = `Página ${page}`;
-  document.getElementById('next-page').disabled = !hasMore;
 }

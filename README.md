@@ -1,10 +1,13 @@
-# Control de Cirugías - Centro de Ojos Esteves
+# CONTROL DE CIRUGÍAS
 
-Aplicación SPA modular en HTML/CSS/JavaScript vanilla con Firebase Authentication + Firestore.
+Aplicación administrativa web para Centro de Ojos Esteves.
 
-## Estructura
-- `index.html`
-- `css/styles.css`
-- `js/*.js`
-- `firestore.rules`
-- `README_*.md`
+- Frontend: HTML + CSS + JavaScript vanilla (SPA modular)
+- Backend: Firebase Authentication + Firestore
+- Deploy: GitHub Pages
+
+Documentación operativa:
+- `README_INSTALACION.md`
+- `README_FIREBASE.md`
+- `README_DEPLOY_GITHUB.md`
+- `README_USO.md`

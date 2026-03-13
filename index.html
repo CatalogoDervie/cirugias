@@ -1,91 +1,190 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-store, max-age=0">
-  <title>Control de Cirugías - Centro de Ojos Esteves</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <title>CONTROL DE CIRUGÍAS | Centro de Ojos Esteves</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <div id="app">
-    <section id="login-view" class="card">
-      <h1>Control de Cirugías</h1>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>CONTROL DE CIRUGÍAS</h1>
       <p>Centro de Ojos Esteves</p>
-      <form id="login-form" autocomplete="on">
-        <label>Email<input id="email" type="email" required></label>
-        <label>Contraseña<input id="password" type="password" required minlength="6"></label>
-        <button type="submit">Ingresar</button>
+    </header>
+
+    <section id="firebase-fallback" class="panel panel-danger hidden" role="alert">
+      <h2>Conexión no disponible</h2>
+      <p id="firebase-fallback-text">No se pudo inicializar Firebase. Revisá configuración y conexión.</p>
+    </section>
+
+    <section id="login-view" class="panel auth-panel">
+      <h2>Ingreso del personal</h2>
+      <form id="login-form" novalidate>
+        <label for="login-username">Usuario</label>
+        <input id="login-username" name="username" type="text" autocomplete="username" required maxlength="40" />
+
+        <label for="login-password">Contraseña</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="6" />
+
+        <button id="login-btn" type="submit">Ingresar</button>
       </form>
-      <p id="login-error" class="error" aria-live="polite"></p>
+      <p id="login-message" class="message" aria-live="polite"></p>
+    </section>
+
+    <section id="password-change-view" class="panel auth-panel hidden">
+      <h2>Cambio obligatorio de contraseña</h2>
+      <p>Tu contraseña inicial es temporal. Debés crear una nueva para continuar.</p>
+      <form id="password-change-form" novalidate>
+        <label for="new-password">Nueva contraseña</label>
+        <input id="new-password" type="password" minlength="10" required />
+
+        <label for="confirm-password">Confirmar nueva contraseña</label>
+        <input id="confirm-password" type="password" minlength="10" required />
+
+        <button type="submit">Guardar nueva contraseña</button>
+      </form>
+      <p id="password-change-message" class="message" aria-live="polite"></p>
     </section>
 
     <main id="main-view" class="hidden">
-      <header class="toolbar card">
+      <section class="panel toolbar-panel">
         <div>
           <h2>Panel administrativo</h2>
-          <p id="user-badge"></p>
+          <p id="session-badge"></p>
         </div>
-        <button id="logout-btn">Cerrar sesión</button>
-      </header>
+        <div class="toolbar-actions">
+          <button id="copy-backup-btn" type="button">Copiar backup (texto)</button>
+          <button id="logout-btn" type="button" class="btn-secondary">Cerrar sesión</button>
+        </div>
+      </section>
 
-      <section class="card">
-        <div class="grid-controls">
-          <input id="search-input" type="search" placeholder="Buscar por paciente, DNI o lente...">
-          <select id="filter-status">
+      <section class="panel">
+        <h3>Pacientes y cirugías</h3>
+        <div class="controls-grid">
+          <input id="search-input" type="search" placeholder="Buscar por paciente, DNI, lente o administrativo" />
+          <select id="status-filter">
             <option value="">Todos los estados</option>
-            <option>pendiente</option>
-            <option>autorizado</option>
-            <option>programado</option>
-            <option>realizado</option>
-            <option>cancelado</option>
+            <option value="pendiente">pendiente</option>
+            <option value="autorizado">autorizado</option>
+            <option value="programado">programado</option>
+            <option value="realizado">realizado</option>
+            <option value="cancelado">cancelado</option>
           </select>
-          <select id="filter-eye">
-            <option value="">Ambos ojos</option>
+          <select id="eye-filter">
+            <option value="">Todos los ojos</option>
             <option value="OD">OD</option>
             <option value="OI">OI</option>
           </select>
-          <button id="new-record-btn">Nuevo registro</button>
+          <button id="new-record-btn" type="button">Nuevo registro</button>
         </div>
-        <div id="alerts" class="alerts"></div>
+
+        <div id="alerts-wrap" class="alerts-wrap"></div>
+        <p id="main-message" class="message" aria-live="polite"></p>
+
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Paciente</th><th>DNI</th><th>Ojo</th><th>Lente</th><th>Estado</th><th>Fecha cirugía</th><th>Autorización</th><th>Acciones</th>
+                <th>Paciente</th>
+                <th>DNI</th>
+                <th>Ojo</th>
+                <th>Lente</th>
+                <th>Estado</th>
+                <th>Fecha cirugía</th>
+                <th>Autorización</th>
+                <th>Administrativo</th>
+                <th>Acciones</th>
               </tr>
             </thead>
-            <tbody id="records-body"></tbody>
+            <tbody id="records-tbody"></tbody>
           </table>
         </div>
-        <div class="pagination">
-          <button id="prev-page">Anterior</button>
+
+        <div class="pagination-row">
+          <button id="prev-btn" type="button" class="btn-secondary">Anterior</button>
           <span id="page-indicator">Página 1</span>
-          <button id="next-page">Siguiente</button>
+          <button id="next-btn" type="button" class="btn-secondary">Siguiente</button>
         </div>
       </section>
 
-      <section id="editor" class="card hidden">
+      <section id="editor-section" class="panel hidden">
         <h3 id="editor-title">Nuevo registro</h3>
-        <form id="record-form">
-          <input type="hidden" id="record-id">
+        <form id="record-form" novalidate>
+          <input id="record-id" type="hidden" />
           <div class="form-grid">
-            <label>Paciente<input id="f-patient" required></label>
-            <label>DNI<input id="f-dni" required></label>
-            <label>Ojo<select id="f-eye" required><option value="OD">OD</option><option value="OI">OI</option></select></label>
-            <label>Lente intraocular<input id="f-lens" required></label>
-            <label>Prequirúrgico<input id="f-preop"></label>
-            <label>Estado<select id="f-status" required><option>pendiente</option><option>autorizado</option><option>programado</option><option>realizado</option><option>cancelado</option></select></label>
-            <label>Fecha cirugía<input id="f-surgery-date" type="date"></label>
-            <label>Autorización<select id="f-authorization"><option value="pendiente">pendiente</option><option value="ok">ok</option><option value="rechazada">rechazada</option></select></label>
-            <label>Administrativo a cargo<input id="f-owner"></label>
-            <label class="full">Notas<textarea id="f-notes" rows="3"></textarea></label>
+            <label>Paciente<input id="f-patientName" required /></label>
+            <label>DNI<input id="f-dni" required /></label>
+            <label>Ojo
+              <select id="f-eye" required>
+                <option value="OD">OD</option>
+                <option value="OI">OI</option>
+              </select>
+            </label>
+            <label>Lente intraocular<input id="f-lens" required /></label>
+            <label>Prequirúrgico<input id="f-prequirurgico" /></label>
+            <label>Estado
+              <select id="f-status" required>
+                <option value="pendiente">pendiente</option>
+                <option value="autorizado">autorizado</option>
+                <option value="programado">programado</option>
+                <option value="realizado">realizado</option>
+                <option value="cancelado">cancelado</option>
+              </select>
+            </label>
+            <label>Fecha cirugía<input id="f-fechaCirugia" type="date" /></label>
+            <label>Autorización
+              <select id="f-autorizacion" required>
+                <option value="pendiente">pendiente</option>
+                <option value="ok">ok</option>
+                <option value="rechazada">rechazada</option>
+              </select>
+            </label>
+            <label>Administrativo<input id="f-administrativo" /></label>
+            <label class="full">Notas<textarea id="f-notas" rows="3"></textarea></label>
           </div>
-          <div class="actions">
-            <button type="submit" id="save-btn">Guardar</button>
-            <button type="button" id="cancel-btn">Cancelar</button>
+          <div class="form-actions">
+            <button id="save-btn" type="submit">Guardar</button>
+            <button id="cancel-edit-btn" type="button" class="btn-secondary">Cancelar</button>
           </div>
         </form>
+      </section>
+
+      <section id="user-admin-section" class="panel hidden">
+        <h3>Usuarios internos (solo admin)</h3>
+        <p>Alta de Authentication en Firebase Console (manual) y administración de perfil interno desde aquí.</p>
+        <form id="user-form" novalidate>
+          <div class="form-grid">
+            <label>UID Authentication<input id="u-uid" required /></label>
+            <label>Usuario interno<input id="u-username" required /></label>
+            <label>Nombre visible<input id="u-displayName" required /></label>
+            <label>Rol
+              <select id="u-role">
+                <option value="admin">admin</option>
+                <option value="operador">operador</option>
+                <option value="readonly">readonly</option>
+              </select>
+            </label>
+            <label>Email técnico Authentication<input id="u-authEmail" type="email" required /></label>
+            <label>Activo
+              <select id="u-active">
+                <option value="true">true</option>
+                <option value="false">false</option>
+              </select>
+            </label>
+            <label>Cambio obligatorio contraseña
+              <select id="u-mustChangePassword">
+                <option value="true">true</option>
+                <option value="false">false</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Guardar perfil de usuario</button>
+          </div>
+        </form>
+        <p id="user-message" class="message" aria-live="polite"></p>
       </section>
     </main>
   </div>

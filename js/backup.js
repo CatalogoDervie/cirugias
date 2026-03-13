@@ -1,9 +1,16 @@
-export function toBackupText(records) {
-  return JSON.stringify({ exportedAt: new Date().toISOString(), records }, null, 2);
+export function buildBackupText(rows = []) {
+  return JSON.stringify(
+    {
+      exportedAt: new Date().toISOString(),
+      rows
+    },
+    null,
+    2
+  );
 }
 
-export async function copyBackupToClipboard(records) {
-  const text = toBackupText(records);
+export async function copyBackupText(rows = []) {
+  const text = buildBackupText(rows);
   await navigator.clipboard.writeText(text);
-  return text.length;
+  return text;
 }
