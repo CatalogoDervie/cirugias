@@ -79,6 +79,26 @@ service cloud.firestore {
 4. **Alertas mejoradas** → falta autorización, cirugía próxima sin lente, segundo ojo
 5. **Panel de alertas independiente** → tab dedicado con tabla completa
 
+## Criterio de mantenimiento (obligatorio)
+
+Para cualquier refactor o reordenamiento futuro, se mantiene este criterio de trabajo:
+
+- **No se permite reducción funcional del sistema.**
+- Si se mejora estructura o legibilidad, debe conservarse todo lo operativo existente:
+  - tabs, botones, paneles, módulos y vistas,
+  - automatizaciones y tracking,
+  - integración de WhatsApp,
+  - Kanban y Calendario,
+  - alertas,
+  - recetas PAMI,
+  - Lentess,
+  - import/export JSON,
+  - caché local,
+  - conectores.
+
+En caso de conflicto entre “limpieza de código” y “cobertura funcional”, se prioriza
+siempre conservar la funcionalidad completa.
+
 ## Plan gratuito Firebase (Spark)
 
 - 50.000 lecturas / día
